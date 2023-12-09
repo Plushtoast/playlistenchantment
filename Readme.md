@@ -7,7 +7,7 @@ This is a module for Foundry VTT.
 Use the module manifest url or the foundry package installer.
 
 ```html
-https://raw.githubusercontent.com/Plushtoast/playlistenchantment/main/module.json'
+https://raw.githubusercontent.com/Plushtoast/playlistenchantment/main/module.json
 ```
 
 ## Features
