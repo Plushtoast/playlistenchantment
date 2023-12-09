@@ -20,6 +20,10 @@ https://raw.githubusercontent.com/Plushtoast/playlistenchantment/main/module.jso
 * Drag playlists to the hotbar to create a play playlist macro. The macro will stop all other playlists and crossfade to the selected playlist. Moreover it'll show some quick buttons to handle playlists better
 * Sounds have an option in their context menu for the gamemaster to be played without the players hearing the sound.
 
+![grafik](https://github.com/Plushtoast/playlistenchantment/assets/44941845/a64a4f61-267b-42d0-9842-33e10a984ea0)
+![grafik](https://github.com/Plushtoast/playlistenchantment/assets/44941845/c3bbc9c4-caa3-406a-a9ff-1c7d4343556d)
+
+
 ## Future
 
 * Drag and drop sound folders to run random playlists
