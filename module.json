@@ -3,8 +3,8 @@
     "description": "Some minor tweaks to enhance the playlist experience. Drag playlists to the hotbar and enjoy some additional playlist controls. Read more on the github project page.",
     "version": "1.0.0",
     "url": "https://github.com/Plushtoast/playlistenchantment",
-    "manifest": "https://raw.githubusercontent.com/Plushtoast/playlistenchantment/master/module.json",
-    "download": "https://github.com/Plushtoast/playlistenchantment/archive/master.zip",
+    "manifest": "https://raw.githubusercontent.com/Plushtoast/playlistenchantment/main/module.json",
+    "download": "https://github.com/Plushtoast/playlistenchantment/releases/download/1.0.0/playlistenchantment-1.0.0.zip",
     "languages": [{
             "lang": "de",
             "name": "Deutsch",
@@ -24,7 +24,7 @@
     ],
     "id": "playlistenchantment",
     "authors": [{
-        "name": "Plushtoast"
+        "name": "Huepfklotz"
     }],
     "compatibility": {
         "minimum": "11",
