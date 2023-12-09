@@ -1,0 +1,61 @@
+$playingColor: rgba(30, 143, 255, 0.35);
+
+#playlists {
+    #currently-playing {
+        .playing {
+            background-color: $playingColor;
+            border-radius: 5px;
+        }
+    }
+    .sound.playing {
+        background-color: $playingColor;
+        border-radius: 5px;
+    }
+
+    .enchantmentcontrol{
+        flex: none;
+        margin-right: 10px;
+        font-size: 18px;
+    }
+    .sound.flexrow:hover {
+        background-color: rgba(0,0,0, 0.2);
+    }
+}
+
+.enchantmentplaylisttooltip {
+    display: none;
+    position: fixed;
+    width: 250px;
+    color: white;
+    background: rgba(0,0,0, 0.3);
+
+    .macroName{
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: black;
+        padding: 2px;
+        padding-bottom: 8px;
+        height: 26px;
+    }
+
+    h4 {margin:0}
+
+    .configuration{
+        display: flex;
+        flex-direction: row;
+        
+        background-color: rgba(0,0,0, 0.4);
+        padding: 4px;
+
+        h4 {
+            flex: 1;
+        }
+        a{
+            flex: 0;
+            font-size: 20px;
+            margin-right: 8px;
+        }
+    }
+}

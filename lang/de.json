@@ -1,0 +1,19 @@
+{
+    "PLAYLISTENCHANTMENT": {
+        "Normalize": "Normalisiere die Lautstärke und starte alle Playlist (außer Soundboards) Tracks mit dieser Lautstärke.",
+        "VolNormalize": "Normalisierung",
+        "Fade": "Fade immer zwischen Tracks (außer Soundboards). Wenn ein neuer Track gestartet wird, werden alle anderen beendet.",
+        "VolFade": "Fade",
+        "FadeTooltip": "Fade Dauer {value} ms",
+        "Prehear": "Sound Preview",
+        "soundPreview": "Sound Preview, nur du kannst den abgespielten Sound hören.",
+
+        "CONTROL": {
+            "play": "Alle aktive Playlist Tracks starten (außer Soundboards)",
+            "stop": "Alle aktive Playlist Tracks stoppen",
+            "resume": "Alle aktive Playlist Tracks fortsetzen (außer Soundboards)",
+            "next": "Alle aktive Playlist Tracks zum nächsten Track springen (außer Soundboards)",
+            "previous": "Alle aktive Playlist Tracks zum vorherigen Track springen (außer Soundboards)"
+        }
+    }
+}
