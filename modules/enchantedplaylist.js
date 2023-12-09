@@ -93,7 +93,11 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         } else if(thing instanceof PlaylistSound) {
             sound = thing
             playlist = sound.parent
-        } else {
+        } else if(thing instanceof Folder) {
+            const playlists = thing.contents
+            playlist = playlists[Math.floor(Math.random() * playlists.length)]
+        }
+        else {
             return
         }
         

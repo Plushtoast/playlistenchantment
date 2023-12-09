@@ -1,2 +1,5 @@
 package.json
 notes.md
+build.js
+node_modules
+package-lock.json

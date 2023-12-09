@@ -3,6 +3,13 @@ export function setupHooks() {
         if(["PlaylistSound", "Playlist"].includes(data.type)) {
             buildPlaylistMacro(data.uuid, slot)
             return false
+        } else if(data.type == "Folder") {
+            const folder = fromUuidSync(data.uuid)
+
+            if(folder.type == "Playlist") {
+                buildPlaylistMacro(data.uuid, slot)
+                return false
+            }                
         }
     })
 
@@ -20,6 +27,7 @@ export function setupHooks() {
         const activemacros = html.find('.macro.active')
         activemacros.mouseenter(ev => onHoverMacros(ev))
         activemacros.mouseleave(ev => onUnhoverMacros(ev))
+        activemacros.mousedown(ev => onUnhoverMacros(ev))
     })
 
     Hooks.on('preUpdatePlaylist' , (playlist, data, options, userId) => {
