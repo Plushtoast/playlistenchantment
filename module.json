@@ -1,10 +1,10 @@
 {
     "title": "Playlist Enchantment",
     "description": "Some minor tweaks to enhance the playlist experience. Drag playlists to the hotbar and enjoy some additional playlist controls. Read more on the github project page.",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "url": "https://github.com/Plushtoast/playlistenchantment",
     "manifest": "https://raw.githubusercontent.com/Plushtoast/playlistenchantment/main/module.json",
-    "download": "https://github.com/Plushtoast/playlistenchantment/releases/download/1.0.1/playlistenchantment-1.0.1.zip",
+    "download": "https://github.com/Plushtoast/playlistenchantment/releases/download/1.1.0/playlistenchantment-1.1.0.zip",
     "languages": [{
             "lang": "de",
             "name": "Deutsch",
@@ -27,12 +27,10 @@
         "name": "Huepfklotz"
     }],
     "compatibility": {
-        "minimum": "11",
-        "verified": "11",
-        "maximum": "11"
+        "minimum": "12",
+        "verified": "12",
+        "maximum": "12"
     },
-    "name": "playlistenchantment",
-    "minimumCoreVersion": "11",
     "flags": {
         "hotReload": {
             "extensions": [

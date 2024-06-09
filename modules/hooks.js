@@ -1,3 +1,5 @@
+const { mergeObject, getProperty } = foundry.utils
+
 export function setupHooks() {
     Hooks.on("hotbarDrop", (bar, data, slot) => {
         if(["PlaylistSound", "Playlist"].includes(data.type)) {
@@ -31,7 +33,7 @@ export function setupHooks() {
     })
 
     Hooks.on('preUpdatePlaylist' , (playlist, data, options, userId) => {
-        if(playlist.playing && playlist.mode >= 0 && 'sounds' in data) {
+        if(playlist.mode >= 0 && 'sounds' in data) {
             const update = {}
             const settings = game.settings.get("playlistenchantment", "settings")
             if(settings.alwaysFade) {
@@ -80,7 +82,7 @@ async function preHearSound(i) {
     const volume = settings.normalize ? settings.normalizeModifier : sound.volume || 0.5
 
     ui.notifications.info(`Fetching & Playing ${sound.name}`)
-    AudioHelper.play({ src: sound.sound.src, volume, loop: false }, false).then((soundSource) => {
+    foundry.audio.AudioHelper.play({ src: sound.path, volume, loop: false }, false).then((soundSource) => {
         (new SoundPreview(soundSource, sound)).render(true)
     });
 }
@@ -96,10 +98,10 @@ class SoundPreview extends Application {
         super()
         this.sound = sound
         this.source = source
-        this.sound.on("stop", () => {
+        this.sound.addEventListener("stop", () => {
             this.close()
         });
-        this.sound.on("end", () => {
+        this.sound.addEventListener("end", () => {
             this.close()
         });
     }
@@ -112,7 +114,7 @@ class SoundPreview extends Application {
     }
 
     activateListeners(html) {
-        html.find('.stopSound').click(ev => this.close())
+        html.find('.stopSound').click(() => this.close())
     }
 
     async close(options) {
@@ -127,11 +129,23 @@ async function showHotbarSoundMenu(ev) {
     
     const rect = ev.currentTarget.getBoundingClientRect()
     const name = ev.currentTarget.dataset.tooltip
+
+    const playingSounds = foundry.utils.duplicate(ui.playlists._playingSoundsData)
+
+    for(let s of playingSounds) {
+        const sound = ui.playlists._playingSounds.find(ps => ps._id == s._id)
+        s.pauseIcon = ui.playlists._getPauseIcon(sound);
+        s.lvolume = foundry.audio.AudioHelper.volumeToInput(s.volume);
+        s.volumeTooltip = ui.playlists.constructor.volumeToTooltip(s.volume);
+        s.currentTime = ui.playlists._formatTimestamp(sound.playing ? sound.sound.currentTime : s.pausedTime);
+        s.durationTime = ui.playlists._formatTimestamp(sound.sound.duration);
+    }
+
     const data =  { 
         macroId: ev.currentTarget.dataset.macroId,  
         name, 
         isGM: game.user.isGM,
-        playingSounds: ui.playlists._playingSoundsData,
+        playingSounds: playingSounds,
         showPlaying: ui.playlists._playingSoundsData.length > 0
     }
     
@@ -142,7 +156,7 @@ async function showHotbarSoundMenu(ev) {
     $('body').append(template)
 
     const tt = $(`.enchantmentplaylisttooltip[data-macro-id="${ev.currentTarget.dataset.macroId}"]`)
-    tt.mouseleave(ev => onUnhoverMacros(ev))
+    tt.on("mouseleave", ev => onUnhoverMacros(ev))
     tt.css({
         left: rect.x - 125 + rect.width / 2,
         top: rect.y - tt.height(),

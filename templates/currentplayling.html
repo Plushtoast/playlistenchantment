@@ -22,34 +22,29 @@
         <li class="sound flexrow {{sound.css}}" data-playlist-id="{{sound.playlistId}}" data-sound-id="{{sound._id}}">
             <h4 class="sound-name">{{sound.name}}</h4>
             <div class="sound-controls flexrow">
-                {{#if isGM}}
-                    <a class="sound-control {{#unless sound.repeat}}inactive{{/unless}} {{sound.controlCSS}}"
-                       data-action="sound-repeat" data-tooltip="{{localize 'PLAYLIST.SoundLoop'}}">
-                        <i class="fas fa-sync"></i>
-                    </a>
+                {{#if sound.isOwner}}
+                <a class="sound-control fa-solid fa-sync {{#unless sound.repeat}}inactive{{/unless}} {{sound.controlCSS}}"
+                data-action="sound-repeat" data-tooltip="PLAYLIST.SoundLoop"></a>
                 {{/if}}
-    
                 {{#if sound.playing}}
-                    <a class="sound-control {{sound.controlCSS}}" data-action="sound-stop" data-tooltip="{{localize 'PLAYLIST.SoundStop'}}">
-                        <i class="{{sound.playIcon}}"></i>
-                    </a>
+                <a class="sound-control {{sound.playIcon}} {{sound.controlCSS}}" data-action="sound-stop"
+                data-tooltip="PLAYLIST.SoundStop"></a>
                 {{else}}
-                    <a class="sound-control {{sound.controlCSS}}" data-action="sound-play" data-tooltip="{{localize sound.playTitle}}">
-                        <i class="{{sound.playIcon}}"></i>
-                    </a>
+                <a class="sound-control {{sound.playIcon}} {{sound.controlCSS}}" data-action="sound-play"
+                data-tooltip="{{sound.playTitle}}"></a>
                 {{/if}}
             </div>
             <div class="sound-playback flexrow">
-                <!--div class="sound-timer">
+                <div class="sound-timer">
                     <span class="current">{{sound.currentTime}}</span>
                     <span class="sep">/</span>
                     <span class="duration">{{sound.durationTime}}</span>
-                </div-->
+                </div>
                 <i class="volume-icon fas fa-volume-down"></i>
                 <input class="sound-volume" type="range"
-                        value="{{sound.lvolume}}" min="0" max="1" step="0.05" data-tooltip="{{sound.volumeTooltip}}"/>
-                <a class="sound-control pause {{sound.controlCSS}} {{#if sound.isPaused}}disabled{{/if}}" data-action="sound-pause" data-tooltip="{{localize 'PLAYLIST.SoundPause'}}">
-                    <i class="{{sound.pauseIcon}}"></i>
+                    value="{{sound.lvolume}}" min="0" max="1" step="0.05" data-tooltip="{{sound.volumeTooltip}}">
+                <a class="sound-control pause {{sound.pauseIcon}} {{sound.controlCSS}} {{#if sound.isPaused}}disabled{{/if}}"
+                data-action="sound-pause" data-tooltip="PLAYLIST.SoundPause"></a>
                 </a>
             </div>
             

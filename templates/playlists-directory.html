@@ -2,44 +2,38 @@
     <li class="sound flexrow {{sound.css}}" data-playlist-id="{{sound.playlistId}}" data-sound-id="{{sound._id}}">
         <h4 class="sound-name">{{sound.name}}</h4>
         <div class="sound-controls flexrow">
-            {{#if @root.user.isGM}}
-                <a class="sound-control {{#unless sound.repeat}}inactive{{/unless}} {{sound.controlCSS}}"
-                   data-action="sound-repeat" data-tooltip="{{localize 'PLAYLIST.SoundLoop'}}">
-                    <i class="fas fa-sync"></i>
-                </a>
+            {{#if sound.isOwner}}
+            <a class="sound-control fa-solid fa-sync {{#unless sound.repeat}}inactive{{/unless}} {{sound.controlCSS}}"
+            data-action="sound-repeat" data-tooltip="PLAYLIST.SoundLoop"></a>
             {{/if}}
-
             {{#if sound.playing}}
-                <a class="sound-control {{sound.controlCSS}}" data-action="sound-stop" data-tooltip="{{localize 'PLAYLIST.SoundStop'}}">
-                    <i class="{{sound.playIcon}}"></i>
-                </a>
+            <a class="sound-control {{sound.playIcon}} {{sound.controlCSS}}" data-action="sound-stop"
+            data-tooltip="PLAYLIST.SoundStop"></a>
             {{else}}
-                <a class="sound-control {{sound.controlCSS}}" data-action="sound-play" data-tooltip="{{localize sound.playTitle}}">
-                    <i class="{{sound.playIcon}}"></i>
-                </a>
+            <a class="sound-control {{sound.playIcon}} {{sound.controlCSS}}" data-action="sound-play"
+            data-tooltip="{{sound.playTitle}}"></a>
             {{/if}}
         </div>
 
         {{#if playback}}
-            <div class="sound-playback flexrow">
-                <div class="sound-timer">
-                    <span class="current">{{sound.currentTime}}</span>
-                    <span class="sep">/</span>
-                    <span class="duration">{{sound.durationTime}}</span>
-                </div>
-                <i class="volume-icon fas fa-volume-down"></i>
-                <input class="sound-volume" type="range"
-                       value="{{sound.lvolume}}" min="0" max="1" step="0.05" data-tooltip="{{sound.volumeTooltip}}"/>
-                <a class="sound-control pause {{sound.controlCSS}} {{#if sound.isPaused}}disabled{{/if}}" data-action="sound-pause" data-tooltip="{{localize 'PLAYLIST.SoundPause'}}">
-                    <i class="{{sound.pauseIcon}}"></i>
-                </a>
+        <div class="sound-playback flexrow">
+            <div class="sound-timer">
+                <span class="current">{{sound.currentTime}}</span>
+                <span class="sep">/</span>
+                <span class="duration">{{sound.durationTime}}</span>
             </div>
+            <i class="volume-icon fas fa-volume-down"></i>
+            <input class="sound-volume" type="range"
+                   value="{{sound.lvolume}}" min="0" max="1" step="0.05" data-tooltip="{{sound.volumeTooltip}}">
+            <a class="sound-control pause {{sound.pauseIcon}} {{sound.controlCSS}} {{#if sound.isPaused}}disabled{{/if}}"
+               data-action="sound-pause" data-tooltip="PLAYLIST.SoundPause"></a>
+        </div>
         {{/if}}
     </li>
 {{/inline}}
 
 {{#*inline "playingPartial"}}
-
+{{#if showPlaying}}
     <div id="currently-playing" class="global-control flexrow {{currentlyPlaying.class}}">
         <header class="playlist-header flexrow">
             <h4>{{localize "PLAYLIST.CurrentlyPlaying"}}</h4>
@@ -57,22 +51,16 @@
                 <i class="fas fa-forward"></i>
             </a>
             {{/if}}
-            <a class="pin" data-tooltip="{{localize currentlyPlaying.pin.label}}">
-                <i class="fas fa-caret-{{currentlyPlaying.pin.caret}}"></i>
-            </a>
+            <a class="pin fa-solid fa-caret-{{currentlyPlaying.pin.caret}}"
+           data-tooltip="{{localize currentlyPlaying.pin.label}}"></a>
         </header>
         <ol class="playlist-sounds">
-            {{#if showPlaying}}
             {{#each playingSounds as |sound|}}
                 {{> soundPartial sound=sound playback=true}}
             {{/each}}
-            {{else}}
-            <li>
-                -
-            </li>
-            {{/if}}
         </ol>
     </div>
+{{/if}}
 {{/inline}}
 
 <section class="{{cssClass}} directory flexcol" id="{{cssId}}" data-tab="{{tabName}}">
@@ -89,7 +77,7 @@
         </div>
         <div class="header-search flexrow">
             <a class="header-control toggle-search-mode" aria-label="{{localize searchTooltip}}" role="button" data-tooltip="{{localize searchTooltip}}"><i class="fas {{searchIcon}}"></i></a>
-            <input type="search" name="search" value="" placeholder="{{localize 'SIDEBAR.Search' types=labelPlural }}" autocomplete="off"/>
+            <input type="search" name="search" value="" placeholder="{{localize 'SIDEBAR.Search' types=labelPlural }}" autocomplete="off">
             <a class="header-control toggle-sort" aria-label="{{localize sortTooltip}}" role="button" data-tooltip="{{localize sortTooltip}}"><i class="fa-solid {{sortIcon}}"></i></a>
             <a class="header-control collapse-all" aria-label="{{localize 'FOLDER.Collapse'}}" role="button" data-tooltip="FOLDER.Collapse"><i class="fa-duotone fa-folder-tree"></i></a>
         </div>
@@ -97,23 +85,29 @@
 
     <div id="global-volume" class="global-control flexrow {{#unless volumeExpanded}}collapsed{{/unless}}">
         <header class="playlist-header flexrow">
-            <h4>{{localize "PLAYLIST.GlobalVolume"}} <i class="collapse fa fa-angle-{{#if volumeExpanded}}down{{else}}up{{/if}}"></i></h4>
+            <h4>{{localize "PLAYLIST.VOLUME.CONTROLS"}} <i class="collapse fa fa-angle-{{#if volumeExpanded}}down{{else}}up{{/if}}"></i></h4>
         </header>
         <ol class="playlist-sounds">
-            <li class="sound flexrow" data-tooltip="{{localize 'PLAYLIST.PlaylistVolumeTooltip'}}">
-                <h4>{{localize "PLAYLIST.VolPlaylist"}}</h4>
+            <li class="sound flexrow" data-tooltip="AUDIO.CHANNELS.MUSIC.tooltip">
+                <h4>{{localize "AUDIO.CHANNELS.MUSIC.label"}}</h4>
                 <i class="volume-icon fas fa-volume-down"></i>
-                <input aria-label="{{localize 'PLAYLIST.VolPlaylist'}}" class="global-volume-slider" name="globalPlaylistVolume" type="range" min="0" max="1" step="0.05" value="{{playlistModifier}}" data-tooltip="{{playlistTooltip}}"/>
+                <input class="global-volume-slider" name="globalPlaylistVolume" type="range"
+                       value="{{playlistModifier}}" min="0" max="1" step="0.05" data-tooltip="{{playlistTooltip}}"
+                       aria-label="{{localize 'AUDIO.CHANNELS.MUSIC.label'}}">
             </li>
-            <li class="sound flexrow" data-tooltip="{{localize 'PLAYLIST.AmbientVolumeTooltip'}}">
-                <h4>{{localize "PLAYLIST.VolAmbient"}}</h4>
+            <li class="sound flexrow" data-tooltip="AUDIO.CHANNELS.ENVIRONMENT.tooltip">
+                <h4>{{localize "AUDIO.CHANNELS.ENVIRONMENT.label"}}</h4>
                 <i class="volume-icon fas fa-volume-down"></i>
-                <input aria-label="{{localize 'PLAYLIST.VolAmbient'}}" class="global-volume-slider" name="globalAmbientVolume" type="range" min="0" max="1" step="0.05" value="{{ambientModifier}}" data-tooltip="{{ambientTooltip}}"/>
+                <input class="global-volume-slider" name="globalAmbientVolume" type="range" value="{{ambientModifier}}"
+                       min="0" max="1" step="0.05" data-tooltip="{{ambientTooltip}}"
+                       aria-label="{{localize 'AUDIO.CHANNELS.ENVIRONMENT.label'}}">
             </li>
-            <li class="sound flexrow" data-tooltip="{{localize 'PLAYLIST.InterfaceVolumeTooltip'}}">
-                <h4>{{localize "PLAYLIST.VolInterface"}}</h4>
+            <li class="sound flexrow" data-tooltip="AUDIO.CHANNELS.INTERFACE.tooltip">
+                <h4>{{localize "AUDIO.CHANNELS.INTERFACE.label"}}</h4>
                 <i class="volume-icon fas fa-volume-down"></i>
-                <input aria-label="{{localize 'PLAYLIST.VolInterface'}}" class="global-volume-slider" name="globalInterfaceVolume" type="range" min="0" max="1" step="0.05" value="{{interfaceModifier}}" data-tooltip="{{interfaceTooltip}}"/>
+                <input class="global-volume-slider" name="globalInterfaceVolume" type="range"
+                       value="{{interfaceModifier}}" min="0" max="1" step="0.05" data-tooltip="{{interfaceTooltip}}"
+                       aria-label="{{localize 'AUDIO.CHANNELS.INTERFACE.label'}}">
             </li>
             {{#if @root.user.isGM}}
             <li class="sound flexrow" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.Normalize'}}">

@@ -20,7 +20,5 @@ Hooks.once("init", () => {
 })
 
 Hooks.once("setup", () => {
-    if(!game.user.isGM) return
-
     setupHooks()
 })

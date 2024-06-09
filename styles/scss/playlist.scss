@@ -40,7 +40,12 @@ $playingColor: rgba(30, 143, 255, 0.35);
         height: 26px;
     }
 
-    h4 {margin:0}
+    h4 {
+        margin: 0;
+        &.sound-name {
+            color: rgba(255, 255, 255, 0.774);
+        }
+    }
 
     .configuration{
         display: flex;

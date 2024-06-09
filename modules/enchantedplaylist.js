@@ -1,3 +1,5 @@
+const { mergeObject } = foundry.utils
+
 export class EnchantedPlaylist extends PlaylistDirectory {
     //static entryPartial = "templates/sidebar/partials/playlist-partial.html";
 
@@ -15,7 +17,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
 
         mergeObject(data, {
             enchantment,
-            normalizeModifier: AudioHelper.volumeToInput(enchantment.normalizeModifier),
+            normalizeModifier: foundry.audio.AudioHelper.volumeToInput(enchantment.normalizeModifier),
             normalizeTooltip: PlaylistDirectory.volumeToTooltip(enchantment.normalizeModifier),
             fadeTooltip: this.fadeTooltip(enchantment.fadeModifier),
         })
@@ -48,7 +50,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         let volume
         let tooltip
         if(ev.currentTarget.dataset.volume) {
-            volume = AudioHelper.inputToVolume(slider.value);
+            volume = foundry.audio.AudioHelper.inputToVolume(slider.value);
             tooltip = PlaylistDirectory.volumeToTooltip(volume);
             
         } else if(ev.currentTarget.dataset.unit) {
@@ -65,7 +67,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
 
         switch(action) {
             case 'play':
-                this._enchantStartAll();
+                this._enchantStartAll(ev);
                 break;
             case 'stop':
                 this._enchantStopAll();
@@ -112,7 +114,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
             if(settings.normalize) {
                 soundDoc.updateSource({volume: settings.normalizeModifier || 0.5})
             }
-            const volume = soundDoc.effectiveVolume || 0.5
+            const volume = soundDoc.volume || 0.5
             
             soundDoc.sound.fade(volume, { duration: fadeModifier, from: 0});            
         }
@@ -144,12 +146,43 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         fadeIn(playlist, fadeModifier, sound)        
     }
 
-    async _enchantStartAll() {
+    _updateTimestamps() {
+        super._updateTimestamps();
+
+        for ( let sound of this._playingSounds ) {
+            const li = $('.enchantmentplaylisttooltip')[0]?.querySelector(`.sound[data-sound-id="${sound.id}"]`);
+            if ( !li ) continue;
+      
+            // Update current and max playback time
+            const current = li.querySelector("span.current");
+            const ct = sound.playing ? sound.sound.currentTime : sound.pausedTime;
+            if ( current ) current.textContent = this._formatTimestamp(ct);
+            const max = li.querySelector("span.duration");
+            if ( max ) max.textContent = this._formatTimestamp(sound.sound.duration);
+      
+            // Remove the loading spinner
+            const play = li.querySelector("a.pause");
+            if ( play.classList.contains("fa-spinner") ) {
+              play.classList.remove("fa-spin");
+              play.classList.replace("fa-spinner", "fa-pause");
+            }
+        }
+    }
+
+    async _enchantStartAll(ev) {
         for(const sound of this._playingSounds) {
             const playlist = sound.parent;
 
             if(playlist.mode >= 0)
                 playlist.playSound(sound)
+        }
+
+        if(this._playingSounds.length === 0) {
+            const macroId = $(ev.currentTarget).closest('[data-macro-id]')[0]?.dataset.macroId
+            if(macroId) {
+                const macro = game.macros.get(macroId)
+                macro?.execute()
+            }
         }
     }
 
