@@ -32,6 +32,16 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         html.find('.enchanment-checkbox').change(this._onEnchantmentCheckbox.bind(this));
         html.find('.enchantmentcontrol').click(this._onEnchantmentControl.bind(this));
         html.find('.sound').dblclick(this._onEnchantmentSound.bind(this));
+        html.find('.sound-name').hover(ev => {
+            console.log(ev.currentTarget.clientWidth, ev.currentTarget.scrollWidth)
+            if(ev.currentTarget.scrollWidth > ev.currentTarget.clientWidth) {
+                ev.currentTarget.classList.add('marquee')
+                $(ev.currentTarget).html(`<p>${ev.currentTarget.textContent}</p>`)
+            }
+        }, ev => {
+            $(ev.currentTarget).html(ev.currentTarget.textContent)
+            ev.currentTarget.classList.remove('marquee')
+        })
     }
 
     _onEnchantmentSound(ev) {

@@ -64,3 +64,35 @@ $playingColor: rgba(30, 143, 255, 0.35);
         }
     }
 }
+
+.marquee {
+    overflow: hidden;
+    position: relative;
+}
+
+.marquee p {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    text-align: center;
+    
+    -moz-animation: advertisingloop 5s linear infinite;
+    -webkit-animation: advertisingloop 5s linear infinite;
+    animation: advertisingloop 5s linear infinite;
+}
+
+@keyframes advertisingloop {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-110%); 
+    }
+    50.1% {
+        transform: translateX(110%); 
+    }
+    100% {
+        transform: translateX(0); 
+    }
+  }
