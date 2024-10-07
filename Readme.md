@@ -24,8 +24,3 @@ https://raw.githubusercontent.com/Plushtoast/playlistenchantment/main/module.jso
 
 ![grafik](https://github.com/Plushtoast/playlistenchantment/assets/44941845/a64a4f61-267b-42d0-9842-33e10a984ea0)
 ![grafik](https://github.com/Plushtoast/playlistenchantment/assets/44941845/c3bbc9c4-caa3-406a-a9ff-1c7d4343556d)
-
-## Future
-
-* Preview next sound
-* Allow player control over playlists to release workload from GM
