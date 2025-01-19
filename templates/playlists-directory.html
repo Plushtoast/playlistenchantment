@@ -3,8 +3,8 @@
         <h4 class="sound-name">{{sound.name}}</h4>
         <div class="sound-controls flexrow">
             {{#if sound.isOwner}}
-            <a class="sound-control fa-solid fa-sync {{#unless sound.repeat}}inactive{{/unless}} {{sound.controlCSS}}"
-            data-action="sound-repeat" data-tooltip="PLAYLIST.SoundLoop"></a>
+            <a class="sound-control fa-solid soundrepeating {{#if sound.repeat}}fa-toggle-on{{else}}fa-toggle-off{{/if}} {{sound.controlCSS}}"
+            data-action="sound-repeat" data-tooltip="PLAYLISTENCHANTMENT.{{#if sound.repeat}}SoundLoopOff{{else}}SoundLoopOn{{/if}}"></a>
             {{/if}}
             {{#if sound.playing}}
             <a class="sound-control {{sound.playIcon}} {{sound.controlCSS}}" data-action="sound-stop"
@@ -23,10 +23,8 @@
                 <span class="duration">{{sound.durationTime}}</span>
             </div>
             <i class="volume-icon fas fa-volume-down"></i>
-            <input class="sound-volume" type="range"
-                   value="{{sound.lvolume}}" min="0" max="1" step="0.05" data-tooltip="{{sound.volumeTooltip}}">
-            <a class="sound-control pause {{sound.pauseIcon}} {{sound.controlCSS}} {{#if sound.isPaused}}disabled{{/if}}"
-               data-action="sound-pause" data-tooltip="PLAYLIST.SoundPause"></a>
+            <input class="sound-volume" type="range" value="{{sound.lvolume}}" min="0" max="1" step="0.05" data-tooltip="{{sound.volumeTooltip}}">
+            <a class="sound-control pause {{sound.pauseIcon}} {{sound.controlCSS}} {{#if sound.isPaused}}disabled{{/if}}" data-action="sound-pause" data-tooltip="PLAYLIST.SoundPause"></a>
         </div>
         {{/if}}
     </li>

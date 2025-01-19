@@ -16,6 +16,16 @@ Hooks.once("init", () => {
         type: Object
     });
 
+    game.settings.register("playlistenchantment", "soundUploadFolder", {
+        name: "PLAYLISTENCHANTMENT.soundUploadFolder",
+        hint: "PLAYLISTENCHANTMENT.soundUploadFolderHint",
+        scope: "world",
+        config: true,
+        type: String,
+        filePicker: 'folder',
+        default: "modules/playlistenchantment/storage"
+    })
+
     CONFIG.ui.playlists = EnchantedPlaylist
 })
 

@@ -7,13 +7,20 @@
         "FadeTooltip": "Fade Dauer {value} ms",
         "Prehear": "Sound Preview",
         "soundPreview": "Sound Preview, nur du kannst den abgespielten Sound hören.",
+        "uploading": "Uploading...{item}...",
+        "soundUploadFolder": "Sound Upload Folder",
+        "soundUploadFolderHint": "Sound Files können per Drag & Drop auf die Playlists in diesen Ordner hochgeladen werden. Sie werden zur Zielplaylist hinzugefügt.",
+        "errorNoPlaylist": "Konnte keine Sounddateien hinzufügen, das Ziel muss eine Playlist sein.",
+        "uploadDone": "Alle Dateien wurden hochgeladen.",
 
         "CONTROL": {
             "play": "Alle aktive Playlist Tracks starten (außer Soundboards)",
-            "stop": "Alle aktive Playlist Tracks stoppen",
+            "stop": "Alle aktive Playlist Tracks stoppen (pausieren)",
             "resume": "Alle aktive Playlist Tracks fortsetzen (außer Soundboards)",
             "next": "Alle aktive Playlist Tracks zum nächsten Track springen (außer Soundboards)",
             "previous": "Alle aktive Playlist Tracks zum vorherigen Track springen (außer Soundboards)"
-        }
+        },
+        "SoundLoopOff": "Loop ausschalten",
+        "SoundLoopOn": "Loop einschalten"
     }
 }

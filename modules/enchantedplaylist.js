@@ -33,7 +33,6 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         html.find('.enchantmentcontrol').click(this._onEnchantmentControl.bind(this));
         html.find('.sound').dblclick(this._onEnchantmentSound.bind(this));
         html.find('.sound-name').hover(ev => {
-            console.log(ev.currentTarget.clientWidth, ev.currentTarget.scrollWidth)
             if(ev.currentTarget.scrollWidth > ev.currentTarget.clientWidth) {
                 ev.currentTarget.classList.add('marquee')
                 $(ev.currentTarget).html(`<p>${ev.currentTarget.textContent}</p>`)
@@ -218,5 +217,62 @@ export class EnchantedPlaylist extends PlaylistDirectory {
     _onEnchantmentCheckbox(event) {
         const data = { [event.currentTarget.name]: event.currentTarget.checked }
         return this.updatePlaylistEnchantment(data);
+    }
+
+    async _onDrop(event) {
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+        if (files && files.length > 0) {
+            const filteredFiles = Array.from(files).filter(file => Object.keys(CONST.AUDIO_FILE_EXTENSIONS).includes(file.name.split('.').pop()));
+            await this.handleAudioFilesUpload(event, filteredFiles);
+        } else {
+            super._onDrop(event);
+        }
+    }
+
+    isForge() {
+        return typeof ForgeVTT !== 'undefined' && ForgeVTT && ForgeVTT.usingTheForge;
+    }
+
+    findFilePicker() {
+        return this.isForge() ? ForgeVTT_FilePicker : FilePicker;
+    }
+
+    static defaultUploadPlaylistName = "Playlistenchantment - Uploads";
+
+    async handleAudioFilesUpload(event, files) {
+        const path = game.settings.get("playlistenchantment", "soundUploadFolder");
+        const filepicker = this.findFilePicker();        
+        const sounds = [];
+        for (const file of files) {
+            const id = ui.notifications.info(game.i18n.format('PLAYLISTENCHANTMENT.uploading', { item: file.name }), {permanent: true});
+            const response = await filepicker.upload('data', path, file);
+            ui.notifications.remove(id);
+            const nameWithoutExtension = file.name.split('.').slice(0, -1).join('.');
+            sounds.push({ name: nameWithoutExtension, path: response.path });
+        }
+        const droppedPlaylistId = this.getPlaylistIdFromElement(event.srcElement.closest(".playlist"));
+        let playlist  = game.playlists.get(droppedPlaylistId);
+        if (!playlist) playlist = game.playlists.find((playlist) => playlist.name === EnchantedPlaylist.defaultUploadPlaylistName);
+        if(!playlist) {
+            playlist = await Playlist.create({
+                name: EnchantedPlaylist.defaultUploadPlaylistName,
+                description: "Files uploaded by drag and drop",
+                playing: false,
+            });
+        }
+        playlist.createEmbeddedDocuments("PlaylistSound", sounds);
+        ui.notifications.info(game.i18n.localize('PLAYLISTENCHANTMENT.uploadDone'));
+    }
+
+    getPlaylistIdFromElement(el) {
+        if (el == null) return false;
+
+        const playlist = el.classList.contains("playlist") ? el : el.closest(".playlist")
+        if (!playlist) {
+            ui.notifications.error( game.i18n.localize("PLAYLISTENCHANTMENT.errorNoPlaylist"));
+            return false;
+        }
+        return playlist.dataset.documentId;
     }
 }

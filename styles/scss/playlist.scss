@@ -20,6 +20,12 @@ $playingColor: rgba(30, 143, 255, 0.35);
     .sound.flexrow:hover {
         background-color: rgba(0,0,0, 0.2);
     }
+
+    .sound-control.soundrepeating {
+        &.fa-toggle-on {
+            color: #036d03;
+        }
+    }
 }
 
 .enchantmentplaylisttooltip {
