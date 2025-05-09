@@ -2,20 +2,20 @@ const { mergeObject, getProperty } = foundry.utils
 
 export function setupHooks() {
     Hooks.on("hotbarDrop", (bar, data, slot) => {
-        if (["PlaylistSound", "Playlist"].includes(data.type)) {
+        if(["PlaylistSound", "Playlist"].includes(data.type)) {
             buildPlaylistMacro(data.uuid, slot)
             return false
-        } else if (data.type == "Folder") {
+        } else if(data.type == "Folder") {
             const folder = fromUuidSync(data.uuid)
 
-            if (folder.type == "Playlist") {
+            if(folder.type == "Playlist") {
                 buildPlaylistMacro(data.uuid, slot)
                 return false
-            }
+            }                
         }
     })
 
-    Hooks.on("getPlaylistSoundContextOptions", (app, optns) => {
+    Hooks.on("getEnchantedPlaylistSoundContext", (app, optns) => {       
         optns.push(
             {
                 name: "PLAYLISTENCHANTMENT.Prehear",
@@ -26,29 +26,28 @@ export function setupHooks() {
     })
 
     Hooks.on("renderHotbar", (bar, html) => {
-        html = $(html);
-        const activemacros = html.find('.slot.full')
+        const activemacros = html.find('.macro.active')
         activemacros.mouseenter(ev => onHoverMacros(ev))
         activemacros.mouseleave(ev => onUnhoverMacros(ev))
         activemacros.mousedown(ev => onUnhoverMacros(ev))
     })
 
-    Hooks.on('preUpdatePlaylist', (playlist, data, options, userId) => {
-        if (playlist.mode >= 0 && 'sounds' in data) {
+    Hooks.on('preUpdatePlaylist' , (playlist, data, options, userId) => {
+        if(playlist.mode >= 0 && 'sounds' in data) {
             const update = {}
             const settings = game.settings.get("playlistenchantment", "settings")
-            if (settings.alwaysFade) {
+            if(settings.alwaysFade) {
                 update.fade = settings.fadeModifier || 0
             }
-            if (settings.normalize) {
+            if(settings.normalize) {
                 const sound = data.sounds.find(s => s.playing)
-                if (!sound) return
+                if(!sound) return
 
                 sound.volume = settings.normalizeModifier || 0
-                update.sounds = [sound]
+                update.sounds = [ sound ]
             }
 
-            if (Object.keys(update).length > 0)
+            if(Object.keys(update).length > 0)
                 playlist.updateSource(update)
         }
     })
@@ -61,22 +60,20 @@ async function buildPlaylistMacro(uuid, slot) {
 }
 
 function onHoverMacros(ev) {
-    const slot = ev.currentTarget.dataset.slot
-    const macroId = game.user.hotbar[slot];
-    if (!macroId) return;
-    const macro = game.macros.get(macroId)
-    if (!macro) return
+    const macro = game.macros.get(ev.currentTarget.dataset.macroId)
+
+    if(!macro) return
 
     const playlistType = getProperty(macro, "flags.enchantedplaylist.type")
 
-    if (!playlistType) return
+    if(!playlistType) return
 
-    showHotbarSoundMenu(ev, macroId)
+    showHotbarSoundMenu(ev)
 }
 
 async function preHearSound(i) {
-    const playlistId = i.dataset.playlistId
-    const soundId = i.dataset.soundId
+    const playlistId = i[0].dataset.playlistId
+    const soundId = i[0].dataset.soundId
 
     const sound = game.playlists.get(playlistId).sounds.get(soundId)
 
@@ -90,21 +87,11 @@ async function preHearSound(i) {
     });
 }
 
-class SoundPreview extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
-
-    static PARTS = {
-        main: {
-            template: 'modules/playlistenchantment/templates/soundpreview.hbs',
-        },
-    };
-
-    static DEFAULT_OPTIONS = {
-        window: {
-            title: 'PLAYLISTENCHANTMENT.Prehear'
-        },
-        actions: {
-            stopSound: this._stopSound
-        }
+class SoundPreview extends Application {
+    static get defaultOptions() {
+        return mergeObject(super.defaultOptions, {
+            template: "modules/playlistenchantment/templates/soundpreview.html"
+        })
     }
 
     constructor(sound, source) {
@@ -119,15 +106,15 @@ class SoundPreview extends foundry.applications.api.HandlebarsApplicationMixin(f
         });
     }
 
-    async _prepareContext(_options) {
-        const data = await super._prepareContext(_options);
+    async getData() {
+        const data = await super.getData()
         data.sound = this.sound
         data.source = this.source
         return data
     }
 
-    static _stopSound(ev, target) {
-        this.close();
+    activateListeners(html) {
+        html.find('.stopSound').click(() => this.close())
     }
 
     async close(options) {
@@ -136,70 +123,40 @@ class SoundPreview extends foundry.applications.api.HandlebarsApplicationMixin(f
     }
 }
 
-async function showHotbarSoundMenu(ev, macroId) {
+async function showHotbarSoundMenu(ev) {
     const id = `.enchantmentplaylisttooltip`
     $(id).remove()
-
+    
     const rect = ev.currentTarget.getBoundingClientRect()
-    const name = ev.currentTarget.dataset.tooltipText
+    const name = ev.currentTarget.dataset.tooltip
 
+    const playingSounds = foundry.utils.duplicate(ui.playlists._playingSoundsData)
 
-    const playingSounds = []
-
-    for (let con of ui.playlists._playing.context) {
-        const s = foundry.utils.duplicate(con);
-        const sound = ui.playlists._playing.sounds.find(ps => ps._id == s.id)
-        const lvolume = foundry.audio.AudioHelper.volumeToInput(s.volume)
-        s.pause.icon = `fa-solid ${sound.playing && !sound.sound?.loaded ? "fa-spinner fa-spin" : "fa-pause"}`,
-            s.lvolume = lvolume
-        s.volumeTooltip = foundry.audio.AudioHelper.volumeToPercentage(lvolume),
-            s.currentTime = ui.playlists.constructor.formatTimestamp(sound.playing ? sound.sound.currentTime : s.pausedTime);
-        s.durationTime = ui.playlists.constructor.formatTimestamp(sound.sound.duration);
-        s.volume = con.volume
-        playingSounds.push(s)
+    for(let s of playingSounds) {
+        const sound = ui.playlists._playingSounds.find(ps => ps._id == s._id)
+        s.pauseIcon = ui.playlists._getPauseIcon(sound);
+        s.lvolume = foundry.audio.AudioHelper.volumeToInput(s.volume);
+        s.volumeTooltip = ui.playlists.constructor.volumeToTooltip(s.volume);
+        s.currentTime = ui.playlists._formatTimestamp(sound.playing ? sound.sound.currentTime : s.pausedTime);
+        s.durationTime = ui.playlists._formatTimestamp(sound.sound.duration);
     }
 
-    const data = {
-        macroId,
-        name,
+    const data =  { 
+        macroId: ev.currentTarget.dataset.macroId,  
+        name, 
         isGM: game.user.isGM,
-        playingSounds,
-        showPlaying: ui.playlists.playing.length > 0,
+        playingSounds: playingSounds,
+        showPlaying: ui.playlists._playingSoundsData.length > 0
     }
-
-    const template = $(await foundry.applications.handlebars.renderTemplate("modules/playlistenchantment/templates/currentplayling.hbs", data))
+    
+    const template = $(await renderTemplate("modules/playlistenchantment/templates/currentplayling.html", data))
 
     ui.playlists.activateListeners(template)
 
-    template.find("[data-action]").on("click", ev => {
-        const target = ev.currentTarget;
-        const action = target.dataset.action;
-
-        if (action === "soundRepeat") {
-            const { playlistId, soundId } = target.closest(".sound")?.dataset ?? {};
-            const sound = game.playlists.get(playlistId)?.sounds.get(soundId);
-            return sound?.update({ repeat: !sound?.repeat });
-        } else {
-            const { playlistId, soundId } = target.closest(".sound")?.dataset ?? {};
-            const playlist = game.playlists.get(playlistId);
-            const sound = playlist?.sounds.get(soundId);
-            switch (target.dataset.action) {
-                case "soundPause": return sound.update({ playing: false, pausedTime: sound.sound.currentTime });
-                case "soundPlay": return playlist.playSound(sound);
-                case "soundStop": return playlist.stopSound(sound);
-            }
-        }
-    })
-    template.find('.sound-volume').on("input", ev => {
-        const target = ev.currentTarget;
-        ui.playlists._onSoundVolume(target);
-        setTimeout(() => {ui.playlists.render()}, 120);
-    });
-
     $('body').append(template)
 
-    const tt = $(`.enchantmentplaylisttooltip[data-macro-id="${macroId}"]`)
-    tt.on("mouseleave", ev => onUnhoverMacros(macroId))
+    const tt = $(`.enchantmentplaylisttooltip[data-macro-id="${ev.currentTarget.dataset.macroId}"]`)
+    tt.on("mouseleave", ev => onUnhoverMacros(ev))
     tt.css({
         left: rect.x - 125 + rect.width / 2,
         top: rect.y - tt.height(),
@@ -209,12 +166,12 @@ async function showHotbarSoundMenu(ev, macroId) {
     game.tooltip.deactivate()
 }
 
-function onUnhoverMacros(macroId) {
-    const id = `.enchantmentplaylisttooltip[data-macro-id="${macroId}"]`
+function onUnhoverMacros(ev)  {
+    const id = `.enchantmentplaylisttooltip[data-macro-id="${ev.currentTarget.dataset.macroId}"]`
     setTimeout(() => {
-        if (!$(`${id}:hover`).length)
+        if(!$(`${id}:hover`).length)
             $(id).remove()
-    }, 100)
+    }, 100)    
 }
 
 function createHotBarMacro(command, name, img, slot, type) {
@@ -231,7 +188,7 @@ function createHotBarMacro(command, name, img, slot, type) {
                 }
             }
         }, { displaySheet: false }).then(macro => game.user.assignHotbarMacro(macro, slot))
-    } else {
+    }else{
         game.user.assignHotbarMacro(macro, slot);
     }
     return false

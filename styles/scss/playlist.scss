@@ -9,7 +9,6 @@ $playingColor: rgba(30, 143, 255, 0.35);
     }
     .sound.playing {
         background-color: $playingColor;
-        color: white;
         border-radius: 5px;
     }
 
@@ -18,19 +17,14 @@ $playingColor: rgba(30, 143, 255, 0.35);
         margin-right: 10px;
         font-size: 18px;
     }
-    .sound:hover {
-        background-color: rgba(0,0,0, 0.9);
-        color: white;
+    .sound.flexrow:hover {
+        background-color: rgba(0,0,0, 0.2);
     }
 
     .sound-control.soundrepeating {
         &.fa-toggle-on {
             color: #036d03;
         }
-    }
-
-    .enchanment-checkbox {
-        flex-grow: 0;
     }
 }
 
@@ -80,16 +74,14 @@ $playingColor: rgba(30, 143, 255, 0.35);
 .marquee {
     overflow: hidden;
     position: relative;
-    height: 20px;
 }
 
-.marquee label {
+.marquee p {
     position: absolute;
     width: 100%;
-    height: 20px;
+    height: 100%;
     margin: 0;
     text-align: center;
-    white-space: nowrap;
     
     -moz-animation: advertisingloop 5s linear infinite;
     -webkit-animation: advertisingloop 5s linear infinite;

@@ -1,0 +1,61 @@
+<div class="enchantmentplaylisttooltip playlists-sidebar" data-macro-id="{{macroId}}">
+    <header class="configuration">
+        <h4 class="col two">{{localize "PLAYLIST.CurrentlyPlaying"}}</h4>
+        {{#if isGM}}
+        <a class="enchantmentcontrol col ten" data-action="playlist-backward" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.previous">
+            <i class="fas fa-backward"></i>
+        </a>            
+        <a class="enchantmentcontrol col ten" data-action="stop" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.stop">
+            <i class="fas fa-stop"></i>
+        </a>
+        <a class="enchantmentcontrol col ten" data-action="play" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.play">
+            <i class="fas fa-play"></i>
+        </a>
+        <a style="margin-right:10px;" data-action="playlist-forward" class="enchantmentcontrol col ten" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next">
+            <i class="fas fa-forward"></i>
+        </a>
+        {{/if}}
+    </header>
+    <ol class="playlist-sounds">
+        {{#if showPlaying}}
+        {{#each playingSounds as |sound|}}
+        <li class="sound flexrow {{sound.css}}" data-playlist-id="{{sound.playlistId}}" data-sound-id="{{sound._id}}">
+            <h4 class="sound-name">{{sound.name}}</h4>
+            <div class="sound-controls flexrow">
+                {{#if sound.isOwner}}
+                <a class="sound-control fa-solid fa-sync {{#unless sound.repeat}}inactive{{/unless}} {{sound.controlCSS}}"
+                data-action="sound-repeat" data-tooltip="PLAYLIST.SoundLoop"></a>
+                {{/if}}
+                {{#if sound.playing}}
+                <a class="sound-control {{sound.playIcon}} {{sound.controlCSS}}" data-action="sound-stop"
+                data-tooltip="PLAYLIST.SoundStop"></a>
+                {{else}}
+                <a class="sound-control {{sound.playIcon}} {{sound.controlCSS}}" data-action="sound-play"
+                data-tooltip="{{sound.playTitle}}"></a>
+                {{/if}}
+            </div>
+            <div class="sound-playback flexrow">
+                <div class="sound-timer">
+                    <span class="current">{{sound.currentTime}}</span>
+                    <span class="sep">/</span>
+                    <span class="duration">{{sound.durationTime}}</span>
+                </div>
+                <i class="volume-icon fas fa-volume-down"></i>
+                <input class="sound-volume" type="range"
+                    value="{{sound.lvolume}}" min="0" max="1" step="0.05" data-tooltip="{{sound.volumeTooltip}}">
+                <a class="sound-control pause {{sound.pauseIcon}} {{sound.controlCSS}} {{#if sound.isPaused}}disabled{{/if}}"
+                data-action="sound-pause" data-tooltip="PLAYLIST.SoundPause"></a>
+                </a>
+            </div>
+            
+        </li>
+        {{/each}}
+        {{else}}
+        <li>
+            -
+        </li>
+        {{/if}}
+    </ol>
+    <hr/>
+    <h4 class="macroName">{{name}}</h4>
+</div>
