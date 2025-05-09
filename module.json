@@ -1,10 +1,10 @@
 {
     "title": "Playlist Enchantment",
     "description": "Some minor tweaks to enhance the playlist experience. Drag playlists to the hotbar and enjoy some additional playlist controls. Read more on the github project page.",
-    "version": "1.3.0",
+    "version": "1.3.2",
     "url": "https://github.com/Plushtoast/playlistenchantment",
     "manifest": "https://raw.githubusercontent.com/Plushtoast/playlistenchantment/foundry13/module.json",
-    "download": "https://github.com/Plushtoast/playlistenchantment/releases/download/1.3.0/playlistenchantment-1.3.0.zip",
+    "download": "https://github.com/Plushtoast/playlistenchantment/releases/download/1.3.2/playlistenchantment-1.3.2.zip",
     "languages": [{
             "lang": "de",
             "name": "Deutsch",
