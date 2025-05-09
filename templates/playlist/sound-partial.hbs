@@ -1,0 +1,38 @@
+<li class="sound {{ css }}" data-playlist-id="{{ playlistId }}" data-sound-uuid="{{ uuid }}" data-sound-id="{{ id }}">
+    <header>
+        <i class="fa-thin fa-music" inert></i>
+        <div class="soundName ellipsis" style="flex:1"><label>{{ name }}</label></div>
+        <div class="sound-controls flexrow">
+            {{#if isOwner}}
+            <button type="button" class="inline-control sound-control icon fa-solid {{ifThen repeat "fa-toggle-on" "fa-toggle-off"}}"
+                    {{#unless isOwner}}disabled{{/unless}} data-action="soundRepeat" data-tooltip
+                    aria-label="{{ localize (ifThen sound.repeat 'PLAYLISTENCHANTMENT.SoundLoopOff' 'PLAYLISTENCHANTMENT.SoundLoopOn')}}"></button>
+            {{/if}}
+            {{#if playing}}
+            <button type="button" class="inline-control sound-control icon {{ play.icon }}" data-action="soundStop"
+                    {{#unless isOwner}}disabled{{/unless}} data-tooltip
+                    aria-label="{{ localize "PLAYLIST.SoundStop" }}"></button>
+            {{else}}
+            <button type="button" class="inline-control sound-control icon {{ play.icon }}" data-action="soundPlay"
+                    {{#unless isOwner}}disabled{{/unless}} data-tooltip
+                    aria-label="{{ localize "PLAYLIST.SoundPlay" }}"></button>
+            {{/if}}
+        </div>
+    </header>
+
+    {{#if playback}}
+    <div class="sound-playback flexrow">
+        <div class="sound-timer">
+            <span class="current">{{ currentTime }}</span>
+            <span class="sep">&sol;</span>
+            <span class="duration">{{ duration }}</span>
+        </div>
+        <i class="volume-icon fa-solid fa-volume-low" inert></i>
+        {{#with volume}}
+        {{ formInput field classes="sound-volume" value=modifier dataset=dataset aria=aria }}
+        {{/with}}
+        <button type="button" class="inline-control sound-control pause icon {{ pause.icon }}" data-action="soundPause"
+                {{ disabled pause.disabled }} data-tooltip="{{sound.volumeTooltip}}" aria-label="{{ localize "PLAYLIST.SoundPause" }}"></button>
+    </div>
+    {{/if}}
+</li>

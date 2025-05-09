@@ -1,0 +1,36 @@
+<div class="enchantmentplaylisttooltip playlists-sidebar" data-macro-id="{{macroId}}">
+    <header class="configuration">
+        <h4 class="col two">{{localize "PLAYLIST.CurrentlyPlaying"}}</h4>
+        {{#if isGM}}
+        <a class="enchantmentcontrol col ten" data-action="playlist-backward"
+            data-tooltip="PLAYLISTENCHANTMENT.CONTROL.previous">
+            <i class="fas fa-backward"></i>
+        </a>
+        <a class="enchantmentcontrol col ten" data-action="stop" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.stop">
+            <i class="fas fa-stop"></i>
+        </a>
+        <a class="enchantmentcontrol col ten" data-action="play" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.play">
+            <i class="fas fa-play"></i>
+        </a>
+        <a style="margin-right:10px;" data-action="playlist-forward" class="enchantmentcontrol col ten"
+            data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next">
+            <i class="fas fa-forward"></i>
+        </a>
+        {{/if}}
+    </header>
+    <div class="directory-list">
+    <ol class="playlist-sounds">
+        {{#if showPlaying}}
+        {{#each playingSounds as |sound|}}
+        {{> modules/playlistenchantment/templates/playlist/sound-partial.hbs playback=true}}
+        {{/each}}
+        {{else}}
+        <li>
+            -
+        </li>
+        {{/if}}
+    </ol>
+    </div>
+    <hr />
+    <h4 class="macroName ellipsis">{{name}}</h4>
+</div>
