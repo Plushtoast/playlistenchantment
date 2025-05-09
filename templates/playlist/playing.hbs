@@ -1,0 +1,28 @@
+{{#with currentlyPlaying}}
+<div class="currently-playing global-control {{ class }}">
+    <header class="playlist-header flexrow">
+        <strong>{{ localize "PLAYLIST.CurrentlyPlaying" }}</strong>
+        {{#if @root.user.isGM}}
+        <button type="button" class="enchantmentcontrol" data-action="playlist-backward" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.previous">
+            <i class="fas fa-backward"></i>
+        </button>            
+        <button type="button" class="enchantmentcontrol" data-action="stop" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.stop">
+            <i class="fas fa-stop"></i>
+        </button>
+        <button type="button" class="enchantmentcontrol" data-action="play" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.play">
+            <i class="fas fa-play"></i>
+        </button>
+        <button type="button" style="margin-right:20px;" data-action="playlist-forward" class="enchantmentcontrol" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next">
+            <i class="fas fa-forward"></i>
+        </button>
+        {{/if}}
+        <button type="button" class="inline-control pin icon fa-solid fa-caret-{{ pin.caret }}"
+                data-tooltip aria-label="{{ localize pin.label }}" data-action="pinCurrentlyPlaying"></button>
+    </header>
+    <ol class="playlist-sounds plain">
+        {{#each sounds}}
+            {{> "modules/playlistenchantment/templates/playlist/sound-partial.hbs" playback=true }}
+        {{/each}}
+    </ol>
+</div>
+{{/with}}
