@@ -3,18 +3,10 @@
     <header class="playlist-header flexrow">
         <strong>{{ localize "PLAYLIST.CurrentlyPlaying" }}</strong>
         {{#if @root.user.isGM}}
-        <button type="button" class="enchantmentcontrol" data-action="playlist-backward" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.previous">
-            <i class="fas fa-backward"></i>
-        </button>            
-        <button type="button" class="enchantmentcontrol" data-action="stop" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.stop">
-            <i class="fas fa-stop"></i>
-        </button>
-        <button type="button" class="enchantmentcontrol" data-action="play" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.play">
-            <i class="fas fa-play"></i>
-        </button>
-        <button type="button" style="margin-right:20px;" data-action="playlist-forward" class="enchantmentcontrol" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next">
-            <i class="fas fa-forward"></i>
-        </button>
+        <button type="button" class="enchantmentcontrol icon fas fa-backward" data-action="enchPlaylistBackward" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.previous"></button>            
+        <button type="button" class="icon fas fa-stop enchantmentcontrol" data-action="enchStop" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.stop"></button>
+        <button type="button" class="icon fas fa-play enchantmentcontrol" data-action="enchPlay" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.play"></button>
+        <button type="button" style="margin-right:20px;" data-action="enchPlaylistForward" class="icon fas fa-forward enchantmentcontrol" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next"></button>
         {{/if}}
         <button type="button" class="inline-control pin icon fa-solid fa-caret-{{ pin.caret }}"
                 data-tooltip aria-label="{{ localize pin.label }}" data-action="pinCurrentlyPlaying"></button>

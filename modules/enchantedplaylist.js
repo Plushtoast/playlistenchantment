@@ -9,6 +9,15 @@ export class EnchantedPlaylist extends PlaylistDirectory {
 
         return options;
     }*/
+   static DEFAULT_OPTIONS = {
+        actions: {
+            enchPlaylistBackward: this._enchantAllSkip,
+            enchPlaylistForward: this._enchantAllSkip,
+            enchPlay: this._enchantStartAll,
+            enchStop: this._enchantStopAll
+        }
+    }
+
    static _entryPartial = "modules/playlistenchantment/templates/playlist/playlist-partial.hbs";
 
     static PARTS = {
@@ -49,7 +58,6 @@ export class EnchantedPlaylist extends PlaylistDirectory {
 
         html.find(".enchantment-volume-slider").change(this._onEnchantmentVolume.bind(this));
         html.find('.enchanment-checkbox').change(this._onEnchantmentCheckbox.bind(this));
-        html.find('.enchantmentcontrol').click(this._onEnchantmentControl.bind(this));
         html.find('.sound').dblclick(this._onEnchantmentSound.bind(this));
         html.find('.sound .soundName').hover(ev => {
             if (ev.currentTarget.scrollWidth > ev.currentTarget.clientWidth) {
@@ -86,23 +94,6 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         slider.setAttribute("data-tooltip", tooltip);
         game.tooltip.activate(slider, { text: tooltip });
         return this.updatePlaylistEnchantment({ [ev.currentTarget.name]: volume });
-    }
-
-    _onEnchantmentControl(ev) {
-        const action = ev.currentTarget.dataset.action;
-
-        switch (action) {
-            case 'play':
-                this._enchantStartAll(ev);
-                break;
-            case 'stop':
-                this._enchantStopAll();
-                break;
-            case 'playlist-forward':
-            case 'playlist-backward':
-                this._enchantAllSkip(action);
-                break;
-        }
     }
 
     static async hotbarPlaylist(playlistId) {
@@ -195,7 +186,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         }
     }
 
-    async _enchantStartAll(ev) {
+    static async _enchantStartAll(ev, target) {
         for (const sound of this._playing.sounds) {
             const playlist = sound.parent;
 
@@ -204,7 +195,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         }
 
         if (this._playing.sounds.length === 0) {
-            const macroId = $(ev.currentTarget).closest('[data-macro-id]')[0]?.dataset.macroId
+            const macroId = $(target).closest('[data-macro-id]')[0]?.dataset.macroId
             if (macroId) {
                 const macro = game.macros.get(macroId)
                 macro?.execute()
@@ -212,14 +203,18 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         }
     }
 
-    async _enchantAllSkip(action) {
+    static async _enchantAllSkip(ev, target) {
+        const action = target.dataset.action;
         for (const playlist of this.playing) {
-            if (playlist.mode >= 0)
-                playlist.playNext(undefined, { direction: action === "playlist-forward" ? 1 : -1 });
+            console.log(playlist.mode >= 0)
+            if (playlist.mode >= 0) {
+                playlist.playNext(null, { direction: action === "enchPlaylistForward" ? 1 : -1 });
+            }
+                
         }
     }
 
-    async _enchantStopAll() {
+    static async _enchantStopAll(ev, target) {
         for (const sound of this._playing.sounds) {
             sound.update({ playing: false, pausedTime: sound.sound.currentTime })
         }

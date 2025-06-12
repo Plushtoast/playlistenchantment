@@ -2,20 +2,10 @@
     <header class="configuration">
         <h4 class="col two">{{localize "PLAYLIST.CurrentlyPlaying"}}</h4>
         {{#if isGM}}
-        <a class="enchantmentcontrol col ten" data-action="playlist-backward"
-            data-tooltip="PLAYLISTENCHANTMENT.CONTROL.previous">
-            <i class="fas fa-backward"></i>
-        </a>
-        <a class="enchantmentcontrol col ten" data-action="stop" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.stop">
-            <i class="fas fa-stop"></i>
-        </a>
-        <a class="enchantmentcontrol col ten" data-action="play" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.play">
-            <i class="fas fa-play"></i>
-        </a>
-        <a style="margin-right:10px;" data-action="playlist-forward" class="enchantmentcontrol col ten"
-            data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next">
-            <i class="fas fa-forward"></i>
-        </a>
+        <a class="enchantmentcontrol col ten icon fas fa-backward" data-action="enchPlaylistBackward" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.previous"></a>
+        <a class="enchantmentcontrol col ten icon fas fa-stop" data-action="enchStop" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.stop"></a>
+        <a class="enchantmentcontrol col ten icon fas fa-play" data-action="enchPlay" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.play"></a>
+        <a style="margin-right:10px;" data-action="enchPlaylistForward" class="icon fas fa-forward enchantmentcontrol col ten" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next"></a>
         {{/if}}
     </header>
     <div class="directory-list">
