@@ -206,7 +206,6 @@ export class EnchantedPlaylist extends PlaylistDirectory {
     static async _enchantAllSkip(ev, target) {
         const action = target.dataset.action;
         for (const playlist of this.playing) {
-            console.log(playlist.mode >= 0)
             if (playlist.mode >= 0) {
                 playlist.playNext(null, { direction: action === "enchPlaylistForward" ? 1 : -1 });
             }

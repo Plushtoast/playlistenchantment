@@ -1,3 +1,4 @@
+import { EnchantmentPopup } from "./enchantmentpopup.js";
 const { mergeObject, getProperty } = foundry.utils;
 
 export function setupHooks() {
@@ -40,10 +41,14 @@ export function setupHooks() {
       if (settings.normalize) {
         const sound = changes.sounds.find((s) => s.playing);
         if (sound) {
-            sound.volume = settings.normalizeModifier || 0;
+          sound.volume = settings.normalizeModifier || 0;
         }
       }
     }
+  });
+
+  Hooks.on("renderPlaylistDirectory", (app, html, data) => {
+    ui.enchantmentPopup?.render(true);
   });
 }
 
@@ -128,112 +133,34 @@ class SoundPreview extends foundry.applications.api.HandlebarsApplicationMixin(f
   }
 }
 
-async function renderHotbarSoundMenu(name, macroId) {
-  const playingSounds = [];
-
-  for (let con of ui.playlists._playing.context) {
-    const s = foundry.utils.duplicate(con);
-    const sound = ui.playlists._playing.sounds.find((ps) => ps._id == s.id);
-    const lvolume = foundry.audio.AudioHelper.volumeToInput(s.volume);
-    (s.pause.icon = `fa-solid ${sound.playing && !sound.sound?.loaded ? "fa-spinner fa-spin" : "fa-pause"}`),
-      (s.lvolume = lvolume);
-    (s.volumeTooltip = foundry.audio.AudioHelper.volumeToPercentage(lvolume)),
-      (s.currentTime = ui.playlists.constructor.formatTimestamp(sound.playing ? sound.sound.currentTime : s.pausedTime));
-    s.durationTime = ui.playlists.constructor.formatTimestamp(sound.sound.duration);
-    s.volume = con.volume;
-    playingSounds.push(s);
-  }
-
-  const data = {
-    macroId,
-    name,
-    isGM: game.user.isGM,
-    playingSounds,
-    showPlaying: ui.playlists.playing.length > 0,
-  };
-
-  const template = $(
-    await foundry.applications.handlebars.renderTemplate("modules/playlistenchantment/templates/currentplayling.hbs", data)
-  );
-
-  ui.playlists.activateListeners(template);
-
-  template.find("[data-action]").on("click", async(ev) => {
-    const target = ev.currentTarget;
-    const action = target.dataset.action;
-
-    if (action === "soundRepeat") {
-      const { playlistId, soundId } = target.closest(".sound")?.dataset ?? {};
-      const sound = game.playlists.get(playlistId)?.sounds.get(soundId);
-      await sound?.update({ repeat: !sound?.repeat });
-    } else {
-      const { playlistId, soundId } = target.closest(".sound")?.dataset ?? {};
-      const playlist = game.playlists.get(playlistId);
-      const sound = playlist?.sounds.get(soundId);
-      switch (target.dataset.action) {
-        case "soundPause":
-          await sound.update({ playing: false, pausedTime: sound.sound.currentTime });
-          break;
-        case "soundPlay":
-          await playlist.playSound(sound);
-          break;
-        case "soundStop":
-          await playlist.stopSound(sound);
-          break;
-        default:
-          let handler = ui.playlists.options.actions[action];
-          if (handler) {
-            let buttons = [0];
-            if (typeof handler === "object") {
-              buttons = handler.buttons;
-              handler = handler.handler;
-            }
-            if (buttons.includes(ev.button)) await handler?.call(ui.playlists, ev, target);
-          }
-      }
-    }
-  });
-  template.find(".sound-volume").on("input", (ev) => {
-    const target = ev.currentTarget;
-    ui.playlists._onSoundVolume(target);
-    setTimeout(() => {
-      ui.playlists.render();
-    }, 120);
-  });
-
-  return template;
-}
-
 async function showHotbarSoundMenu(ev, macroId) {
-  const id = `.enchantmentplaylisttooltip`;
-  $(id).remove();
+  $(".enchantment-popup").remove();
 
-  const rect = ev.currentTarget.getBoundingClientRect();
-  const name = ev.currentTarget.dataset.tooltipText;
+  const target = ev.currentTarget;
+  const rect = target.getBoundingClientRect();
+  const popup = new EnchantmentPopup(target, macroId);
+  ui.enchantmentPopup = popup;
+  await popup.render(true);
+  const tt = $(popup.element);
+  const options = {
+    left: rect.x - 135 + rect.width / 2,
+    top: rect.y - tt.height(),
+  };
+  popup.setPosition(options);
 
-  const template = await renderHotbarSoundMenu(name, macroId);
-
-  $("body").append(template);
-
-  const tt = $(`.enchantmentplaylisttooltip[data-macro-id="${macroId}"]`);
   $(ev.currentTarget)
     .off("mouseleave")
-    .on("mouseleave", (ev) => onUnhoverMacros(macroId));
-  tt.on("mouseleave", (ev) => onUnhoverMacros(macroId));
-  tt.css({
-    left: rect.x - 125 + rect.width / 2,
-    top: rect.y - tt.height(),
-    zIndex: 1000,
-  });
-  tt.fadeIn();
+    .on("mouseleave", (ev) => onUnhoverMacros(popup));
+  tt.on("mouseleave", (ev) => onUnhoverMacros(popup));
+
   game.tooltip.deactivate();
 }
 
-function onUnhoverMacros(macroId) {
-  const id = `.enchantmentplaylisttooltip[data-macro-id="${macroId}"]`;
-  console.log("iam called", id);
+function onUnhoverMacros(popup) {
   setTimeout(() => {
-    if (!$(`${id}:hover`).length) $(id).remove();
+    if (popup?.element && !$(popup.element).is(":hover")) {
+      popup.close({ animate: false });
+    }
   }, 100);
 }
 
