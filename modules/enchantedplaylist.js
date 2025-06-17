@@ -14,7 +14,8 @@ export class EnchantedPlaylist extends PlaylistDirectory {
             enchPlaylistBackward: this._enchantAllSkip,
             enchPlaylistForward: this._enchantAllSkip,
             enchPlay: this._enchantStartAll,
-            enchStop: this._enchantStopAll
+            enchStop: this._enchantStopAll,
+            loopPlaylists: this._loopPlaylists,
         }
     }
 
@@ -211,6 +212,13 @@ export class EnchantedPlaylist extends PlaylistDirectory {
             }
                 
         }
+    }
+
+    static async _loopPlaylists(ev, target) {
+        const settings = game.settings.get("playlistenchantment", "settings");
+        settings.playListLoopEnabled = !settings.playListLoopEnabled;
+        await game.settings.set("playlistenchantment", "settings", settings);
+        ui.playlists.render();
     }
 
     static async _enchantStopAll(ev, target) {

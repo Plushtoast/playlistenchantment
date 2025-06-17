@@ -48,7 +48,7 @@ export function setupHooks() {
   });
 
   Hooks.on("renderPlaylistDirectory", (app, html, data) => {
-    ui.enchantmentPopup?.render(true);
+    ui.enchantmentPopup?.render();
   });
 }
 

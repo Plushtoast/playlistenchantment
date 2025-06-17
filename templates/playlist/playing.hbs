@@ -6,7 +6,8 @@
         <button type="button" class="enchantmentcontrol icon fas fa-backward" data-action="enchPlaylistBackward" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.previous"></button>            
         <button type="button" class="icon fas fa-stop enchantmentcontrol" data-action="enchStop" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.stop"></button>
         <button type="button" class="icon fas fa-play enchantmentcontrol" data-action="enchPlay" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.play"></button>
-        <button type="button" style="margin-right:20px;" data-action="enchPlaylistForward" class="icon fas fa-forward enchantmentcontrol" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next"></button>
+        <button type="button" style="margin-right:10px;" data-action="enchPlaylistForward" class="icon fas fa-forward enchantmentcontrol" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.next"></button>
+        <!--button style="margin-right:10px;" type="button" data-action="loopPlaylists" class="icon fas {{ifThen ../enchantment.playListLoopEnabled 'fa-toggle-on' 'fa-toggle-off'}} enchantmentcontrol" data-tooltip="PLAYLISTENCHANTMENT.CONTROL.togglePlaylistLoop"></button-->
         {{/if}}
         <button type="button" class="inline-control pin icon fa-solid fa-caret-{{ pin.caret }}"
                 data-tooltip aria-label="{{ localize pin.label }}" data-action="pinCurrentlyPlaying"></button>

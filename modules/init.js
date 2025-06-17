@@ -11,7 +11,8 @@ Hooks.once("init", () => {
             normalize: false,
             normalizeModifier: 0.5,
             fadeModifier: 500,
-            alwaysFade: false
+            alwaysFade: false,
+            playListLoopEnabled: false
         },
         type: Object
     });

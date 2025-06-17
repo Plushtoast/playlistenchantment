@@ -7,20 +7,35 @@ $playingColor: rgba(30, 143, 255, 0.35);
             border-radius: 5px;
         }
     }
+
     .sound.playing {
         background-color: $playingColor;
         color: white;
         border-radius: 5px;
     }
 
-    .enchantmentcontrol{
+    .playlist-header {
+            gap:0;
+    }
+
+    .enchantmentcontrol {
         flex: none;
         margin-right: 10px;
-        font-size: 18px;
+        font-size: 16px;
+        color: var(--color-light-2);
+
+        &:hover {
+            text-shadow: 0 0 5px var(--color-light-2);
+        }
     }
+
     .sound:hover {
-        background-color: rgba(0,0,0, 0.9);
-        color: white;
+        background-color: rgba(0, 0, 0, 0.9);
+        color: var(--color-light-2);
+
+        button {
+            color: var(--color-light-2);
+        }
     }
 
     .sound-control.soundrepeating {
@@ -38,14 +53,13 @@ $playingColor: rgba(30, 143, 255, 0.35);
     position: fixed;
     width: 270px;
     z-index: 100 !important;
-    color: white;
-    background: rgba(0,0,0, 0.75);
+    --color-text-primary: white;
+    background: rgba(0, 0, 0, 0.75);
 
-    .macroName{
+    .macroName {
         text-align: center;
         font-size: 16px;
         font-weight: bold;
-        color: white;
         background-color: black;
         padding: 2px;
         padding-bottom: 8px;
@@ -54,22 +68,28 @@ $playingColor: rgba(30, 143, 255, 0.35);
 
     h4 {
         margin: 0;
+
         &.sound-name {
             color: rgba(255, 255, 255, 0.774);
         }
     }
 
-    .configuration{
+    .sound-timer {
+        color: var(--color-light-2);
+    }
+
+    .configuration {
         display: flex;
         flex-direction: row;
-        
-        background-color: rgba(0,0,0, 0.4);
+
+        background-color: rgba(0, 0, 0, 0.4);
         padding: 4px;
 
         h4 {
             flex: 1;
         }
-        a{
+
+        a {
             flex: 0;
             font-size: 20px;
             margin-right: 8px;
@@ -90,7 +110,7 @@ $playingColor: rgba(30, 143, 255, 0.35);
     margin: 0;
     text-align: center;
     white-space: nowrap;
-    
+
     -moz-animation: advertisingloop 5s linear infinite;
     -webkit-animation: advertisingloop 5s linear infinite;
     animation: advertisingloop 5s linear infinite;
@@ -100,13 +120,26 @@ $playingColor: rgba(30, 143, 255, 0.35);
     0% {
         transform: translateX(0);
     }
+
     50% {
-        transform: translateX(-110%); 
+        transform: translateX(-110%);
     }
+
     50.1% {
-        transform: translateX(110%); 
+        transform: translateX(110%);
     }
+
     100% {
-        transform: translateX(0); 
+        transform: translateX(0);
     }
-  }
+}
+
+.dark-theme {
+    .enchantmentplaylisttooltip{
+
+    }
+}
+
+.light-theme {
+
+}

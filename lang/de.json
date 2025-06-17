@@ -18,7 +18,8 @@
             "stop": "Alle aktive Playlist Tracks stoppen (pausieren)",
             "resume": "Alle aktive Playlist Tracks fortsetzen (außer Soundboards)",
             "next": "Alle aktive Playlist Tracks zum nächsten Track springen (außer Soundboards)",
-            "previous": "Alle aktive Playlist Tracks zum vorherigen Track springen (außer Soundboards)"
+            "previous": "Alle aktive Playlist Tracks zum vorherigen Track springen (außer Soundboards)",
+            "togglePlaylistLoop": "Aktiviere/deaktiviere Loop für gesamte Playlist (außer Soundboards)"
         },
         "SoundLoopOff": "Loop ausschalten",
         "SoundLoopOn": "Loop einschalten"

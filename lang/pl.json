@@ -12,13 +12,13 @@
         "soundUploadFolderHint": "Pliki dźwiękowe można przesyłać do tego folderu, przeciągając je i upuszczając na listy odtwarzania. Zostaną one dodane do docelowej listy odtwarzania.",
         "errorNoPlaylist": "Nie można dodać plików dźwiękowych, docelowym elementem musi być lista odtwarzania.",
         "uploadDone": "Wszystkie pliki zostały przesłane.",
-
         "CONTROL": {
             "play": "Uruchom wszystkie aktywne utwory z listy odtwarzania (z wyjątkiem soundboardów)",
             "stop": "Zatrzymaj (wstrzymaj) wszystkie aktywne utwory z listy odtwarzania",
             "resume": "Wznów wszystkie aktywne utwory z listy odtwarzania (z wyjątkiem soundboardów)",
             "next": "Przejdź do następnego utworu ze wszystkich aktywnych utworów na liście odtwarzania (z wyjątkiem soundboardów)",
-            "previous": "Przejdź do poprzedniego utworu ze wszystkich aktywnych utworów na liście odtwarzania (z wyjątkiem soundboardów)"            
+            "previous": "Przejdź do poprzedniego utworu ze wszystkich aktywnych utworów na liście odtwarzania (z wyjątkiem soundboardów)",
+            "togglePlaylistLoop": "Włącz/wyłącz pętlę dla całej listy odtwarzania (z wyjątkiem soundboardów)"
         },
         "SoundLoopOff": "Wyłącz pętlę",
         "SoundLoopOn": "Włącz pętlę"
