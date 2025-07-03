@@ -41,7 +41,7 @@ export class EnchantmentPopup extends foundry.applications.api.HandlebarsApplica
 
     foundry.utils.mergeObject(data, {
       macroId: this.macroId,
-      name: this.callingTarget.dataset.tooltip,
+      name: this.callingTarget.dataset.tooltipText || this.callingTarget.dataset.tooltip,
       isGM: game.user.isGM,
       playingSounds,
       showPlaying: ui.playlists.playing.length > 0,

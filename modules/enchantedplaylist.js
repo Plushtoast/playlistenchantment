@@ -3,12 +3,6 @@ const { PlaylistDirectory } = foundry.applications.sidebar.tabs;
 
 export class EnchantedPlaylist extends PlaylistDirectory {
 
-    /*static get defaultOptions() {
-        const options = super.defaultOptions;
-        options.template = "modules/playlistenchantment/templates/playlists-directory.hbs";
-
-        return options;
-    }*/
    static DEFAULT_OPTIONS = {
         actions: {
             enchPlaylistBackward: this._enchantAllSkip,

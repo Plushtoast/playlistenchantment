@@ -3,3 +3,4 @@ notes.md
 build.js
 node_modules
 package-lock.json
+deploy_to_foundry.rb
