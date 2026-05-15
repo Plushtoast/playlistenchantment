@@ -10,8 +10,13 @@ $playingColor: rgba(30, 143, 255, 0.35);
 
     .sound.playing {
         background-color: $playingColor;
-        color: white;
+        color: black;
         border-radius: 5px;
+
+        &:hover .sound-timer {
+            color: var(--color-light-2);
+            text-shadow: 0 0 5px var(--color-light-2);
+        }
     }
 
     .playlist-header {

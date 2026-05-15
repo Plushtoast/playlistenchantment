@@ -97,7 +97,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
 
     static async crossFade(playlistId) {
         const settings = game.settings.get("playlistenchantment", "settings")
-        const fadeModifier = settings.fadeModifier
+        const fadeModifier = Number(settings.fadeModifier) || 500;
 
         const thing = await fromUuid(playlistId);
         let playlist
@@ -251,6 +251,10 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         return this.isForge() ? ForgeVTT_FilePicker : foundry.applications.apps.FilePicker.implementation;
     }
 
+    file_container() {
+        return this.isForge() ? 'forgevtt' : 'data';
+    }
+
     static defaultUploadPlaylistName = "Playlistenchantment - Uploads";
 
     async handleAudioFilesUpload(event, files) {
@@ -259,7 +263,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         const sounds = [];
         for (const file of files) {
             const id = ui.notifications.info(game.i18n.format('PLAYLISTENCHANTMENT.uploading', { item: file.name }), { permanent: true });
-            const response = await filepicker.upload('data', path, file);
+            const response = await filepicker.upload(this.file_container(), path, file);
             ui.notifications.remove(id);
             const nameWithoutExtension = file.name.split('.').slice(0, -1).join('.');
             sounds.push({ name: nameWithoutExtension, path: response.path });
