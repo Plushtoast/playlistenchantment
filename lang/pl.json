@@ -21,6 +21,12 @@
             "togglePlaylistLoop": "Włącz/wyłącz pętlę dla całej listy odtwarzania (z wyjątkiem soundboardów)"
         },
         "SoundLoopOff": "Wyłącz pętlę",
-        "SoundLoopOn": "Włącz pętlę"
+        "SoundLoopOn": "Włącz pętlę",
+        "CombatAutoSwitch": "Gdy rozpocznie się walka, automatycznie przełącz z efektem crossfade na losową playlistę bojową. Po zakończeniu walki przywróć wcześniej odtwarzane playlisty.",
+        "CombatAutoSwitchLabel": "Muzyka walki",
+        "CombatConfigure": "Skonfiguruj playlisty bojowe",
+        "CombatConfigTitle": "Playlisty bojowe",
+        "CombatConfigHint": "Wybierz playlisty, z których losowana będzie jedna po rozpoczęciu walki.",
+        "CombatConfigEmpty": "W tym świecie nie ma dostępnych list odtwarzania muzyki."
     }
 }

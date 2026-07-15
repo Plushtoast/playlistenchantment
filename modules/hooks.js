@@ -1,4 +1,5 @@
 import { EnchantmentPopup } from "./enchantmentpopup.js";
+import { CombatPlaylistManager } from "./combatplaylists.js";
 const { mergeObject, getProperty } = foundry.utils;
 
 export function setupHooks() {
@@ -50,6 +51,8 @@ export function setupHooks() {
   Hooks.on("renderPlaylistDirectory", (app, html, data) => {
     ui.enchantmentPopup?.render();
   });
+
+  CombatPlaylistManager.registerHooks();
 }
 
 async function buildPlaylistMacro(uuid, slot) {

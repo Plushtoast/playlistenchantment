@@ -1,0 +1,18 @@
+<li class="directory-item folder flexcol {{#if folder.expanded}}expanded{{/if}}" data-folder-id="{{ folder.id }}"
+    data-uuid="{{ folder.uuid }}" data-folder-depth="{{ node.depth }}">
+
+    <header class="folder-header" {{#if folder.color}}style="background-color: {{ folder.color.css }};"{{/if}}
+            data-action="toggleFolder">
+        <i class="fa-solid fa-folder-open fa-fw" inert></i>
+        <span class="folder-name ellipsis">{{ folder.name }}</span>
+    </header>
+
+    <ol class="subdirectory plain" {{#if folder.color}}style="border-left-color: {{ folder.color.css }};"{{/if}}>
+        {{#each node.children}}
+        {{> "modules/playlistenchantment/templates/combatplaylists/folder-partial.hbs" node=this folder=folder }}
+        {{/each}}
+        {{#each node.entries}}
+        {{> "modules/playlistenchantment/templates/combatplaylists/entry-partial.hbs" }}
+        {{/each}}
+    </ol>
+</li>

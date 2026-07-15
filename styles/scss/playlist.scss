@@ -52,6 +52,11 @@ $playingColor: rgba(30, 143, 255, 0.35);
     .enchanment-checkbox {
         flex-grow: 0;
     }
+
+    .combat-playlist-config {
+        flex: none;
+        margin-right: 6px;
+    }
 }
 
 .enchantmentplaylisttooltip {
@@ -136,6 +141,42 @@ $playingColor: rgba(30, 143, 255, 0.35);
 
     100% {
         transform: translateX(0);
+    }
+}
+
+.combat-playlist-config-form {
+    padding: 8px;
+
+    .hint {
+        margin-bottom: 8px;
+    }
+
+    .directory-list {
+        max-height: 420px;
+        overflow-y: auto;
+        margin: 0;
+        padding: 0;
+    }
+
+    .directory-item.playlist {
+        align-items: center;
+        gap: 8px;
+        padding: 2px 4px;
+
+        .entry-name {
+            flex: 1;
+            margin: 0;
+        }
+
+        .combat-playlist-checkbox {
+            flex: none;
+        }
+    }
+}
+
+.playlistenchantment-combat-config {
+    .window-content {
+        padding: 0;
     }
 }
 

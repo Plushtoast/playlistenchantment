@@ -10,6 +10,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
             enchPlay: this._enchantStartAll,
             enchStop: this._enchantStopAll,
             loopPlaylists: this._loopPlaylists,
+            configureCombatPlaylists: this._configureCombatPlaylists,
         }
     }
 
@@ -95,9 +96,53 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         this.crossFade(playlistId)
     }
 
-    static async crossFade(playlistId) {
-        const settings = game.settings.get("playlistenchantment", "settings")
-        const fadeModifier = Number(settings.fadeModifier) || 500;
+    static getFadeSettings() {
+        const settings = game.settings.get("playlistenchantment", "settings");
+        return {
+            fadeModifier: Number(settings.fadeModifier) || 500,
+            normalize: settings.normalize,
+            normalizeModifier: settings.normalizeModifier || 0.5,
+        };
+    }
+
+    static async fadeIn(playlist, fadeModifier, initialSoundDoc) {
+        const settings = this.getFadeSettings();
+
+        if (initialSoundDoc) {
+            await playlist.playSound(initialSoundDoc);
+        } else {
+            await playlist.playAll();
+        }
+
+        const soundDoc = initialSoundDoc || playlist.sounds.find(s => s.playing);
+        if (!soundDoc) return;
+
+        if (!soundDoc.sound) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        if (!soundDoc.sound) return;
+
+        if (settings.normalize) {
+            soundDoc.updateSource({ volume: settings.normalizeModifier || 0.5 });
+        }
+        const volume = soundDoc.volume || 0.5;
+
+        soundDoc.sound.fade(volume, { duration: fadeModifier, from: 0 });
+    }
+
+    static fadeOut(playlist, fadeModifier, stopPlay = true) {
+        if (!playlist.playing) return;
+
+        const playingSound = playlist.sounds.find(s => s.playing)?.sound;
+        if (!playingSound) return;
+
+        const currVol = playingSound.volume;
+        playingSound.fade(0, { duration: fadeModifier, from: currVol });
+        if (stopPlay) setTimeout(() => playlist.stopAll(), fadeModifier);
+    }
+
+    static async crossFade(playlistId, { musicOnly = false } = {}) {
+        const { fadeModifier } = this.getFadeSettings();
 
         const thing = await fromUuid(playlistId);
         let playlist
@@ -108,41 +153,11 @@ export class EnchantedPlaylist extends PlaylistDirectory {
             sound = thing
             playlist = sound.parent
         } else if (thing instanceof Folder) {
-            const playlists = thing.contents
+            const playlists = thing.contents.filter(p => this._isCombatEligiblePlaylist(p))
             playlist = playlists[Math.floor(Math.random() * playlists.length)]
         }
         else {
             return
-        }
-
-        const fadeIn = async (playlist, fadeModifier, initialSoundDoc) => {
-            if (initialSoundDoc) {
-                await playlist.playSound(initialSoundDoc)
-            } else {
-                await playlist.playAll()
-            }
-
-            const soundDoc = initialSoundDoc || playlist.sounds.find(s => s.playing)
-            if (settings.normalize) {
-                soundDoc.updateSource({ volume: settings.normalizeModifier || 0.5 })
-            }
-            const volume = soundDoc.volume || 0.5
-
-            soundDoc.sound.fade(volume, { duration: fadeModifier, from: 0 });
-        }
-
-        const fadeOut = (playlist, fadeModifier, stopPlay = true) => {
-            if (!playlist.playing) return;
-
-            const playingSound = playlist.sounds.find(s => s.playing).sound;
-            if (!playingSound) return
-
-            const currVol = playingSound.volume
-            playingSound.fade(0, { duration: fadeModifier, from: currVol })
-            if (stopPlay)
-                setTimeout(() => playlist.stopAll(), fadeModifier);
-
-            return;
         }
 
         if (!playlist) {
@@ -153,9 +168,22 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         if (!sound && ui.playlists.playing.find(x => x.id == playlist.id)) return
 
         for (const pl of ui.playlists.playing) {
-            fadeOut(pl, fadeModifier, pl.id != playlist.id)
+            if (musicOnly && !this._isCombatEligiblePlaylist(pl)) continue;
+            this.fadeOut(pl, fadeModifier, pl.id != playlist.id)
         }
-        fadeIn(playlist, fadeModifier, sound)
+        await this.fadeIn(playlist, fadeModifier, sound)
+    }
+
+    /** Music-channel sequential/shuffle/simultaneous playlists only (no soundboards / environment / interface). */
+    static _isCombatEligiblePlaylist(playlist) {
+        return !!playlist
+            && playlist.mode >= 0
+            && (playlist.channel || "music") === "music";
+    }
+
+    static async _configureCombatPlaylists(_ev, _target) {
+        const { CombatPlaylistConfig } = await import("./combatplaylists.js");
+        new CombatPlaylistConfig().render(true);
     }
 
     _updateTimestamps() {

@@ -12,7 +12,9 @@ Hooks.once("init", () => {
             normalizeModifier: 0.5,
             fadeModifier: 500,
             alwaysFade: false,
-            playListLoopEnabled: false
+            playListLoopEnabled: false,
+            autoCombatSwitch: false,
+            combatPlaylists: []
         },
         type: Object
     });

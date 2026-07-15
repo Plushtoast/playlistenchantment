@@ -21,6 +21,12 @@
             "togglePlaylistLoop": "Enable/disable loop for entire playlist (except soundboards)"
         },
         "SoundLoopOff": "Disable loop",
-        "SoundLoopOn": "Enable loop"
+        "SoundLoopOn": "Enable loop",
+        "CombatAutoSwitch": "When combat starts, automatically cross-fade to a random combat playlist. When combat ends, restore the previously playing playlists.",
+        "CombatAutoSwitchLabel": "Combat Music",
+        "CombatConfigure": "Configure combat playlists",
+        "CombatConfigTitle": "Combat Playlists",
+        "CombatConfigHint": "Select the playlists to choose from when combat starts. One playlist will be picked at random.",
+        "CombatConfigEmpty": "No music playlists available in this world."
     }
 }

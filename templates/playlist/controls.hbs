@@ -47,6 +47,16 @@
                         <input type="checkbox" class="enchanment-checkbox" name="alwaysFade" value="true" {{checked enchantment.alwaysFade}}/>
                     </div>
                 </li>
+                <li class="flexrow" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.CombatAutoSwitch'}}">
+                    <label>{{localize "PLAYLISTENCHANTMENT.CombatAutoSwitchLabel"}}</label>
+                    <i class="volume-icon fas fa-swords" inert></i>
+                    <div style="flex: 2" class="flexrow">
+                        <button type="button" class="combat-playlist-config inline-control icon" data-action="configureCombatPlaylists" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.CombatConfigure'}}">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <input type="checkbox" class="enchanment-checkbox" name="autoCombatSwitch" value="true" {{checked enchantment.autoCombatSwitch}}/>
+                    </div>
+                </li>
                 {{/if}}
             </ol>
         </div>
