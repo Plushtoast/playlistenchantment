@@ -3,7 +3,7 @@
     {{#if tree.hasContent}}
     <ol class="directory-list plain">
         {{#each tree.children}}
-        {{> "modules/playlistenchantment/templates/combatplaylists/folder-partial.hbs" node=this folder=folder }}
+        {{> "modules/playlistenchantment/templates/combatplaylists/folder-partial.hbs" node=this folder=this.folder }}
         {{/each}}
         {{#each tree.entries}}
         {{> "modules/playlistenchantment/templates/combatplaylists/entry-partial.hbs" }}

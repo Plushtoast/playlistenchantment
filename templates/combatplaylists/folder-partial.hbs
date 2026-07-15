@@ -9,7 +9,7 @@
 
     <ol class="subdirectory plain" {{#if folder.color}}style="border-left-color: {{ folder.color.css }};"{{/if}}>
         {{#each node.children}}
-        {{> "modules/playlistenchantment/templates/combatplaylists/folder-partial.hbs" node=this folder=folder }}
+        {{> "modules/playlistenchantment/templates/combatplaylists/folder-partial.hbs" node=this folder=this.folder }}
         {{/each}}
         {{#each node.entries}}
         {{> "modules/playlistenchantment/templates/combatplaylists/entry-partial.hbs" }}

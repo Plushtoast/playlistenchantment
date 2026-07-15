@@ -114,7 +114,7 @@ export class CombatPlaylistManager {
 
     static prepareCombatTree(selected) {
         const prepareNode = (node) => {
-            const entries = node.entries
+            const entries = (node.entries ?? [])
                 .filter((playlist) => CombatPlaylistManager.isMusicPlaylist(playlist))
                 .map((playlist) => ({
                     id: playlist.id,
@@ -122,21 +122,20 @@ export class CombatPlaylistManager {
                     checked: selected.includes(playlist.id),
                 }));
 
-            const children = node.children
+            const children = (node.children ?? [])
                 .map((child) => prepareNode(child))
-                .filter((child) => child.entries.length || child.children.length);
+                .filter((child) => child.hasContent);
 
             return {
                 folder: node.folder,
                 depth: node.depth,
                 entries,
                 children,
+                hasContent: entries.length > 0 || children.length > 0,
             };
         };
 
-        const tree = prepareNode(game.playlists.tree);
-        tree.hasContent = tree.entries.length > 0 || tree.children.length > 0;
-        return tree;
+        return prepareNode(game.playlists.tree);
     }
 }
 
@@ -173,8 +172,10 @@ export class CombatPlaylistConfig extends foundry.applications.api.HandlebarsApp
         return data;
     }
 
-    _onToggleFolder(_event, target) {
-        const folder = target.closest(".directory-item");
+    static _onToggleFolder(_event, target) {
+        const folder = target.closest(".directory-item.folder");
+        if (!folder) return;
+
         folder.classList.toggle("expanded");
         const expanded = folder.classList.contains("expanded");
         const { uuid } = folder.dataset;
