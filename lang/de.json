@@ -2,7 +2,7 @@
     "PLAYLISTENCHANTMENT": {
         "Normalize": "Normalisiere die Lautstärke und starte alle Playlist (außer Soundboards) Tracks mit dieser Lautstärke.",
         "VolNormalize": "Normalisierung",
-        "Fade": "Fade immer zwischen Tracks (außer Soundboards). Wenn ein neuer Track gestartet wird, werden alle anderen beendet.",
+        "Fade": "Fade-Dauer beim Wechsel von Playlists dieses Kanals (außer Soundboards). Mit der Checkbox aktivieren.",
         "VolFade": "Fade",
         "FadeTooltip": "Fade Dauer {value} ms",
         "Prehear": "Sound Preview",
@@ -28,6 +28,9 @@
         "CombatConfigure": "Kampf-Playlists konfigurieren",
         "CombatConfigTitle": "Kampf-Playlists",
         "CombatConfigHint": "Wähle die Playlists aus, aus denen beim Kampfstart zufällig eine ausgewählt wird.",
-        "CombatConfigEmpty": "In dieser Welt sind keine Musik-Playlists verfügbar."
+        "CombatConfigEmpty": "In dieser Welt sind keine Musik-Playlists verfügbar.",
+        "ChannelFadeOn": "{channel}: Exklusives Fading an",
+        "ChannelFadeOff": "{channel}: Exklusives Fading aus",
+        "ChannelExpand": "Fade- und Normalisierungseinstellungen ein- oder ausblenden"
     }
 }

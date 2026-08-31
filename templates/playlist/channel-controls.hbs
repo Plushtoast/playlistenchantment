@@ -1,0 +1,46 @@
+<li class="channel-volume {{ channel.css }} {{#if expanded}}expanded{{/if}}" data-channel="{{ channel.id }}">
+    <div class="flexrow channel-volume-header">
+        <button type="button" class="expand icon fa-solid fa-angle-up" data-action="toggleChannelExpand"
+                data-channel="{{ channel.id }}"
+                data-tooltip="{{ localize "PLAYLISTENCHANTMENT.ChannelExpand" }}"
+                aria-label="{{ localize "PLAYLISTENCHANTMENT.ChannelExpand" }}"></button>
+        <i class="volume-icon playlist-channel-icon {{ channel.icon }} {{ channel.css }}" inert></i>
+        <label data-tooltip="{{ channel.audioTooltip }}">{{ localize channel.label }}</label>
+        {{#with volume}}
+        {{ formInput field classes="global-volume-slider" name=name value=modifier dataset=dataset
+                     aria=aria }}
+        {{/with}}
+    </div>
+    <div class="expandable">
+        <div class="wrapper">
+            {{#if @root.user.isGM}}
+            <div class="flexrow channel-extra" data-tooltip="PLAYLISTENCHANTMENT.Fade">
+                <label>{{localize "PLAYLISTENCHANTMENT.VolFade"}}</label>
+                <i class="volume-icon fas fa-volume-down" inert></i>
+                <div class="flexrow channel-extra-controls">
+                    <input data-unit="ms" data-channel="{{ channel.id }}" data-setting="fadeModifier"
+                           aria-label="{{localize 'PLAYLISTENCHANTMENT.VolFade'}}"
+                           class="enchantment-volume-slider" type="range" min="0" max="10000" step="50"
+                           value="{{ fadeModifier }}" data-tooltip="{{ fadeTooltip }}"/>
+                    <input type="checkbox" class="enchanment-checkbox" data-channel="{{ channel.id }}"
+                           data-setting="fade" value="true" {{checked fade}}
+                           data-tooltip="{{ fadeEnabledTooltip }}"/>
+                </div>
+            </div>
+            <div class="flexrow channel-extra" data-tooltip="PLAYLISTENCHANTMENT.Normalize">
+                <label>{{localize "PLAYLISTENCHANTMENT.VolNormalize"}}</label>
+                <i class="volume-icon fas fa-volume-down" inert></i>
+                <div class="flexrow channel-extra-controls">
+                    <input data-volume="true" data-channel="{{ channel.id }}" data-setting="normalizeModifier"
+                           aria-label="{{localize 'PLAYLISTENCHANTMENT.VolNormalize'}}"
+                           class="enchantment-volume-slider" type="range" min="0" max="1" step="0.05"
+                           value="{{ normalizeModifier }}" data-tooltip="{{ normalizeTooltip }}"/>
+                    <input type="checkbox" class="enchanment-checkbox" data-channel="{{ channel.id }}"
+                           data-setting="normalize" value="true" {{checked normalize}}
+                           data-tooltip="PLAYLISTENCHANTMENT.Normalize"/>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</li>

@@ -2,7 +2,7 @@
     "PLAYLISTENCHANTMENT": {
         "Normalize": "Normalize volume and start all playlist (except soundboards) tracks with this volume.",
         "VolNormalize": "Normalize",
-        "Fade": "Fade between tracks (except soundboards). When a new track is started, all others are stopped.",
+        "Fade": "Fade duration when switching playlists of this channel (except soundboards). Enable with the checkbox.",
         "VolFade": "Fade",
         "FadeTooltip": "Fade Duration {value} ms",
         "Prehear": "Preview sound",
@@ -27,6 +27,9 @@
         "CombatConfigure": "Configure combat playlists",
         "CombatConfigTitle": "Combat Playlists",
         "CombatConfigHint": "Select the playlists to choose from when combat starts. One playlist will be picked at random.",
-        "CombatConfigEmpty": "No music playlists available in this world."
+        "CombatConfigEmpty": "No music playlists available in this world.",
+        "ChannelFadeOn": "{channel}: exclusive fade on",
+        "ChannelFadeOff": "{channel}: exclusive fade off",
+        "ChannelExpand": "Show or hide fade and normalize settings"
     }
 }

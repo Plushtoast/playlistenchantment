@@ -1,12 +1,14 @@
 <li class="directory-item document {{ @root.documentCls }} {{ css }}" data-entry-id="{{ id }}">
     <header class="playlist-header" data-action="activateEntry">
         <i class="expand fa-solid fa-angle-up" inert></i>
+        <i class="playlist-channel-icon {{ channel.icon }} {{ channel.css }}" data-tooltip
+           aria-label="{{ localize channel.label }}"></i>
         <label class="entry-name playlist-name ellipsis">{{ name }}</label>
         <div class="sound-controls playlist-controls flexrow">
             {{#unless playing}}
             {{#if isOwner}}
             <button type="button" class="inline-control sound-control icon fa-solid fa-plus" data-action="soundCreate"
-                    data-tooltip aria-label="{{ localize "PLAYLIST.SoundCreate" }}"></button>
+                    data-tooltip aria-label="{{ localize "PLAYLIST.SoundAdd" }}"></button>
             {{/if}}
             {{/unless}}
             <button type="button" class="inline-control sound-control icon {{ mode.icon }}" data-action="playlistMode"

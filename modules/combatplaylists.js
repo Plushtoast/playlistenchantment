@@ -87,7 +87,7 @@ export class CombatPlaylistManager {
 
         const randomId = playlistIds[Math.floor(Math.random() * playlistIds.length)];
         const playlist = game.playlists.get(randomId);
-        await EnchantedPlaylist.crossFade(playlist.uuid, { musicOnly: true });
+        await EnchantedPlaylist.crossFade(playlist.uuid);
     }
 
     static async _onDeleteCombat(combat, options, userId) {

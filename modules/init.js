@@ -14,7 +14,17 @@ Hooks.once("init", () => {
             alwaysFade: false,
             playListLoopEnabled: false,
             autoCombatSwitch: false,
-            combatPlaylists: []
+            combatPlaylists: [],
+            channelFade: {
+                music: true,
+                environment: false,
+                interface: false
+            },
+            channelSettings: {
+                music: { fade: true, fadeModifier: 500, normalize: false, normalizeModifier: 0.5 },
+                environment: { fade: false, fadeModifier: 500, normalize: false, normalizeModifier: 0.5 },
+                interface: { fade: false, fadeModifier: 500, normalize: false, normalizeModifier: 0.5 }
+            }
         },
         type: Object
     });
@@ -34,4 +44,17 @@ Hooks.once("init", () => {
 
 Hooks.once("setup", () => {
     setupHooks()
+})
+
+Hooks.once("ready", () => {
+    const settings = game.settings.get("playlistenchantment", "settings");
+    if ((settings.channelControlsV ?? 0) >= 1) return;
+
+    const channelSettings = settings.channelSettings ?? {};
+    for (const id of ["environment", "interface"]) {
+        channelSettings[id] = { ...channelSettings[id], fade: false, normalize: false };
+    }
+    settings.channelSettings = channelSettings;
+    settings.channelControlsV = 1;
+    game.settings.set("playlistenchantment", "settings", settings);
 })

@@ -1,5 +1,6 @@
 import { EnchantmentPopup } from "./enchantmentpopup.js";
 import { CombatPlaylistManager } from "./combatplaylists.js";
+import { EnchantedPlaylist } from "./enchantedplaylist.js";
 const { mergeObject, getProperty } = foundry.utils;
 
 export function setupHooks() {
@@ -19,9 +20,9 @@ export function setupHooks() {
 
   Hooks.on("getPlaylistSoundContextOptions", (app, optns) => {
     optns.push({
-      name: "PLAYLISTENCHANTMENT.Prehear",
-      icon: "<i class='fas fa-music'></i>",
-      callback: (i) => preHearSound(i),
+      label: "PLAYLISTENCHANTMENT.Prehear",
+      icon: "fa-solid fa-music",
+      onClick: (_event, li) => preHearSound(li),
     });
   });
 
@@ -33,10 +34,11 @@ export function setupHooks() {
     activemacros.mousedown((ev) => onUnhoverMacros(ev));
   });
 
-  Hooks.on("preUpdatePlaylist", (playlist, changes, options, userId) => {
-    if (playlist.mode >= 0 && "sounds" in changes) {
-      const settings = game.settings.get("playlistenchantment", "settings");
-      if (settings.alwaysFade) {
+  Hooks.on("preUpdatePlaylist", (playlist, changes, _options, _userId) => {
+    if (playlist.mode >= CONST.PLAYLIST_MODES.SEQUENTIAL && "sounds" in changes) {
+      const channel = EnchantedPlaylist._playbackChannel(playlist);
+      const settings = EnchantedPlaylist.getChannelSettings(channel);
+      if (settings.fade) {
         changes.fade = settings.fadeModifier || 0;
       }
       if (settings.normalize) {
@@ -45,7 +47,25 @@ export function setupHooks() {
           sound.volume = settings.normalizeModifier || 0;
         }
       }
+      // Core stopAll omits pausedTime; Currently Playing keeps any leftover pause.
+      if (changes.playing === false) {
+        for (const sound of changes.sounds) {
+          if (sound.playing === false && !("pausedTime" in sound)) sound.pausedTime = null;
+        }
+      }
     }
+  });
+
+  Hooks.on("updatePlaylist", (playlist, changes, _options, userId) => {
+    if (game.userId !== userId) return;
+    if (!playlistPlaybackStarted(playlist, changes)) return;
+    EnchantedPlaylist.exclusiveFadeOthers(playlist);
+  });
+
+  Hooks.on("updatePlaylistSound", (sound, changes, _options, userId) => {
+    if (game.userId !== userId) return;
+    if (changes.playing !== true) return;
+    EnchantedPlaylist.exclusiveFadeOthers(sound.parent, sound);
   });
 
   Hooks.on("renderPlaylistDirectory", (app, html, data) => {
@@ -53,6 +73,12 @@ export function setupHooks() {
   });
 
   CombatPlaylistManager.registerHooks();
+}
+
+function playlistPlaybackStarted(playlist, changes) {
+  if (!EnchantedPlaylist._isPlaylistPlayback(playlist)) return false;
+  if (changes.playing === true) return true;
+  return Array.isArray(changes.sounds) && changes.sounds.some((s) => s.playing === true);
 }
 
 async function buildPlaylistMacro(uuid, slot) {
@@ -81,7 +107,7 @@ async function preHearSound(i) {
 
   const sound = game.playlists.get(playlistId).sounds.get(soundId);
 
-  const settings = game.settings.get("playlistenchantment", "settings");
+  const settings = EnchantedPlaylist.getChannelSettings(EnchantedPlaylist._audioChannel(sound.parent, sound));
 
   const volume = settings.normalize ? settings.normalizeModifier : sound.volume || 0.5;
 

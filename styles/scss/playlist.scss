@@ -1,6 +1,50 @@
 $playingColor: rgba(30, 143, 255, 0.35);
+$channelMusic: #5aa8e8;
+$channelEnvironment: #3cae6a;
+$channelInterface: #d49b2b;
 
-#playlists {
+:root {
+    --pe-channel-music: #{$channelMusic};
+    --pe-channel-environment: #{$channelEnvironment};
+    --pe-channel-interface: #{$channelInterface};
+}
+
+.playlist-channel-icon {
+    flex: none;
+    flex-shrink: 0;
+    width: 1.1em;
+    margin-inline: 2px;
+    text-align: center;
+
+    &.channel-music { color: var(--pe-channel-music); }
+    &.channel-environment { color: var(--pe-channel-environment); }
+    &.channel-interface { color: var(--pe-channel-interface); }
+
+    &.inactive {
+        opacity: 0.35;
+        filter: grayscale(1);
+    }
+}
+
+button.playlist-channel-icon {
+    --button-size: 1.1em;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    cursor: pointer;
+
+    &:hover:not(:disabled):not(.inactive) {
+        text-shadow: 0 0 5px currentColor;
+    }
+
+    &:disabled {
+        cursor: default;
+    }
+}
+
+#playlists,
+#playlists-popout {
     #currently-playing {
         .playing {
             background-color: $playingColor;
@@ -21,6 +65,16 @@ $playingColor: rgba(30, 143, 255, 0.35);
 
     .playlist-header {
             gap:0;
+    }
+
+    .playlist.channel-music > .playlist-header {
+        border-inline-start: 3px solid var(--pe-channel-music);
+    }
+    .playlist.channel-environment > .playlist-header {
+        border-inline-start: 3px solid var(--pe-channel-environment);
+    }
+    .playlist.channel-interface > .playlist-header {
+        border-inline-start: 3px solid var(--pe-channel-interface);
     }
 
     .enchantmentcontrol {
@@ -55,7 +109,84 @@ $playingColor: rgba(30, 143, 255, 0.35);
 
     .combat-playlist-config {
         flex: none;
-        margin-right: 6px;
+    }
+
+    .combat-autoswitch {
+        flex-wrap: nowrap;
+
+        .combat-autoswitch-controls {
+            justify-content: flex-end;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 4px;
+        }
+    }
+
+    .channel-volume-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    // Nested channel expandables: Foundry opens every .expandable under .global-volume.expanded.
+    .global-volume.expanded .channel-volume {
+        > .channel-volume-header > .expand {
+            transform: none;
+        }
+
+        > .expandable {
+            grid-template-rows: 0fr;
+        }
+
+        &.expanded {
+            > .channel-volume-header > .expand {
+                transform: rotate(180deg);
+            }
+
+            > .expandable {
+                grid-template-rows: 1fr;
+            }
+        }
+    }
+
+    .channel-volume {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+
+        .channel-volume-header {
+            align-items: center;
+            gap: 4px;
+
+            > .expand {
+                --button-size: 1rem;
+                flex: none;
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                cursor: pointer;
+                transition: transform 250ms ease;
+            }
+        }
+
+        .channel-extra {
+            align-items: center;
+            padding-inline-start: 1.25em;
+            line-height: var(--entry-height);
+            gap: 4px;
+        }
+
+        .channel-extra-controls {
+            flex: 2;
+            align-items: center;
+            min-width: 0;
+
+            input[type="range"] {
+                flex: 1;
+                height: var(--entry-height);
+                min-width: 0;
+            }
+        }
     }
 }
 

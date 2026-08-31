@@ -2,7 +2,7 @@
     "PLAYLISTENCHANTMENT": {
         "Normalize": "Normalizuj głośność i uruchom wszystkie utwory z listy odtwarzania (z wyjątkiem soundboardów) z tą głośnością.",
         "VolNormalize": "Normalizuj",
-        "Fade": "Przejście między utworami (z wyjątkiem soundboardów) . Po rozpoczęciu nowego utworu wszystkie pozostałe są zatrzymywane.",
+        "Fade": "Czas zanikania przy przełączaniu list odtwarzania tego kanału (z wyjątkiem soundboardów). Włącz polem wyboru.",
         "VolFade": "Zanikanie",
         "FadeTooltip": "Czas zanikania {value} ms",
         "Prehear": "Podgląd dźwięku",
@@ -27,6 +27,9 @@
         "CombatConfigure": "Skonfiguruj playlisty bojowe",
         "CombatConfigTitle": "Playlisty bojowe",
         "CombatConfigHint": "Wybierz playlisty, z których losowana będzie jedna po rozpoczęciu walki.",
-        "CombatConfigEmpty": "W tym świecie nie ma dostępnych list odtwarzania muzyki."
+        "CombatConfigEmpty": "W tym świecie nie ma dostępnych list odtwarzania muzyki.",
+        "ChannelFadeOn": "{channel}: ekskluzywne zanikanie włączone",
+        "ChannelFadeOff": "{channel}: ekskluzywne zanikanie wyłączone",
+        "ChannelExpand": "Pokaż lub ukryj ustawienia zanikania i normalizacji"
     }
 }

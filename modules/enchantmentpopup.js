@@ -1,3 +1,5 @@
+import { EnchantedPlaylist } from "./enchantedplaylist.js";
+
 export class EnchantmentPopup extends foundry.applications.api.HandlebarsApplicationMixin(
   foundry.applications.api.ApplicationV2
 ) {
@@ -14,6 +16,9 @@ export class EnchantmentPopup extends foundry.applications.api.HandlebarsApplica
       frame: false,
     },
     classes: ["enchantmentplaylisttooltip", "playlists-sidebar"],
+    actions: {
+      enchPlay: this._playAssignedMacro,
+    },
   };
 
   constructor(callingTarget, macroId) {
@@ -44,19 +49,31 @@ export class EnchantmentPopup extends foundry.applications.api.HandlebarsApplica
       name: this.callingTarget.dataset.tooltipText || this.callingTarget.dataset.tooltip,
       isGM: game.user.isGM,
       playingSounds,
-      showPlaying: ui.playlists.playing.length > 0,
+      showPlaying: game.playlists.playing.length > 0,
     });
     return data;
   }
 
+  static async _playAssignedMacro() {
+    return EnchantedPlaylist.playHotbarMacro(this.macroId);
+  }
+
   async _onRender(context, options) {
     await super._onRender(context, options);
+    this.element.dataset.macroId = this.macroId;
 
     const template = $(this.element);
     ui.playlists.activateListeners(template);
     template.find("[data-action]").on("click", async (ev) => {
       const target = ev.currentTarget;
       const action = target.dataset.action;
+
+      if (action === "enchPlay") {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        await EnchantmentPopup._playAssignedMacro.call(this);
+        return;
+      }
 
       if (action === "soundRepeat") {
         const { playlistId, soundId } = target.closest(".sound")?.dataset ?? {};
@@ -71,7 +88,8 @@ export class EnchantmentPopup extends foundry.applications.api.HandlebarsApplica
             await sound.update({ playing: false, pausedTime: sound.sound.currentTime });
             break;
           case "soundPlay":
-            await playlist.playSound(sound);
+            if (!sound) break;
+            await EnchantedPlaylist.playOrCrossFade(playlist, sound);
             break;
           case "soundStop":
             await playlist.stopSound(sound);
