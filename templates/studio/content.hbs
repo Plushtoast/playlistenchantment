@@ -1,0 +1,104 @@
+<div class="pe-content">
+    <header class="pe-content-header {{playlist.channel.css}}">
+        <h2 class="pe-content-title">
+            {{#if playlist}}<i class="{{playlist.channel.icon}} pe-content-channel"
+                               data-tooltip="{{localize playlist.channel.label}}"></i>{{/if}}
+            {{#if heading}}{{heading}}{{else}}{{localize "PLAYLISTENCHANTMENT.STUDIO.title"}}{{/if}}
+        </h2>
+
+        {{#if playlist}}
+        <div class="pe-content-actions">
+            {{#if canControl}}
+            <div class="pe-mode-switch" role="group">
+                {{#each modes}}
+                <button type="button" class="pe-icon-button {{#if active}}active{{/if}}" data-action="setMode"
+                        data-mode="{{mode}}" data-playlist-id="{{@root.playlist.id}}"
+                        data-tooltip="{{localize label}}">
+                    <i class="{{icon}}"></i>
+                </button>
+                {{/each}}
+            </div>
+            {{/if}}
+            <button type="button" class="pe-icon-button" data-action="playPlaylist" data-playlist-id="{{playlist.id}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.playPlaylistHint'}}">
+                <i class="fa-solid fa-play"></i>
+            </button>
+            <button type="button" class="pe-icon-button" data-action="stopPlaylist" data-playlist-id="{{playlist.id}}"
+                    data-tooltip="{{localize 'PLAYLIST.Stop'}}">
+                <i class="fa-solid fa-stop"></i>
+            </button>
+            {{#if canEdit}}
+            <button type="button" class="pe-icon-button" data-action="editPlaylist" data-playlist-id="{{playlist.id}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.EDITOR.editPlaylist'}}">
+                <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            {{/if}}
+            {{#if @root.isGM}}
+            <button type="button" class="pe-icon-button {{#if playlist.hasDJs}}active{{/if}}" data-action="manageDJ"
+                    data-playlist-id="{{playlist.id}}" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.DJ.manage'}}">
+                <i class="fa-solid fa-headphones"></i>
+            </button>
+            {{/if}}
+            {{#if @root.canUpload}}
+            <button type="button" class="pe-icon-button" data-action="openUpload" data-playlist-id="{{playlist.id}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.UPLOAD.intoPlaylist'}}">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+            </button>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{#if board}}
+        <div class="pe-content-actions">
+            <button type="button" class="pe-icon-button" data-action="stopBoard" data-playlist-id="{{board.id}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.BOARD.stopAll'}}">
+                <i class="fa-solid fa-stop"></i>
+            </button>
+            {{#if @root.canUpload}}
+            <button type="button" class="pe-icon-button" data-action="openUpload" data-playlist-id="{{board.id}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.UPLOAD.intoBoard'}}">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+            </button>
+            {{/if}}
+        </div>
+        {{/if}}
+    </header>
+
+    <div class="pe-content-body pe-drop-target" {{#if playlist}}data-playlist-id="{{playlist.id}}"{{/if}}>
+        {{#if @root.isSettingsView}}
+        {{> "modules/playlistenchantment/templates/studio/settings.hbs"}}
+        {{else}}
+
+        {{#if placeholder}}
+        <div class="pe-placeholder">
+            <i class="fa-solid fa-compact-disc"></i>
+            <p>{{placeholder}}</p>
+        </div>
+        {{/if}}
+
+        {{#if @root.isBoardView}}
+            {{#if board}}
+            <div class="pe-pad-grid" style="--pe-columns: {{columns}}">
+                {{#each pads}}
+                {{> "modules/playlistenchantment/templates/studio/pad.hbs"}}
+                {{/each}}
+            </div>
+            {{#if empty}}
+            <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.BOARD.empty"}}</p>
+            {{/if}}
+            {{/if}}
+        {{else}}
+            {{#if tracks.length}}
+            <ol class="pe-track-list">
+                {{#each tracks}}
+                {{> "modules/playlistenchantment/templates/studio/track.hbs"}}
+                {{/each}}
+            </ol>
+            {{else if playlist}}
+            <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.STUDIO.emptyPlaylist"}}</p>
+            {{/if}}
+        {{/if}}
+
+        {{/if}}
+    </div>
+</div>

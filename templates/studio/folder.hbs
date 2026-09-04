@@ -1,0 +1,43 @@
+{{! One folder and everything below it. Renders itself for subfolders. }}
+<section class="pe-folder {{#if collapsed}}collapsed{{/if}}" data-folder-id="{{id}}">
+    <h3 class="pe-folder-name" data-action="toggleFolder" {{#if color}}style="--pe-folder-color: {{color}}"{{/if}}
+        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.toggleFolder'}}">
+        <i class="pe-folder-caret fa-solid fa-angle-down"></i>
+        <i class="fa-solid fa-folder{{#unless collapsed}}-open{{/unless}}"></i>
+        <span class="pe-folder-label">{{name}}</span>
+        {{#if playing}}
+        <i class="fa-solid fa-volume-high pe-folder-playing"
+           data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.folderPlaying'}}"></i>
+        {{/if}}
+        <span class="pe-folder-count">{{count}}</span>
+
+        <span class="pe-folder-actions">
+            {{#if @root.canCreate}}
+            <button type="button" class="pe-icon-button" data-action="newPlaylist" data-folder-id="{{id}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.newPlaylistHere'}}">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+            {{/if}}
+            {{#if @root.canCreateFolder}}
+            <button type="button" class="pe-icon-button" data-action="newFolder" data-folder-id="{{id}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.newSubfolder'}}">
+                <i class="fa-solid fa-folder-plus"></i>
+            </button>
+            {{/if}}
+            <button type="button" class="pe-icon-button pe-pin {{#if pinned}}pinned{{/if}}" data-action="togglePin"
+                    data-folder-id="{{id}}"
+                    data-tooltip="{{#if pinned}}{{localize 'PLAYLISTENCHANTMENT.LIBRARY.unpinFolder'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.LIBRARY.pinFolder'}}{{/if}}">
+                <i class="fa-{{#if pinned}}solid{{else}}regular{{/if}} fa-thumbtack"></i>
+            </button>
+        </span>
+    </h3>
+
+    <div class="pe-folder-body">
+        {{#each playlists}}
+        {{> "modules/playlistenchantment/templates/studio/entry.hbs"}}
+        {{/each}}
+        {{#each children}}
+        {{> "modules/playlistenchantment/templates/studio/folder.hbs"}}
+        {{/each}}
+    </div>
+</section>

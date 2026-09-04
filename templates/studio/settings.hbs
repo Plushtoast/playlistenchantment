@@ -1,0 +1,152 @@
+<div class="pe-settings">
+    <section class="pe-panel">
+        <h3 class="pe-panel-title"><i class="fa-solid fa-palette"></i>{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.appearance"}}</h3>
+        <p class="pe-panel-hint">{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.appearanceHint"}}</p>
+
+        <label class="pe-checkbox pe-checkbox-strong" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.SETTINGS.enchantmentStyleHint'}}">
+            <input type="checkbox" name="enchantmentStyle" {{#if enchantmentStyle}}checked{{/if}} />
+            {{localize "PLAYLISTENCHANTMENT.SETTINGS.enchantmentStyle"}}
+        </label>
+        <p class="pe-panel-hint">{{localize "PLAYLISTENCHANTMENT.SETTINGS.enchantmentStyleHint"}}</p>
+    </section>
+
+    <section class="pe-panel">
+        <h3 class="pe-panel-title"><i class="fa-solid fa-keyboard"></i>{{localize "PLAYLISTENCHANTMENT.KEYBINDINGS.openStudio"}}</h3>
+        <p class="pe-panel-hint">{{localize "PLAYLISTENCHANTMENT.KEYBINDINGS.openStudioHint"}}</p>
+
+        <div class="pe-field pe-field-inline">
+            <button type="button" class="pe-button pe-hotkey {{#if capturing}}capturing{{/if}}" data-action="captureHotkey">
+                <i class="fa-solid fa-keyboard"></i>
+                {{#if capturing}}{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.hotkeyCapturing"}}
+                {{else if hotkey}}{{hotkey}}
+                {{else}}{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.hotkeyEmpty"}}{{/if}}
+            </button>
+            <button type="button" class="pe-icon-button pe-danger" data-action="clearHotkey" {{#unless hotkey}}disabled{{/unless}}
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.hotkeyClear'}}">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        {{#if hotkeyConflict}}
+        <p class="pe-note pe-danger" role="status">
+            <i class="fa-duotone fa-triangle-exclamation"></i>{{hotkeyConflict}}
+        </p>
+        {{/if}}
+    </section>
+
+    {{#unless isGM}}
+    <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.gmOnly"}}</p>
+    {{else}}
+
+    <section class="pe-panel">
+        <h3 class="pe-panel-title"><i class="fa-solid fa-sliders"></i>{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.channels"}}</h3>
+        <p class="pe-panel-hint">{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.channelsHint"}}</p>
+
+        {{#each channels}}
+        <div class="pe-channel-card {{css}}">
+            <header class="pe-channel-head">
+                <i class="{{icon}}"></i>
+                <span class="pe-channel-name">{{localize label}}</span>
+                <span class="pe-channel-volume-value">{{volumePercent}}</span>
+            </header>
+
+            <div class="pe-channel-row">
+                <label>{{localize "PLAYLIST.VOLUME.CONTROLS"}}</label>
+                <input type="range" class="pe-setting-volume" min="0" max="1" step="0.05" value="{{volume}}"
+                       data-channel="{{id}}" aria-label="{{localize 'PLAYLIST.VOLUME.CONTROLS'}}" />
+            </div>
+
+            <div class="pe-channel-row">
+                <label class="pe-checkbox" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.fadeHint'}}">
+                    <input type="checkbox" class="pe-setting-toggle" data-channel="{{id}}" data-setting="fade"
+                           {{#if fade}}checked{{/if}} />
+                    {{localize "PLAYLISTENCHANTMENT.VolFade"}}
+                </label>
+                <input type="range" class="pe-setting-range" min="0" max="10000" step="50" value="{{fadeModifier}}"
+                       data-channel="{{id}}" data-setting="fadeModifier" {{#unless fade}}disabled{{/unless}}
+                       data-tooltip="{{fadeTooltip}}" aria-label="{{localize 'PLAYLISTENCHANTMENT.VolFade'}}" />
+                <span class="pe-setting-value">{{fadeModifier}} ms</span>
+            </div>
+
+            <div class="pe-channel-row">
+                <label class="pe-checkbox" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.normalizeHint'}}">
+                    <input type="checkbox" class="pe-setting-toggle" data-channel="{{id}}" data-setting="normalize"
+                           {{#if normalize}}checked{{/if}} />
+                    {{localize "PLAYLISTENCHANTMENT.VolNormalize"}}
+                </label>
+                <input type="range" class="pe-setting-range" min="0" max="1" step="0.05" value="{{normalizeModifier}}"
+                       data-channel="{{id}}" data-setting="normalizeModifier" {{#unless normalize}}disabled{{/unless}}
+                       data-tooltip="{{normalizeTooltip}}" aria-label="{{localize 'PLAYLISTENCHANTMENT.VolNormalize'}}" />
+                <span class="pe-setting-value">{{normalizePercent}}</span>
+            </div>
+        </div>
+        {{/each}}
+    </section>
+
+    <section class="pe-panel">
+        <h3 class="pe-panel-title"><i class="fa-solid fa-swords"></i>{{localize "PLAYLISTENCHANTMENT.CombatAutoSwitchLabel"}}</h3>
+        <p class="pe-panel-hint">{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.combatHint"}}</p>
+
+        <label class="pe-checkbox pe-checkbox-strong">
+            <input type="checkbox" name="autoCombatSwitch" {{#if autoCombatSwitch}}checked{{/if}} />
+            {{localize "PLAYLISTENCHANTMENT.CombatAutoSwitch"}}
+        </label>
+
+        <div class="pe-combat-list">
+            {{#each combatPlaylists}}
+            <label class="pe-checkbox pe-combat-entry">
+                <input type="checkbox" name="combatPlaylists" value="{{id}}" {{#if checked}}checked{{/if}} />
+                <span class="pe-combat-name">{{name}}</span>
+                {{#if folder}}<span class="pe-combat-folder">{{folder}}</span>{{/if}}
+            </label>
+            {{else}}
+            <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.noMusicPlaylists"}}</p>
+            {{/each}}
+        </div>
+    </section>
+
+    <section class="pe-panel">
+        <h3 class="pe-panel-title"><i class="fa-solid fa-tags"></i>{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.tags"}}</h3>
+        <p class="pe-panel-hint">{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagsHint"}}</p>
+
+        <ol class="pe-tag-rows">
+            {{#each tagLibrary}}
+            <li class="pe-tag-row" data-tag-index="{{@index}}">
+                <input type="color" class="pe-tag-color" value="{{color}}"
+                       aria-label="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagColor'}}" />
+                <input type="text" class="pe-tag-name" value="{{tag}}" spellcheck="false"
+                       aria-label="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagName'}}" />
+                <input type="text" class="pe-tag-label" value="{{rawLabel}}" spellcheck="false"
+                       placeholder="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagLabel'}}"
+                       aria-label="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagLabel'}}" />
+                <span class="pe-tag-preview" style="background:{{color}};color:{{foreground}}">{{label}}</span>
+                <button type="button" class="pe-icon-button pe-danger" data-action="removeTag"
+                        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagRemove'}}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </li>
+            {{/each}}
+        </ol>
+
+        <div class="pe-button-row">
+            <button type="button" class="pe-button" data-action="addTag">
+                <i class="fa-solid fa-plus"></i>{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagAdd"}}
+            </button>
+            <button type="button" class="pe-button" data-action="resetTags">
+                <i class="fa-solid fa-rotate-left"></i>{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagReset"}}
+            </button>
+        </div>
+    </section>
+
+    <section class="pe-panel">
+        <h3 class="pe-panel-title"><i class="fa-solid fa-folder-tree"></i>{{localize "PLAYLISTENCHANTMENT.soundUploadFolder"}}</h3>
+        <p class="pe-panel-hint">{{localize "PLAYLISTENCHANTMENT.soundUploadFolderHint"}}</p>
+        <div class="pe-field pe-field-inline">
+            <input type="text" name="soundUploadFolder" value="{{uploadFolder}}" spellcheck="false" />
+            <button type="button" class="pe-button" data-action="browseUploadFolder">
+                <i class="fa-solid fa-folder-open"></i>{{localize "PLAYLISTENCHANTMENT.EDITOR.browse"}}
+            </button>
+        </div>
+    </section>
+
+    {{/unless}}
+</div>

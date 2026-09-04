@@ -1,0 +1,44 @@
+<div class="pe-form">
+    <p class="pe-note pe-note-muted">{{localize "PLAYLISTENCHANTMENT.PAD.hint"}}</p>
+
+    <div class="pe-field pe-field-inline">
+        <label class="pe-checkbox" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.loopHint'}}">
+            <input type="checkbox" name="loop" {{#if config.loop}}checked{{/if}} />
+            {{localize "PLAYLISTENCHANTMENT.PAD.loop"}}
+        </label>
+        <label class="pe-checkbox" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.duckHint'}}">
+            <input type="checkbox" name="duck" {{#if config.duck}}checked{{/if}} />
+            {{localize "PLAYLISTENCHANTMENT.PAD.duck"}}
+        </label>
+        <label class="pe-checkbox" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.playerUsableHint'}}">
+            <input type="checkbox" name="playerUsable" {{#if config.playerUsable}}checked{{/if}} />
+            {{localize "PLAYLISTENCHANTMENT.PAD.playerUsable"}}
+        </label>
+    </div>
+
+    <div class="pe-field">
+        <label for="pe-pad-volume">{{localize "PLAYLIST.SoundVolume"}}</label>
+        <input type="range" id="pe-pad-volume" name="volume" min="0" max="1" step="0.05" value="{{volumeInput}}" />
+    </div>
+
+    <div class="pe-field">
+        <label for="pe-choke">{{localize "PLAYLISTENCHANTMENT.PAD.chokeGroup"}}</label>
+        <input type="text" id="pe-choke" name="chokeGroup" value="{{config.chokeGroup}}" list="pe-choke-groups"
+               data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.chokeGroupHint'}}" />
+        <datalist id="pe-choke-groups">
+            {{#each chokeGroups}}<option value="{{this}}"></option>{{/each}}
+        </datalist>
+    </div>
+
+    <div class="pe-button-row">
+        <button type="button" class="pe-button" data-action="editArtwork">
+            <i class="fa-solid fa-image"></i>{{localize "PLAYLISTENCHANTMENT.PAD.artwork"}}
+        </button>
+    </div>
+</div>
+
+<footer class="pe-form-footer">
+    {{#each buttons}}
+    <button type="{{type}}" class="pe-button pe-primary"><i class="{{icon}}"></i>{{localize label}}</button>
+    {{/each}}
+</footer>

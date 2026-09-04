@@ -1,0 +1,59 @@
+<fieldset class="pe-sheet-section">
+    <legend>
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        {{localize "PLAYLISTENCHANTMENT.EDITOR.section"}}
+    </legend>
+
+    <div class="form-group pe-cover-row">
+        <label>{{localize "PLAYLISTENCHANTMENT.EDITOR.cover"}}</label>
+        <div class="form-fields">
+            <div class="pe-cover-preview" {{#if meta.cover}}style="background-image: url('{{meta.cover}}')"{{/if}}>
+                {{#unless meta.cover}}<i class="fa-solid fa-image"></i>{{/unless}}
+            </div>
+            <input type="text" name="{{flagPath}}.cover" value="{{meta.cover}}" placeholder="path/to/image.webp" />
+            <button type="button" class="icon fa-solid fa-folder-open" data-action="pickCover"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.EDITOR.browse'}}"
+                    aria-label="{{localize 'PLAYLISTENCHANTMENT.EDITOR.browse'}}"></button>
+            <button type="button" class="icon fa-solid fa-xmark" data-action="clearCover"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.EDITOR.clear'}}"
+                    aria-label="{{localize 'PLAYLISTENCHANTMENT.EDITOR.clear'}}"></button>
+        </div>
+        <p class="hint">{{localize "PLAYLISTENCHANTMENT.EDITOR.coverHint"}}</p>
+    </div>
+
+    <div class="form-group">
+        <label>{{localize "PLAYLISTENCHANTMENT.EDITOR.color"}}</label>
+        <div class="form-fields">
+            <input type="color" name="{{flagPath}}.color" value="{{color}}" />
+            <label class="checkbox">
+                <input type="checkbox" name="{{flagPath}}.useColor" {{#if hasColor}}checked{{/if}} />
+                {{localize "PLAYLISTENCHANTMENT.EDITOR.useColor"}}
+            </label>
+        </div>
+        <p class="hint">{{localize "PLAYLISTENCHANTMENT.EDITOR.colorHint"}}</p>
+    </div>
+
+    <div class="form-group stacked">
+        <label>{{localize "PLAYLISTENCHANTMENT.EDITOR.tags"}}</label>
+        <div class="form-fields">
+            <input type="text" name="{{flagPath}}.tags" value="{{tagString}}" spellcheck="false"
+                   placeholder="{{localize 'PLAYLISTENCHANTMENT.EDITOR.tagsPlaceholder'}}" />
+        </div>
+        {{#if tagChoices.length}}
+        <div class="pe-tag-choices">
+            {{#each tagChoices}}
+            <button type="button" class="pe-tag {{#if active}}active{{/if}}" data-action="toggleSheetTag" data-tag="{{tag}}"
+                    style="--pe-tag-color: {{color}}; --pe-tag-foreground: {{foreground}}">{{label}}</button>
+            {{/each}}
+        </div>
+        {{/if}}
+        <p class="hint">{{localize "PLAYLISTENCHANTMENT.EDITOR.tagsHint"}}</p>
+    </div>
+
+    {{#if isSound}}
+    <p class="hint pe-note">
+        <i class="fa-solid fa-link"></i>
+        {{#if propagates}}{{propagateHint}}{{else}}{{inheritHint}}{{/if}}
+    </p>
+    {{/if}}
+</fieldset>

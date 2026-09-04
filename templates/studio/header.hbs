@@ -1,0 +1,63 @@
+<div class="pe-header-part">
+<div class="pe-header">
+    <div class="pe-view-switch" role="tablist">
+        <button type="button" class="pe-tab {{#unless isBoardView}}active{{/unless}}" data-action="setView" data-view="library"
+                role="tab" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.libraryHint'}}">
+            <i class="fa-solid fa-music"></i>
+            <span>{{localize "PLAYLISTENCHANTMENT.STUDIO.library"}}</span>
+        </button>
+        <button type="button" class="pe-tab {{#if isBoardView}}active{{/if}}" data-action="setView" data-view="boards"
+                role="tab" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.boardsHint'}}">
+            <i class="fa-solid fa-grip"></i>
+            <span>{{localize "PLAYLISTENCHANTMENT.STUDIO.boards"}}</span>
+        </button>
+        <button type="button" class="pe-tab {{#if isSettingsView}}active{{/if}}" data-action="setView" data-view="settings"
+                role="tab" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.titleHint'}}">
+            <i class="fa-solid fa-sliders"></i>
+            <span>{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.title"}}</span>
+        </button>
+    </div>
+
+    <div class="pe-search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" class="pe-search" name="search" value="{{query}}" spellcheck="false"
+               placeholder="{{localize 'PLAYLISTENCHANTMENT.STUDIO.searchPlaceholder'}}"
+               data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.searchHint'}}" />
+        <button type="button" class="pe-icon-button" data-action="clearFilters" {{#unless hasFilters}}disabled{{/unless}}
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.clearFilters'}}">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div class="pe-channel-filter" role="group"
+         data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.filterByChannel'}}">
+        {{#each channels}}
+        <button type="button" class="pe-channel-toggle {{css}} {{#if active}}active{{/if}}"
+                data-action="toggleChannel" data-channel="{{id}}"
+                aria-pressed="{{#if active}}true{{else}}false{{/if}}"
+                data-tooltip="{{localize label}}">
+            <i class="{{icon}}"></i>
+        </button>
+        {{/each}}
+    </div>
+
+    <div class="pe-header-actions">
+        {{#if canUpload}}
+        <button type="button" class="pe-icon-button" data-action="openUpload"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.UPLOAD.hint'}}">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+        </button>
+        {{/if}}
+    </div>
+</div>
+
+{{#if tags.length}}
+<div class="pe-tagbar">
+    {{#each tags}}
+    <button type="button" class="pe-tag {{#if active}}active{{/if}}" data-action="toggleTag" data-tag="{{tag}}"
+            draggable="true" style="--pe-tag-color: {{color}}; --pe-tag-foreground: {{foreground}}"
+            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.filterByTag'}}">{{label}}</button>
+    {{/each}}
+</div>
+{{/if}}
+</div>

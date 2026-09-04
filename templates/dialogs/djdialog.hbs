@@ -1,0 +1,26 @@
+<div class="pe-form">
+    <p class="pe-note">{{hint}}</p>
+
+    {{#if empty}}
+    <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.DJ.noPlayers"}}</p>
+    {{else}}
+    <ul class="pe-user-list">
+        {{#each users}}
+        <li class="pe-user {{#unless active}}pe-user-offline{{/unless}}">
+            <label class="pe-checkbox">
+                <input type="checkbox" name="dj" value="{{id}}" {{#if isDJ}}checked{{/if}} />
+                <span class="pe-user-dot" style="background-color: {{color}}"></span>
+                <span class="pe-user-name">{{name}}</span>
+                {{#unless active}}<span class="pe-user-state">{{localize "PLAYLISTENCHANTMENT.DJ.offline"}}</span>{{/unless}}
+            </label>
+        </li>
+        {{/each}}
+    </ul>
+    {{/if}}
+</div>
+
+<footer class="pe-form-footer">
+    {{#each buttons}}
+    <button type="{{type}}" class="pe-button pe-primary"><i class="{{icon}}"></i>{{localize label}}</button>
+    {{/each}}
+</footer>

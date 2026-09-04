@@ -1,0 +1,85 @@
+/* DSA5 immersive skins .application; only .pe-studio/.pe-dialog/.pe-preview opt out; longhands + higher specificity. */
+
+body .application.playlistenchantment:is(.pe-studio, .pe-dialog, .pe-preview) {
+    background-color: var(--pe-bg, #16181d);
+    background-image: none;
+    border: 1px solid var(--color-border, #302831);
+    border-radius: 6px;
+    box-shadow: 0 0 10px #000;
+    color: var(--pe-text, #e8eaf0);
+
+    &::after {
+        content: none;
+        display: none;
+        background: none;
+    }
+
+    .window-header {
+        background-color: var(--color-header-background, rgb(0 0 0 / 50%));
+        background-image: none;
+        min-height: 0;
+        height: auto;
+        top: unset;
+        color: var(--color-light-1, #f7f3e8);
+
+        > a {
+            width: unset;
+            height: unset;
+            margin-top: 0;
+
+            i {
+                width: unset;
+                border: none;
+                padding: unset;
+                background: none;
+                border-radius: unset;
+                color: inherit;
+                text-align: unset;
+            }
+        }
+
+        .window-title {
+            margin-left: 0;
+            margin-top: 0;
+            color: var(--color-light-1, #f7f3e8);
+            font-family: inherit;
+            font-weight: inherit;
+            text-align: left;
+            text-shadow: none;
+        }
+
+        .header-button.close {
+            margin-right: 0;
+        }
+
+        button {
+            background: none;
+
+            &:hover {
+                background: var(--button-hover-background-color, rgb(255 255 255 / 12%));
+                color: var(--button-hover-text-color, #fff);
+            }
+        }
+    }
+
+    .window-content {
+        background-color: var(--pe-bg, #16181d);
+        background-image: none;
+        color: var(--pe-text, #e8eaf0);
+        box-shadow: none;
+    }
+
+    .window-resize-handle,
+    .window-resizable-handle {
+        inset: auto 1px 1px auto;
+        width: 11px;
+        height: 11px;
+        background-color: transparent;
+        border-radius: 0;
+        z-index: 2;
+
+        &::before {
+            content: none;
+        }
+    }
+}

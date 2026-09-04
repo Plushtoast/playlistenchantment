@@ -1,0 +1,94 @@
+<div class="pe-rail">
+    <section class="pe-now-playing">
+        <h3 class="pe-rail-title">{{localize "PLAYLISTENCHANTMENT.STUDIO.nowPlaying"}}</h3>
+        {{#if playing.length}}
+        <ul class="pe-playing-list">
+            {{#each playing}}
+            <li class="pe-playing-item {{channel.css}}" data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
+                {{#if color}}style="--pe-accent: {{color}}"{{/if}}>
+                <span class="pe-playing-cover" {{#if cover}}style="background-image: url('{{cover}}')"{{/if}}>
+                    {{#unless cover}}<i class="{{channel.icon}}"></i>{{/unless}}
+                </span>
+                <span class="pe-playing-body">
+                    <span class="pe-playing-name">{{name}}</span>
+                    <span class="pe-playing-source">
+                        <i class="{{channel.icon}} pe-playing-channel" data-tooltip="{{localize channel.label}}"></i>
+                        {{source}}
+                    </span>
+                </span>
+                {{#if canControl}}
+                <button type="button" class="pe-icon-button" data-action="toggleTrack"
+                        data-tooltip="{{localize 'PLAYLIST.SoundPause'}}">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
+                {{/if}}
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.STUDIO.silence"}}</p>
+        {{/if}}
+    </section>
+
+    {{#if queue.enabled}}
+    <section class="pe-queue pe-drop-target pe-queue-drop">
+        <h3 class="pe-rail-title">
+            {{localize "PLAYLISTENCHANTMENT.QUEUE.title"}}
+            <span class="pe-rail-actions">
+                {{#if queue.canControl}}
+                <button type="button" class="pe-icon-button" data-action="queuePlay"
+                        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.QUEUE.play'}}">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button type="button" class="pe-icon-button" data-action="queueSkip"
+                        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.QUEUE.skip'}}">
+                    <i class="fa-solid fa-forward-step"></i>
+                </button>
+                <button type="button" class="pe-icon-button pe-danger" data-action="queueClear"
+                        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.QUEUE.clear'}}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+                {{#if queue.hasPlayed}}
+                <button type="button" class="pe-icon-button pe-danger" data-action="queueClearPlayed"
+                        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.QUEUE.clearPlayed'}}">
+                    <i class="fa-solid fa-broom"></i>
+                </button>
+                {{/if}}
+                {{/if}}
+            </span>
+        </h3>
+
+        {{#if queue.empty}}
+        <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.QUEUE.empty"}}</p>
+        {{else}}
+        <ol class="pe-queue-list">
+            {{#each queue.entries}}
+            <li class="pe-queue-item {{channel.css}} {{#if playing}}playing{{/if}}" draggable="true"
+                data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
+                {{#if color}}style="--pe-accent: {{color}}"{{/if}}>
+                <span class="pe-queue-index">{{#if playing}}<i class="fa-solid fa-volume-high"></i>{{else}}{{position}}{{/if}}</span>
+                <span class="pe-queue-body">
+                    <span class="pe-queue-name">{{name}}</span>
+                    {{#if addedBy}}<span class="pe-queue-by">{{addedBy}}</span>{{/if}}
+                </span>
+                <span class="pe-queue-time">{{duration}}</span>
+                {{#if @root.queue.canControl}}
+                <button type="button" class="pe-icon-button" data-action="queueRemove"
+                        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.QUEUE.remove'}}">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                {{/if}}
+            </li>
+            {{/each}}
+        </ol>
+        {{/if}}
+
+        {{#if queue.canAdd}}
+        <p class="pe-queue-hint">{{localize "PLAYLISTENCHANTMENT.QUEUE.dropHint"}}</p>
+        {{/if}}
+        {{#if queue.canControl}}
+        <p class="pe-queue-hint">{{localize "PLAYLISTENCHANTMENT.QUEUE.sortHint"}}</p>
+        {{/if}}
+    </section>
+    {{/if}}
+</div>

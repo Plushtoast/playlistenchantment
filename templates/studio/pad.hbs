@@ -1,0 +1,24 @@
+<div class="pe-pad {{#if playing}}playing{{/if}}" data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
+     draggable="true" {{#if color}}style="--pe-accent: {{color}}"{{/if}}>
+
+    <button type="button" class="pe-pad-face" data-action="{{#if playing}}stopPad{{else}}firePad{{/if}}"
+            {{#if cover}}style="background-image: url('{{cover}}')"{{/if}}
+            data-tooltip="{{#if playing}}{{localize 'PLAYLISTENCHANTMENT.BOARD.stopPad'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.BOARD.firePad'}}{{/if}}">
+        <span class="pe-pad-label">{{name}}</span>
+        <i class="pe-pad-state fa-solid {{#if playing}}fa-stop{{else}}fa-play{{/if}}"></i>
+    </button>
+
+    <div class="pe-pad-badges">
+        {{#if loop}}<i class="fa-solid fa-repeat" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.loop'}}"></i>{{/if}}
+        {{#if duck}}<i class="fa-solid fa-volume-low" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.duck'}}"></i>{{/if}}
+        {{#if chokeGroup}}<i class="fa-solid fa-layer-group" data-tooltip="{{chokeGroup}}"></i>{{/if}}
+        {{#if playerUsable}}<i class="fa-solid fa-users" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.playerUsable'}}"></i>{{/if}}
+    </div>
+
+    {{#if canEdit}}
+    <button type="button" class="pe-pad-edit" data-action="editPad"
+            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.edit'}}">
+        <i class="fa-solid fa-sliders"></i>
+    </button>
+    {{/if}}
+</div>

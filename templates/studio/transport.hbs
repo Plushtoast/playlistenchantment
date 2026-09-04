@@ -1,0 +1,81 @@
+<div class="pe-transport {{track.channel.css}} {{#unless hasTrack}}pe-transport-idle{{/unless}}"
+     {{#if track}}data-sound-id="{{track.id}}" data-playlist-id="{{track.playlistId}}" data-playing="{{isPlaying}}"{{/if}}>
+
+    <div class="pe-transport-track">
+        <span class="pe-transport-cover" {{#if track.cover}}style="background-image: url('{{track.cover}}')"{{/if}}>
+            {{#unless track.cover}}<i class="fa-solid fa-compact-disc"></i>{{/unless}}
+        </span>
+        <span class="pe-transport-meta">
+            <span class="pe-transport-name">{{#if track}}{{track.name}}{{else}}{{localize "PLAYLISTENCHANTMENT.STUDIO.silence"}}{{/if}}</span>
+            <span class="pe-transport-source">
+                {{#if track}}<i class="{{track.channel.icon}} pe-transport-channel"
+                                data-tooltip="{{localize track.channel.label}}"></i>{{/if}}
+                {{track.source}}
+            </span>
+        </span>
+    </div>
+
+    <div class="pe-transport-controls">
+        <button type="button" class="pe-icon-button" data-action="transportPrev"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.CONTROL.previous'}}">
+            <i class="fa-solid fa-backward-step"></i>
+        </button>
+        <button type="button" class="pe-play-button" data-action="transportToggle"
+                data-tooltip="{{#if isPlaying}}{{localize 'PLAYLISTENCHANTMENT.CONTROL.stop'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.CONTROL.play'}}{{/if}}">
+            <i class="fa-solid {{#if isPlaying}}fa-pause{{else}}fa-play{{/if}}"></i>
+        </button>
+        <button type="button" class="pe-icon-button" data-action="transportNext"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.CONTROL.next'}}">
+            <i class="fa-solid fa-forward-step"></i>
+        </button>
+        <button type="button" class="pe-icon-button" data-action="transportStop"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.stopAll'}}">
+            <i class="fa-solid fa-stop"></i>
+        </button>
+        <button type="button" class="pe-icon-button {{#if isDucking}}active{{/if}}" data-action="toggleDuck"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.duckHint'}}">
+            <i class="fa-solid fa-volume-low"></i>
+        </button>
+        <button type="button" class="pe-icon-button {{#if mixer.open}}active{{/if}}" data-action="toggleMixer"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.mixerHint'}}">
+            <i class="fa-solid fa-sliders"></i>
+        </button>
+        <button type="button" class="pe-icon-button pe-compact-toggle" data-action="toggleCompact"
+                data-tooltip="{{#if isCompact}}{{localize 'PLAYLISTENCHANTMENT.STUDIO.expand'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.STUDIO.compact'}}{{/if}}">
+            <i class="fa-solid {{#if isCompact}}fa-up-right-and-down-left-from-center{{else}}fa-down-left-and-up-right-to-center{{/if}}"></i>
+        </button>
+    </div>
+
+    <div class="pe-transport-progress">
+        <span class="pe-time pe-time-elapsed">{{#if track}}{{elapsed}}{{else}}--:--{{/if}}</span>
+        <div class="pe-progress">
+            <div class="pe-progress-fill" style="width: {{progress}}%"></div>
+            {{#if canSeek}}
+            <input type="range" class="pe-seek" name="seek" min="0" max="{{seekMax}}" step="1" value="{{seekValue}}"
+                   data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.seekHint'}}"
+                   aria-label="{{localize 'PLAYLISTENCHANTMENT.STUDIO.seek'}}" />
+            {{/if}}
+        </div>
+        <span class="pe-time pe-time-duration">{{#if track}}{{duration}}{{else}}--:--{{/if}}</span>
+    </div>
+
+    {{#if mixer.open}}
+    <div class="pe-mixer">
+        {{#each mixer.channels}}
+        <div class="pe-mixer-channel {{css}}">
+            <i class="{{icon}}" data-tooltip="{{localize label}}"></i>
+            <input type="range" class="pe-setting-volume" min="0" max="1" step="0.05" value="{{volume}}"
+                   data-channel="{{id}}" aria-label="{{localize label}}" />
+            <span class="pe-mixer-value">{{volumePercent}}</span>
+            {{#if @root.mixer.canConfigure}}
+            <label class="pe-mixer-fade {{#if fade}}active{{/if}}" data-tooltip="{{fadeTooltip}}">
+                <input type="checkbox" class="pe-setting-toggle" data-channel="{{id}}" data-setting="fade"
+                       {{#if fade}}checked{{/if}} />
+                <i class="fa-solid fa-right-left"></i>
+            </label>
+            {{/if}}
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+</div>

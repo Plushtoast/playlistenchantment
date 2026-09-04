@@ -1,0 +1,67 @@
+<div class="pe-upload">
+    <p class="pe-note pe-note-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{warning}}</p>
+
+    <div class="pe-upload-target">
+        <label>{{localize "PLAYLISTENCHANTMENT.UPLOAD.target"}}</label>
+        <code class="pe-path">{{target}}</code>
+    </div>
+
+    <div class="pe-folder-toolbar">
+        <button type="button" class="pe-icon-button" data-action="goUp" {{#if atRoot}}disabled{{/if}}
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.UPLOAD.up'}}">
+            <i class="fa-solid fa-turn-up"></i>
+        </button>
+        <button type="button" class="pe-button" data-action="newFolder">
+            <i class="fa-solid fa-folder-plus"></i>{{localize "PLAYLISTENCHANTMENT.UPLOAD.newFolder"}}
+        </button>
+        <button type="button" class="pe-button" data-action="pickFiles">
+            <i class="fa-solid fa-file-audio"></i>{{localize "PLAYLISTENCHANTMENT.UPLOAD.chooseFiles"}}
+        </button>
+    </div>
+
+    <div class="pe-folder-list">
+        {{#each folders}}
+        <button type="button" class="pe-folder-entry" data-action="openFolder" data-path="{{path}}">
+            <i class="fa-solid fa-folder"></i>{{name}}
+        </button>
+        {{else}}
+        <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.UPLOAD.noSubfolders"}}</p>
+        {{/each}}
+    </div>
+
+    {{#if hasFiles}}
+    <div class="pe-field">
+        <label for="pe-upload-playlist">{{localize "PLAYLISTENCHANTMENT.UPLOAD.addTo"}}</label>
+        <select id="pe-upload-playlist" name="playlist">
+            <option value="">{{localize "PLAYLISTENCHANTMENT.UPLOAD.noPlaylist"}}</option>
+            {{#each playlists}}
+            <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <ul class="pe-upload-files">
+        {{#each files}}
+        <li class="pe-upload-file">
+            <span class="pe-upload-name">{{name}}</span>
+            <span class="pe-upload-size">{{size}}</span>
+            <code class="pe-upload-destination">{{destination}}</code>
+            <button type="button" class="pe-icon-button" data-action="removeFile" data-index="{{index}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.UPLOAD.remove'}}">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.UPLOAD.dropHint"}}</p>
+    {{/if}}
+</div>
+
+<footer class="pe-form-footer">
+    <button type="button" class="pe-button pe-primary" data-action="startUpload"
+            {{#unless hasFiles}}disabled{{/unless}} {{#if uploading}}disabled{{/if}}>
+        <i class="fa-solid {{#if uploading}}fa-spinner fa-spin{{else}}fa-cloud-arrow-up{{/if}}"></i>
+        {{localize "PLAYLISTENCHANTMENT.UPLOAD.start"}}
+    </button>
+</footer>

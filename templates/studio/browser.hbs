@@ -1,0 +1,53 @@
+<div class="pe-browser">
+    <div class="pe-browser-toolbar">
+        {{#if canCreate}}
+        <button type="button" class="pe-icon-button" data-action="{{#if isBoardView}}newBoard{{else}}newPlaylist{{/if}}"
+                data-tooltip="{{#if isBoardView}}{{localize 'PLAYLISTENCHANTMENT.BOARD.newBoardHint'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.LIBRARY.newPlaylistHint'}}{{/if}}">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        {{/if}}
+        {{#if canCreateFolder}}
+        <button type="button" class="pe-icon-button" data-action="newFolder"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.newFolderHint'}}">
+            <i class="fa-solid fa-folder-plus"></i>
+        </button>
+        {{/if}}
+    </div>
+
+    <div class="pe-browser-body">
+        {{#if empty}}
+        <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.STUDIO.noPlaylists"}}</p>
+        {{/if}}
+
+        {{#if hasPinned}}
+        <section class="pe-folder pe-folder-pinned">
+            <h3 class="pe-folder-name">
+                <i class="fa-solid fa-thumbtack"></i>{{localize "PLAYLISTENCHANTMENT.LIBRARY.pinned"}}
+            </h3>
+            <div class="pe-folder-body">
+                {{#each pinned.folders}}
+                {{> "modules/playlistenchantment/templates/studio/folder.hbs"}}
+                {{/each}}
+                {{#each pinned.playlists}}
+                {{> "modules/playlistenchantment/templates/studio/entry.hbs"}}
+                {{/each}}
+            </div>
+        </section>
+        {{/if}}
+
+        {{#each folders}}
+        {{> "modules/playlistenchantment/templates/studio/folder.hbs"}}
+        {{/each}}
+
+        {{#if loose.length}}
+        <section class="pe-folder">
+            {{#each loose}}
+            {{> "modules/playlistenchantment/templates/studio/entry.hbs"}}
+            {{/each}}
+        </section>
+        {{/if}}
+    </div>
+    <div class="pe-browser-resize" role="separator" aria-orientation="vertical"
+         data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.resizeLibrary'}}"
+         aria-label="{{localize 'PLAYLISTENCHANTMENT.STUDIO.resizeLibrary'}}"></div>
+</div>
