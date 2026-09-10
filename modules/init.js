@@ -2,6 +2,7 @@ import { MODULE, Settings } from "./settings.js";
 import { setupHooks } from "./hooks.js";
 import { AudioChannels } from "./core/audiochannels.js";
 import { DuckingService } from "./core/duckingservice.js";
+import { FileLocation, installPickerOverride } from "./core/filelocation.js";
 import { Librarian } from "./core/librarian.js";
 import { PlaybackService } from "./core/playbackservice.js";
 import { QueueService } from "./core/queueservice.js";
@@ -55,6 +56,7 @@ Hooks.once("init", () => {
         QueueService,
         SoundboardService,
         Librarian,
+        FileLocation,
         TrackMeta,
         Tags,
         AudioChannels,
@@ -62,6 +64,7 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("setup", () => {
+    installPickerOverride();
     Relay.register();
     DuckingService.register();
     QueueService.register();

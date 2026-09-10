@@ -1,6 +1,6 @@
 import { Settings } from "../settings.js";
+import { FileLocation } from "./filelocation.js";
 import { Permissions } from "./permissionservice.js";
-import { TrackIndex } from "./trackindex.js";
 
 // Foundry cannot move, rename or delete files after upload.
 export class UploadService {
@@ -12,22 +12,28 @@ export class UploadService {
         return this.isForge() ? ForgeVTT_FilePicker : foundry.applications.apps.FilePicker.implementation;
     }
 
+    static get location() {
+        return FileLocation.parse(Settings.get("soundUploadFolder") || FileLocation.DEFAULT_ROOT);
+    }
+
     static get source() {
-        return this.isForge() ? "forgevtt" : "data";
+        return this.location.source;
     }
 
     static get root() {
-        return Settings.get("soundUploadFolder") || "modules/playlistenchantment/storage";
+        return String(this.location);
     }
 
     static get defaultTarget() {
+        const root = this.location;
         const remembered = Settings.get("lastUploadFolder");
-        if (remembered && remembered.startsWith(this.root)) return remembered;
-        return this.root;
+        if (!remembered) return root;
+        const location = FileLocation.parse(remembered);
+        return root.contains(location) ? location : root;
     }
 
-    static async rememberTarget(path) {
-        return Settings.set("lastUploadFolder", path ?? "");
+    static async rememberTarget(location) {
+        return Settings.set("lastUploadFolder", location ? String(location) : "");
     }
 
     /* -------------------------------------------- */
@@ -35,30 +41,32 @@ export class UploadService {
     /* -------------------------------------------- */
 
     static async browse(target) {
-        const path = target || this.root;
+        const location = target ? FileLocation.parse(target) : this.location;
         try {
-            return await this.picker.browse(this.source, path);
+            const result = await this.picker.browse(location.source, location.target, location.browseOptions);
+            return { location, dirs: result.dirs ?? [], files: result.files ?? [] };
         } catch (error) {
-            console.warn(`playlistenchantment | cannot browse ${path}`, error);
-            return { target: path, dirs: [], files: [] };
+            console.warn(`playlistenchantment | cannot browse ${location}`, error);
+            return { location, dirs: [], files: [] };
         }
     }
 
     static async subfolders(target) {
-        const result = await this.browse(target);
-        return (result.dirs ?? []).map((dir) => ({
-            path: dir,
-            name: decodeURIComponent(dir.split("/").filter(Boolean).pop() ?? dir),
-        }));
+        const { location, dirs } = await this.browse(target);
+        return dirs.map((dir) => {
+            const child = new FileLocation(location.source, dir, location.bucket);
+            return { path: String(child), name: child.name };
+        });
     }
 
     static async audioFiles(target) {
-        const result = await this.browse(target);
-        return (result.files ?? []).filter((file) => this.isAudio(file));
+        const { files } = await this.browse(target);
+        return files.filter((file) => this.isAudio(file));
     }
 
     static isAudio(name) {
-        const extension = String(name).split(".").pop()?.toLowerCase();
+        const clean = String(name).split("?")[0].split("#")[0];
+        const extension = clean.split(".").pop()?.toLowerCase();
         return Object.keys(CONST.AUDIO_FILE_EXTENSIONS).includes(extension);
     }
 
@@ -77,14 +85,14 @@ export class UploadService {
     static async createDirectory(parent, name) {
         const folder = this.sanitizeFolderName(name);
         if (!folder) throw new Error(game.i18n.localize("PLAYLISTENCHANTMENT.UPLOAD.invalidFolder"));
-        const path = `${parent.replace(/\/$/, "")}/${folder}`;
+        const location = FileLocation.parse(parent).join(folder);
         try {
-            await this.picker.createDirectory(this.source, path);
+            await this.picker.createDirectory(location.source, location.target, location.browseOptions);
         } catch (error) {
             // Foundry throws when the directory already exists, which is a perfectly fine outcome.
             if (!/EEXIST|already exists/i.test(error.message)) throw error;
         }
-        return path;
+        return location;
     }
 
     /* -------------------------------------------- */
@@ -96,31 +104,49 @@ export class UploadService {
             ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.UPLOAD.noPermission"));
             return [];
         }
-        const destination = target || this.defaultTarget;
-        const existing = new Set((await this.audioFiles(destination)).map((file) => TrackIndex.key(file)));
+        const destination = target ? FileLocation.parse(target) : this.defaultTarget;
+        const existing = new Set(
+            (await this.audioFiles(destination)).map((file) => FileLocation.parse(file).compareKey())
+        );
         const sounds = [];
+        const failed = [];
         let index = 0;
 
         for (const file of files) {
             index += 1;
             onProgress?.({ file, index, total: files.length });
 
-            const candidate = `${destination.replace(/\/$/, "")}/${file.name}`;
-            let path = candidate;
+            const candidate = destination.join(file.name);
+            let path = String(candidate);
 
-            if (existing.has(TrackIndex.key(candidate))) {
+            if (existing.has(candidate.compareKey())) {
                 ui.notifications.info(game.i18n.format("PLAYLISTENCHANTMENT.UPLOAD.reused", { file: file.name }));
             } else {
                 const notification = ui.notifications.info(
                     game.i18n.format("PLAYLISTENCHANTMENT.uploading", { item: file.name }),
                     { permanent: true }
                 );
+                let response;
                 try {
-                    const response = await this.picker.upload(this.source, destination, file);
-                    path = response?.path ?? candidate;
+                    response = await this.picker.upload(
+                        destination.source,
+                        destination.target,
+                        file,
+                        destination.browseOptions,
+                        { notify: false }
+                    );
                 } finally {
                     ui.notifications.remove(notification);
                 }
+
+                if (!response?.path) {
+                    failed.push(file.name);
+                    ui.notifications.error(
+                        game.i18n.format("PLAYLISTENCHANTMENT.UPLOAD.failed", { file: file.name })
+                    );
+                    continue;
+                }
+                path = response.path;
             }
 
             sounds.push({ name: this.trackName(file.name), path });
@@ -130,7 +156,7 @@ export class UploadService {
         if (playlist && sounds.length) {
             await playlist.createEmbeddedDocuments("PlaylistSound", sounds);
         }
-        ui.notifications.info(game.i18n.localize("PLAYLISTENCHANTMENT.uploadDone"));
+        if (!failed.length) ui.notifications.info(game.i18n.localize("PLAYLISTENCHANTMENT.uploadDone"));
         return sounds;
     }
 

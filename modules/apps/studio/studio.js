@@ -1,6 +1,7 @@
 import { MODULE, Settings } from "../../settings.js";
 import { AudioChannels } from "../../core/audiochannels.js";
 import { DuckingService } from "../../core/duckingservice.js";
+import { FileLocation } from "../../core/filelocation.js";
 import { Librarian } from "../../core/librarian.js";
 import { Permissions } from "../../core/permissionservice.js";
 import { PlaybackService } from "../../core/playbackservice.js";
@@ -1182,7 +1183,8 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         }
 
         if (target.matches('[name="soundUploadFolder"]')) {
-            return Settings.set("soundUploadFolder", target.value.trim());
+            const value = target.value.trim();
+            return Settings.set("soundUploadFolder", value ? String(FileLocation.parse(value)) : "");
         }
 
         if (target.closest(".pe-tag-row")) {
