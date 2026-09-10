@@ -1,10 +1,10 @@
 {
     "title": "Playlist Enchantment",
     "description": "A music player enchantment for Foundry: the Playlist Enchantment with library, artwork, tags, a shared queue, soundboards with ducking, guided uploads and player DJ access - on top of the playlist tweaks you already know.",
-    "version": "2.0.0",
+    "version": "2.0.2",
     "url": "https://github.com/Plushtoast/playlistenchantment",
     "manifest": "https://raw.githubusercontent.com/Plushtoast/playlistenchantment/foundry14/module.json",
-    "download": "https://github.com/Plushtoast/playlistenchantment/releases/download/2.0.0/playlistenchantment-2.0.0.zip",
+    "download": "https://github.com/Plushtoast/playlistenchantment/releases/download/2.0.2/playlistenchantment-2.0.2.zip",
     "languages": [{
             "lang": "de",
             "name": "Deutsch",
