@@ -151,6 +151,13 @@ export class Settings {
             default: [],
         });
 
+        game.settings.register(MODULE, "collapsedFolders", {
+            scope: "client",
+            config: false,
+            type: Array,
+            default: [],
+        });
+
         game.settings.register(MODULE, "studioPosition", {
             scope: "client",
             config: false,
@@ -204,33 +211,43 @@ export class Settings {
     }
 
     static studioBindingLabel() {
-        const binding = this.studioBinding();
-        if (!binding) return "";
+        return this.humanizeBinding(this.studioBinding());
+    }
+
+    static humanizeBinding(binding) {
+        if (!binding?.key) return "";
         const controls = foundry.applications.sidebar.apps.ControlsConfig;
         return controls?.humanizeBinding?.(binding) ?? binding.key;
     }
 
     static async setStudioBinding(binding) {
-        return game.keybindings.set(MODULE, this.STUDIO_KEYBINDING, binding ? [binding] : []);
+        await game.keybindings.set(MODULE, this.STUDIO_KEYBINDING, binding ? [binding] : []);
+        ui.playlists?.render({ parts: ["controls"] });
     }
 
     static conflictingActions(binding) {
         if (!binding?.key) return [];
         const KeyboardManager = game.keyboard.constructor;
         const actionId = `${MODULE}.${this.STUDIO_KEYBINDING}`;
-        const action = game.keybindings.actions.get(actionId);
-        if (["core", "core-pointer"].includes(action?.namespace) && action.uneditable?.includes(binding)) return [];
-
+        const modifiers = binding.modifiers ?? [];
         const context = KeyboardManager.getKeyboardEventContext({
             code: binding.key,
-            shiftKey: binding.modifiers?.includes(KeyboardManager.MODIFIER_KEYS.SHIFT) === true,
-            ctrlKey: binding.modifiers?.includes(KeyboardManager.MODIFIER_KEYS.CONTROL) === true,
-            altKey: binding.modifiers?.includes(KeyboardManager.MODIFIER_KEYS.ALT) === true,
+            shiftKey: modifiers.includes(KeyboardManager.MODIFIER_KEYS.SHIFT),
+            ctrlKey: modifiers.includes(KeyboardManager.MODIFIER_KEYS.CONTROL),
+            altKey: modifiers.includes(KeyboardManager.MODIFIER_KEYS.ALT),
             repeat: false,
         });
         return KeyboardManager._getMatchingActions(context)
             .filter((match) => match.action !== actionId)
             .map((match) => game.i18n.localize(match.name));
+    }
+
+    static conflictMessage(binding) {
+        const conflicts = this.conflictingActions(binding);
+        if (!conflicts.length) return "";
+        return game.i18n.format("KEYBINDINGS.Conflict", {
+            conflicts: game.i18n.getListFormatter().format(conflicts),
+        });
     }
 
     static bindingFromEvent(event) {

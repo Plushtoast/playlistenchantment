@@ -186,6 +186,15 @@ export class PlaybackService {
         return this.playingSounds("music")[0] ?? null;
     }
 
+    static isBuffering(sound) {
+        if (!sound?.playing) return false;
+        const audio = sound.sound;
+        if (!audio) return true;
+        if (audio.loaded || audio.playing) return false;
+        if (Number(audio.currentTime) > 0) return false;
+        return true;
+    }
+
     static formatTimestamp(seconds) {
         const directory = ui.playlists?.constructor;
         if (directory?.formatTimestamp) return directory.formatTimestamp(seconds);

@@ -11,7 +11,7 @@ import { Tags } from "./core/tagservice.js";
 import { TrackIndex } from "./core/trackindex.js";
 import { TrackMeta } from "./core/trackmeta.js";
 import { EnchantedPlaylist } from "./apps/enchantedplaylist.js";
-import { EnchantedPlaylistConfig, EnchantedSoundConfig } from "./apps/sheets/enchantedsheets.js";
+import { EnchantedPlaylistConfig, EnchantedSoundConfig, EnchantedFolderConfig } from "./apps/sheets/enchantedsheets.js";
 import { Studio } from "./apps/studio/studio.js";
 
 const STUDIO_TEMPLATES = [
@@ -26,6 +26,10 @@ const STUDIO_TEMPLATES = [
     "templates/studio/pad.hbs",
     "templates/studio/settings.hbs",
     "templates/sheets/enchantment.hbs",
+    "templates/sheets/sound-data.hbs",
+    "templates/sheets/playlist-data.hbs",
+    "templates/sheets/folder-data.hbs",
+    "templates/sheets/sound-enchantment.hbs",
     "templates/dialogs/padeditor.hbs",
     "templates/dialogs/djdialog.hbs",
     "templates/dialogs/uploaddialog.hbs",
@@ -46,6 +50,11 @@ Hooks.once("init", () => {
     });
     DocumentSheetConfig.registerSheet(foundry.documents.PlaylistSound, MODULE, EnchantedSoundConfig, {
         makeDefault: true,
+        label,
+    });
+    DocumentSheetConfig.registerSheet(foundry.documents.Folder, MODULE, EnchantedFolderConfig, {
+        makeDefault: true,
+        types: ["Playlist"],
         label,
     });
 

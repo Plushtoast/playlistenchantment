@@ -70,6 +70,14 @@ button.playlist-channel-icon {
             gap:0;
     }
 
+    .directory-item.folder > .folder-header {
+        .folder-name,
+        .fa-folder-open,
+        .create-button {
+            color: inherit;
+        }
+    }
+
     .playlist.channel-music > .playlist-header {
         border-inline-start: 3px solid var(--pe-channel-music);
     }

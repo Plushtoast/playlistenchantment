@@ -1,0 +1,16 @@
+<section class="tab standard-form scrollable{{#if tab.cssClass}} {{tab.cssClass}}{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+    <input type="hidden" name="type" value="{{source.type}}">
+    <input type="hidden" name="folder" value="{{source.folder}}">
+    {{formGroup fields.name value=name placeholder=namePlaceholder rootId=rootId autofocus=(not name)}}
+    {{formGroup fields.color value=source.color placeholder="#000000" rootId=rootId}}
+
+    <div class="form-group">
+        <label>{{localize "FOLDER.FIELDS.sorting.label"}}</label>
+        <div class="form-fields">
+            <label class="checkbox"><input type="radio" name="sorting" value="a"
+                {{checked (eq source.sorting "a")}}>{{localize "FOLDER.SortAlphabetical"}}</label>
+            <label class="checkbox"><input type="radio" name="sorting" value="m"
+                {{checked (eq source.sorting "m")}}>{{localize "FOLDER.SortManual"}}</label>
+        </div>
+    </div>
+</section>

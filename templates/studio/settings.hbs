@@ -14,23 +14,48 @@
         <h3 class="pe-panel-title"><i class="fa-solid fa-keyboard"></i>{{localize "PLAYLISTENCHANTMENT.KEYBINDINGS.openStudio"}}</h3>
         <p class="pe-panel-hint">{{localize "PLAYLISTENCHANTMENT.KEYBINDINGS.openStudioHint"}}</p>
 
-        <div class="pe-field pe-field-inline">
-            <button type="button" class="pe-button pe-hotkey {{#if capturing}}capturing{{/if}}" data-action="captureHotkey">
-                <i class="fa-solid fa-keyboard"></i>
-                {{#if capturing}}{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.hotkeyCapturing"}}
-                {{else if hotkey}}{{hotkey}}
-                {{else}}{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.hotkeyEmpty"}}{{/if}}
-            </button>
-            <button type="button" class="pe-icon-button pe-danger" data-action="clearHotkey" {{#unless hotkey}}disabled{{/unless}}
-                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.hotkeyClear'}}">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+        <div class="form-group pe-keybinding">
+            <span class="label">{{localize "PLAYLISTENCHANTMENT.KEYBINDINGS.openStudio"}}</span>
+            <ul class="form-fields flexcol">
+                {{#if capturing}}
+                <li class="flexrow editing">
+                    <div class="binding-input">
+                        <input type="text" readonly value="{{hotkey}}"
+                               placeholder="{{localize 'PLAYLISTENCHANTMENT.STUDIOSETTINGS.hotkeyCapturing'}}"
+                               {{#if hotkeyConflict}}data-tooltip aria-label="{{hotkeyConflict}}"{{else}}aria-label="{{localize 'KEYBINDINGS.BoundKey'}}"{{/if}} />
+                        <i class="{{#if hotkeyConflict}}conflict fa-duotone fa-triangle-exclamation{{else}}fa-regular fa-keyboard{{/if}}" inert></i>
+                    </div>
+                    <div class="controls flexrow">
+                        <button type="button" class="inline-control icon fa-solid fa-ban" data-action="captureHotkey"
+                                data-tooltip aria-label="{{localize 'KEYBINDINGS.ACTIONS.CancelEdit'}}"></button>
+                        <button type="button" class="inline-control icon fa-solid fa-floppy-disk" data-action="saveHotkey"
+                                data-tooltip aria-label="{{localize 'KEYBINDINGS.ACTIONS.SaveBinding'}}"></button>
+                        <button type="button" class="inline-control icon fa-solid fa-trash" data-action="clearHotkey"
+                                {{#unless hotkey}}disabled{{/unless}}
+                                data-tooltip aria-label="{{localize 'KEYBINDINGS.ACTIONS.DeleteBinding'}}"></button>
+                    </div>
+                </li>
+                {{else}}
+                <li class="flexrow">
+                    <kbd class="flexrow"
+                         {{#if hotkeyConflict}}data-tooltip aria-label="{{hotkeyConflict}}"{{else}}aria-label="{{localize 'KEYBINDINGS.BoundKey'}}"{{/if}}>
+                        <span>{{#if hotkey}}{{hotkey}}{{else}}{{localize "PLAYLISTENCHANTMENT.STUDIOSETTINGS.hotkeyEmpty"}}{{/if}}</span>
+                        {{#if hotkeyConflict}}<i class="conflict fa-duotone fa-triangle-exclamation" inert></i>{{/if}}
+                    </kbd>
+                    <div class="controls flexrow">
+                        <button type="button" class="inline-control icon fa-solid fa-edit" data-action="captureHotkey"
+                                data-tooltip aria-label="{{localize 'KEYBINDINGS.ACTIONS.EditBinding'}}"></button>
+                        <button type="button" class="inline-control icon fa-solid fa-trash" data-action="clearHotkey"
+                                {{#unless hotkey}}disabled{{/unless}}
+                                data-tooltip aria-label="{{localize 'KEYBINDINGS.ACTIONS.DeleteBinding'}}"></button>
+                    </div>
+                </li>
+                {{/if}}
+            </ul>
+            {{#if hotkeyConflict}}
+            <p class="hint pe-keybinding-conflict">{{hotkeyConflict}}</p>
+            {{/if}}
         </div>
-        {{#if hotkeyConflict}}
-        <p class="pe-note pe-danger" role="status">
-            <i class="fa-duotone fa-triangle-exclamation"></i>{{hotkeyConflict}}
-        </p>
-        {{/if}}
     </section>
 
     {{#unless isGM}}

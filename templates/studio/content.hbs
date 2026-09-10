@@ -1,10 +1,19 @@
 <div class="pe-content">
-    <header class="pe-content-header {{playlist.channel.css}}">
-        <h2 class="pe-content-title">
-            {{#if playlist}}<i class="{{playlist.channel.icon}} pe-content-channel"
-                               data-tooltip="{{localize playlist.channel.label}}"></i>{{/if}}
-            {{#if heading}}{{heading}}{{else}}{{localize "PLAYLISTENCHANTMENT.STUDIO.title"}}{{/if}}
-        </h2>
+    <header class="pe-content-header {{playlist.channel.css}}{{board.channel.css}}">
+        <div class="pe-content-heading" {{#if playlist}}data-playlist-id="{{playlist.id}}"{{else if board}}data-playlist-id="{{board.id}}"{{/if}}>
+            <h2 class="pe-content-title">
+                {{#if playlist}}<i class="{{playlist.channel.icon}} pe-content-channel"
+                                   data-tooltip="{{localize playlist.channel.label}}"></i>{{/if}}
+                {{#if board}}<i class="{{board.channel.icon}} pe-content-channel"
+                                data-tooltip="{{localize board.channel.label}}"></i>{{/if}}
+                {{#if heading}}{{heading}}{{else}}{{localize "PLAYLISTENCHANTMENT.STUDIO.title"}}{{/if}}
+            </h2>
+            {{#if playlist.tags.length}}
+            {{> "modules/playlistenchantment/templates/studio/chips.hbs" tags=playlist.tags}}
+            {{else if board.tags.length}}
+            {{> "modules/playlistenchantment/templates/studio/chips.hbs" tags=board.tags}}
+            {{/if}}
+        </div>
 
         {{#if playlist}}
         <div class="pe-content-actions">
@@ -77,7 +86,7 @@
         {{/if}}
 
         {{#if @root.isBoardView}}
-            {{#if board}}
+            {{#unless placeholder}}
             <div class="pe-pad-grid" style="--pe-columns: {{columns}}">
                 {{#each pads}}
                 {{> "modules/playlistenchantment/templates/studio/pad.hbs"}}
@@ -86,7 +95,7 @@
             {{#if empty}}
             <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.BOARD.empty"}}</p>
             {{/if}}
-            {{/if}}
+            {{/unless}}
         {{else}}
             {{#if tracks.length}}
             <ol class="pe-track-list">

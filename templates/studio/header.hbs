@@ -56,7 +56,11 @@
     {{#each tags}}
     <button type="button" class="pe-tag {{#if active}}active{{/if}}" data-action="toggleTag" data-tag="{{tag}}"
             draggable="true" style="--pe-tag-color: {{color}}; --pe-tag-foreground: {{foreground}}"
-            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.filterByTag'}}">{{label}}</button>
+            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.filterByTag'}}">
+        <i class="fa-solid fa-play pe-tag-play" data-action="playTag" data-tag="{{tag}}" draggable="false"
+           data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.playTag'}}"></i>
+        {{label}}
+    </button>
     {{/each}}
 </div>
 {{/if}}

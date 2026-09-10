@@ -70,7 +70,22 @@
             "seek": "Seek",
             "seekHint": "Jump to a position. All clients restart the track, so there is a short gap.",
             "seekWarning": "Seeking restarts the track on every client, so everyone hears a brief gap.",
-            "duckHint": "Duck the music while you talk over it"
+            "duckHint": "Duck the music while you talk over it",
+            "showInLibrary": "Show this playlist",
+            "pickerHint": "Browse tracks in this playlist",
+            "pickerSearch": "Search music...",
+            "pickerSearchHint": "Search names and tags across music playlists",
+            "duckHint": "Duck the music while you talk over it",
+            "showInLibrary": "Show this playlist",
+            "pickerHint": "Browse tracks in this playlist",
+            "pickerSearch": "Search music...",
+            "pickerSearchHint": "Search names and tags across music playlists",
+            "pickerEmpty": "No tracks found",
+            "playTag": "Play a random track with this tag",
+            "collapseLibrary": "Collapse the library",
+            "expandLibrary": "Expand the library",
+            "collapseNowPlaying": "Collapse now playing",
+            "expandNowPlaying": "Expand now playing"
         },
 
         "QUEUE": {
@@ -134,7 +149,11 @@
             "tagsPlaceholder": "combat, tension, dungeon",
             "tagsHint": "Comma separated. Tags become filter buttons in this window.",
             "propagates": "Saving also updates {count} other copies of this file in your playlists.",
-            "inheritHint": "Tracks without their own artwork or colour inherit them from their playlist."
+            "inheritHint": "Tracks without their own artwork or colour inherit them from their playlist.",
+            "TABS": {
+                "data": "Data",
+                "enchantment": "Enchantment"
+            }
         },
 
         "STUDIOSETTINGS": {
@@ -220,6 +239,7 @@
             "newFolder": "New Folder",
             "newFolderHint": "Create a folder",
             "newSubfolder": "New subfolder in this folder",
+            "createInFolder": "Create a playlist or subfolder",
             "pin": "Pin for quick access",
             "unpin": "Remove the pin",
             "pinFolder": "Pin this folder for quick access",
@@ -228,6 +248,8 @@
             "tagMacro": "Enchantment: {tag}",
             "noTagMatch": "No track carries the tag {tag}",
             "toggleFolder": "Show or hide this folder",
+            "collapseFolders": "Collapse all folders",
+            "expandFolders": "Expand all folders",
             "folderPlaying": "Something in this folder is playing",
             "duplicate": "{track} is already in this playlist",
             "copied": "Added {count} tracks to {playlist}",

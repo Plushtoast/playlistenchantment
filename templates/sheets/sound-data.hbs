@@ -1,0 +1,10 @@
+<section class="tab standard-form scrollable{{#if tab.cssClass}} {{tab.cssClass}}{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+    {{formGroup fields.name value=source.name rootId=rootId}}
+    {{formGroup fields.path value=source.path rootId=rootId placeholder="path/to/audio.ogg"}}
+    {{formGroup fields.channel value=source.channel choices=channels rootId=rootId blank=defaultChannel}}
+    {{formGroup fields.volume value=lvolume rootId=rootId}}
+    {{formGroup fields.repeat value=source.repeat rootId=rootId}}
+    {{formGroup fields.fade value=source.fade placeholder="0" classes="slim" rootId=rootId units=milliseconds}}
+    {{formGroup fields.description value=source.description compact=true classes="stacked" rootId=rootId
+        elementType="prose-mirror"}}
+</section>

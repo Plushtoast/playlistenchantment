@@ -84,6 +84,18 @@ export class Tags {
         return tags.map((tag) => this.get(tag));
     }
 
+    static paint(tags = []) {
+        const primary = tags[0];
+        return {
+            extraTags: tags.slice(1),
+            tagFill: primary?.color ?? "",
+            tagForeground: primary?.foreground ?? "",
+            itemStyle: [
+                primary ? `--pe-tag-fill: ${primary.color}; --pe-on-tag: ${primary.foreground}` : "",
+            ].filter(Boolean).join("; "),
+        };
+    }
+
     static suggestions(inUse = []) {
         const entries = this.library();
         const known = new Set(entries.map((entry) => entry.tag));

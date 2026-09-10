@@ -1,7 +1,8 @@
 {{! One folder and everything below it. Renders itself for subfolders. }}
-<section class="pe-folder {{#if collapsed}}collapsed{{/if}}" data-folder-id="{{id}}">
-    <h3 class="pe-folder-name" data-action="toggleFolder" {{#if color}}style="--pe-folder-color: {{color}}"{{/if}}
-        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.toggleFolder'}}">
+<section class="pe-folder directory-item folder {{#if collapsed}}collapsed{{/if}}" data-folder-id="{{id}}" data-uuid="{{uuid}}">
+    <h3 class="pe-folder-name pe-drop-target{{#if color}} pe-folder-tinted{{/if}}" data-action="toggleFolder"
+        data-folder-id="{{id}}" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.toggleFolder'}}"
+        {{#if color}}style="--pe-folder-color: {{color}}; --pe-folder-on: {{foreground}}"{{/if}}>
         <i class="pe-folder-caret fa-solid fa-angle-down"></i>
         <i class="fa-solid fa-folder{{#unless collapsed}}-open{{/unless}}"></i>
         <span class="pe-folder-label">{{name}}</span>
@@ -9,19 +10,12 @@
         <i class="fa-solid fa-volume-high pe-folder-playing"
            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.folderPlaying'}}"></i>
         {{/if}}
-        <span class="pe-folder-count">{{count}}</span>
 
         <span class="pe-folder-actions">
-            {{#if @root.canCreate}}
-            <button type="button" class="pe-icon-button" data-action="newPlaylist" data-folder-id="{{id}}"
-                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.newPlaylistHere'}}">
+            {{#if canCreateHere}}
+            <button type="button" class="pe-icon-button" data-action="createInFolder" data-folder-id="{{id}}"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.createInFolder'}}">
                 <i class="fa-solid fa-plus"></i>
-            </button>
-            {{/if}}
-            {{#if @root.canCreateFolder}}
-            <button type="button" class="pe-icon-button" data-action="newFolder" data-folder-id="{{id}}"
-                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.newSubfolder'}}">
-                <i class="fa-solid fa-folder-plus"></i>
             </button>
             {{/if}}
             <button type="button" class="pe-icon-button pe-pin {{#if pinned}}pinned{{/if}}" data-action="togglePin"

@@ -1,19 +1,35 @@
-<div class="pe-rail">
+<div class="pe-rail{{#if railCollapsed}} collapsed{{/if}}">
+    {{#if railCollapsed}}
+    <button type="button" class="pe-icon-button pe-pane-expand" data-action="toggleRail"
+            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.expandNowPlaying'}}"
+            aria-expanded="false">
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    {{else}}
     <section class="pe-now-playing">
-        <h3 class="pe-rail-title">{{localize "PLAYLISTENCHANTMENT.STUDIO.nowPlaying"}}</h3>
+        <h3 class="pe-rail-title">
+            {{localize "PLAYLISTENCHANTMENT.STUDIO.nowPlaying"}}
+            <button type="button" class="pe-icon-button pe-pane-collapse" data-action="toggleRail"
+                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.collapseNowPlaying'}}"
+                    aria-expanded="true">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </h3>
         {{#if playing.length}}
         <ul class="pe-playing-list">
             {{#each playing}}
-            <li class="pe-playing-item {{channel.css}}" data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
-                {{#if color}}style="--pe-accent: {{color}}"{{/if}}>
+            <li class="pe-playing-item {{channel.css}}{{#if tagFill}} pe-tag-fill{{/if}}" data-action="revealPlaylist"
+                data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.showInLibrary'}}"
+                {{#if itemStyle}}style="{{itemStyle}}"{{/if}}>
                 <span class="pe-playing-cover" {{#if cover}}style="background-image: url('{{cover}}')"{{/if}}>
                     {{#unless cover}}<i class="{{channel.icon}}"></i>{{/unless}}
                 </span>
                 <span class="pe-playing-body">
                     <span class="pe-playing-name">{{name}}</span>
                     <span class="pe-playing-source">
-                        <i class="{{channel.icon}} pe-playing-channel" data-tooltip="{{localize channel.label}}"></i>
                         {{source}}
+                        {{> "modules/playlistenchantment/templates/studio/pips.hbs" tags=extraTags compact=true}}
                     </span>
                 </span>
                 {{#if canControl}}
@@ -63,13 +79,15 @@
         {{else}}
         <ol class="pe-queue-list">
             {{#each queue.entries}}
-            <li class="pe-queue-item {{channel.css}} {{#if playing}}playing{{/if}}" draggable="true"
-                data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
-                {{#if color}}style="--pe-accent: {{color}}"{{/if}}>
+            <li class="pe-queue-item {{channel.css}} {{#if playing}}playing{{/if}}{{#if tagFill}} pe-tag-fill{{/if}}" draggable="true"
+                data-action="revealPlaylist" data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.showInLibrary'}}"
+                {{#if itemStyle}}style="{{itemStyle}}"{{/if}}>
                 <span class="pe-queue-index">{{#if playing}}<i class="fa-solid fa-volume-high"></i>{{else}}{{position}}{{/if}}</span>
                 <span class="pe-queue-body">
                     <span class="pe-queue-name">{{name}}</span>
                     {{#if addedBy}}<span class="pe-queue-by">{{addedBy}}</span>{{/if}}
+                    {{> "modules/playlistenchantment/templates/studio/pips.hbs" tags=extraTags compact=true}}
                 </span>
                 <span class="pe-queue-time">{{duration}}</span>
                 {{#if @root.queue.canControl}}
@@ -90,5 +108,6 @@
         <p class="pe-queue-hint">{{localize "PLAYLISTENCHANTMENT.QUEUE.sortHint"}}</p>
         {{/if}}
     </section>
+    {{/if}}
     {{/if}}
 </div>

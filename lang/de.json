@@ -70,7 +70,17 @@
             "seek": "Spulen",
             "seekHint": "Springt an eine Position. Alle Clients starten den Track neu, es gibt also eine kurze Lücke.",
             "seekWarning": "Beim Spulen startet der Track auf allen Clients neu, alle hören eine kurze Lücke.",
-            "duckHint": "Musik absenken, während du darüber sprichst"
+            "duckHint": "Musik absenken, während du darüber sprichst",
+            "showInLibrary": "Diese Playlist anzeigen",
+            "pickerHint": "Tracks dieser Playlist durchsuchen",
+            "pickerSearch": "Musik suchen...",
+            "pickerSearchHint": "Durchsucht Namen und Tags in allen Musik-Playlists",
+            "pickerEmpty": "Keine Tracks gefunden",
+            "playTag": "Zufälligen Track mit diesem Tag abspielen",
+            "collapseLibrary": "Bibliothek einklappen",
+            "expandLibrary": "Bibliothek ausklappen",
+            "collapseNowPlaying": "„Läuft gerade“ einklappen",
+            "expandNowPlaying": "„Läuft gerade“ ausklappen"
         },
 
         "QUEUE": {
@@ -134,7 +144,11 @@
             "tagsPlaceholder": "kampf, spannung, dungeon",
             "tagsHint": "Kommagetrennt. Tags werden in diesem Fenster zu Filter-Buttons.",
             "propagates": "Beim Speichern werden auch {count} weitere Kopien dieser Datei in deinen Playlists aktualisiert.",
-            "inheritHint": "Tracks ohne eigenes Bild oder eigene Farbe übernehmen beides von ihrer Playlist."
+            "inheritHint": "Tracks ohne eigenes Bild oder eigene Farbe übernehmen beides von ihrer Playlist.",
+            "TABS": {
+                "data": "Daten",
+                "enchantment": "Verzauberung"
+            }
         },
 
         "STUDIOSETTINGS": {
@@ -220,6 +234,7 @@
             "newFolder": "Neuer Ordner",
             "newFolderHint": "Erstellt einen Ordner",
             "newSubfolder": "Neuer Unterordner in diesem Ordner",
+            "createInFolder": "Playlist oder Unterordner erstellen",
             "pin": "Für schnellen Zugriff anheften",
             "unpin": "Anheftung lösen",
             "pinFolder": "Diesen Ordner für schnellen Zugriff anheften",
@@ -228,6 +243,8 @@
             "tagMacro": "Verzauberung: {tag}",
             "noTagMatch": "Kein Track trägt den Tag {tag}",
             "toggleFolder": "Ordner auf- oder zuklappen",
+            "collapseFolders": "Alle Ordner zuklappen",
+            "expandFolders": "Alle Ordner aufklappen",
             "folderPlaying": "In diesem Ordner läuft etwas",
             "duplicate": "{track} ist bereits in dieser Playlist",
             "copied": "{count} Tracks zu {playlist} hinzugefügt",

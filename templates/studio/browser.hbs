@@ -1,5 +1,23 @@
-<div class="pe-browser">
+<div class="pe-browser{{#if browserCollapsed}} collapsed{{/if}}">
+    {{#if browserCollapsed}}
+    <button type="button" class="pe-icon-button pe-pane-expand" data-action="toggleBrowser"
+            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.expandLibrary'}}"
+            aria-expanded="false">
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    {{else}}
     <div class="pe-browser-toolbar">
+        <button type="button" class="pe-icon-button pe-pane-collapse" data-action="toggleBrowser"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.collapseLibrary'}}"
+                aria-expanded="true">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        {{#if hasFolders}}
+        <button type="button" class="pe-icon-button" data-action="collapseFolders"
+                data-tooltip="{{#if foldersCollapsed}}{{localize 'PLAYLISTENCHANTMENT.LIBRARY.expandFolders'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.LIBRARY.collapseFolders'}}{{/if}}">
+            <i class="fa-solid {{#if foldersCollapsed}}fa-folder-open{{else}}fa-folder{{/if}}"></i>
+        </button>
+        {{/if}}
         {{#if canCreate}}
         <button type="button" class="pe-icon-button" data-action="{{#if isBoardView}}newBoard{{else}}newPlaylist{{/if}}"
                 data-tooltip="{{#if isBoardView}}{{localize 'PLAYLISTENCHANTMENT.BOARD.newBoardHint'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.LIBRARY.newPlaylistHint'}}{{/if}}">
@@ -49,5 +67,8 @@
     </div>
     <div class="pe-browser-resize" role="separator" aria-orientation="vertical"
          data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.resizeLibrary'}}"
-         aria-label="{{localize 'PLAYLISTENCHANTMENT.STUDIO.resizeLibrary'}}"></div>
+         aria-label="{{localize 'PLAYLISTENCHANTMENT.STUDIO.resizeLibrary'}}">
+        <i class="fa-solid fa-grip-lines-vertical"></i>
+    </div>
+    {{/if}}
 </div>

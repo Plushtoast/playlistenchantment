@@ -1,9 +1,11 @@
 <div class="pe-controls">
 <div class="pe-studio-bar global-control">
     <button type="button" class="pe-studio-button" data-action="openStudio" draggable="true"
-            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.openHint'}}">
+            {{#if studioHotkey}}aria-keyshortcuts="{{studioHotkey}}"{{/if}}
+            data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.openHint'}}{{#if studioHotkey}} [{{studioHotkey}}]{{/if}}">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <span>{{localize "PLAYLISTENCHANTMENT.STUDIO.open"}}</span>
+        {{#if studioHotkey}}<kbd class="pe-studio-hotkey">{{studioHotkey}}</kbd>{{/if}}
     </button>
 </div>
 

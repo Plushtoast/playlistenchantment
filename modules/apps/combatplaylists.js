@@ -1,7 +1,6 @@
 import { Settings } from "../settings.js";
 import { AudioChannels } from "../core/audiochannels.js";
 import { FadeService } from "../core/fadeservice.js";
-import { PlaybackService } from "../core/playbackservice.js";
 
 export class CombatPlaylistManager {
     static previousPlaying = [];
@@ -81,7 +80,23 @@ export class CombatPlaylistManager {
 
         const randomId = playlistIds[Math.floor(Math.random() * playlistIds.length)];
         const playlist = game.playlists.get(randomId);
-        await PlaybackService.crossFade(playlist.uuid);
+        if (!playlist) {
+            this.combatSwitchActive = false;
+            this.previousPlaying = [];
+            return;
+        }
+
+        this.#stopOtherMusic(playlist);
+        if (!playlist.playing) await FadeService.fadeIn(playlist);
+    }
+
+    static #stopOtherMusic(keep) {
+        const { fadeModifier } = AudioChannels.get("music");
+        for (const other of game.playlists.playing) {
+            if (other.id === keep.id) continue;
+            if (!this.isMusicPlaylist(other)) continue;
+            FadeService.fadeOut(other, fadeModifier, true);
+        }
     }
 
     static async _onDeleteCombat(_combat, _options, _userId) {

@@ -1,0 +1,8 @@
+{{#if tags.length}}
+<span class="pe-pips{{#if compact}} pe-pips-sm{{/if}}">
+    {{#each tags}}
+    <span class="pe-pip{{#if inherited}} pe-pip-inherited{{/if}}" style="--pe-tag-color: {{color}}"
+          data-tooltip="{{label}}"></span>
+    {{/each}}
+</span>
+{{/if}}

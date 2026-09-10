@@ -230,12 +230,14 @@ function registerContextMenus() {
 }
 
 function soundFromElement(element) {
-    const { playlistId, soundId } = element?.dataset ?? {};
+    const node = element?.closest?.("[data-sound-id]") ?? element;
+    const { playlistId, soundId } = node?.dataset ?? {};
     return game.playlists.get(playlistId)?.sounds.get(soundId) ?? null;
 }
 
 function playlistFromElement(element) {
-    const id = element?.dataset?.entryId ?? element?.closest?.("[data-entry-id]")?.dataset.entryId;
+    const node = element?.closest?.("[data-entry-id], [data-playlist-id]") ?? element;
+    const id = node?.dataset?.entryId ?? node?.dataset?.playlistId;
     return game.playlists.get(id) ?? null;
 }
 
@@ -295,6 +297,12 @@ function registerDocumentHooks() {
         Hooks.on(hook, () => {
             TrackIndex.invalidate();
             Studio.refresh();
+        });
+    }
+
+    for (const hook of ["createFolder", "updateFolder", "deleteFolder"]) {
+        Hooks.on(hook, (folder) => {
+            if (folder.type === "Playlist") Studio.refresh();
         });
     }
 

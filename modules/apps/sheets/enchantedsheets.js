@@ -16,36 +16,40 @@ export const EnchantmentSheetMixin = (Base) =>
             },
         };
 
-        static PARTS = {
-            sheet: super.PARTS.sheet,
-            enchantment: { template: "modules/playlistenchantment/templates/sheets/enchantment.hbs" },
-            footer: super.PARTS.footer,
+        static TABS = {
+            sheet: {
+                tabs: [
+                    { id: "data", icon: "fa-solid fa-sliders" },
+                    { id: "enchantment", icon: "fa-solid fa-wand-magic-sparkles" },
+                ],
+                initial: "data",
+                labelPrefix: "PLAYLISTENCHANTMENT.EDITOR.TABS",
+            },
         };
-
-        /* -------------------------------------------- */
 
         async _preparePartContext(partId, context, options) {
             context = await super._preparePartContext(partId, context, options);
-            if (partId !== "enchantment") return context;
+            if (partId === "enchantment") {
+                const meta = TrackMeta.read(this.document);
+                const isSound = this.document.documentName === "PlaylistSound";
+                const copies = isSound ? TrackIndex.count(this.document.path) : 0;
+                const active = new Set(meta.tags);
 
-            const meta = TrackMeta.read(this.document);
-            const isSound = this.document.documentName === "PlaylistSound";
-            const copies = isSound ? TrackIndex.count(this.document.path) : 0;
-            const active = new Set(meta.tags);
-
-            context.flagPath = FLAG_PATH;
-            context.meta = meta;
-            context.color = meta.color || "#4a90d9";
-            context.hasColor = !!meta.color;
-            context.tagString = meta.tags.join(", ");
-            context.tagChoices = Tags.suggestions(TrackMeta.allTags()).map((tag) => ({
-                ...tag,
-                active: active.has(tag.tag),
-            }));
-            context.isSound = isSound;
-            context.propagates = copies > 1;
-            context.propagateHint = game.i18n.format("PLAYLISTENCHANTMENT.EDITOR.propagates", { count: copies - 1 });
-            context.inheritHint = game.i18n.localize("PLAYLISTENCHANTMENT.EDITOR.inheritHint");
+                context.flagPath = FLAG_PATH;
+                context.meta = meta;
+                context.color = meta.color || "#4a90d9";
+                context.hasColor = !!meta.color;
+                context.tagString = meta.tags.join(", ");
+                context.tagChoices = Tags.suggestions(TrackMeta.allTags()).map((tag) => ({
+                    ...tag,
+                    active: active.has(tag.tag),
+                }));
+                context.isSound = isSound;
+                context.propagates = copies > 1;
+                context.propagateHint = game.i18n.format("PLAYLISTENCHANTMENT.EDITOR.propagates", { count: copies - 1 });
+                context.inheritHint = game.i18n.localize("PLAYLISTENCHANTMENT.EDITOR.inheritHint");
+            }
+            if (partId in (context.tabs ?? {})) context.tab = context.tabs[partId];
             return context;
         }
 
@@ -56,6 +60,10 @@ export const EnchantmentSheetMixin = (Base) =>
             const data = super._processFormData(event, form, formData);
             const meta = foundry.utils.getProperty(data, FLAG_PATH);
             if (meta) foundry.utils.setProperty(data, FLAG_PATH, TrackMeta.fromForm(meta));
+            if (this.document.documentName === "Folder") {
+                const tags = foundry.utils.getProperty(data, FLAG_PATH)?.tags ?? [];
+                if (tags.length) data.color = Tags.get(tags[0]).color || data.color || null;
+            }
             return data;
         }
 
@@ -107,6 +115,44 @@ export const EnchantmentSheetMixin = (Base) =>
         }
     };
 
-export class EnchantedPlaylistConfig extends EnchantmentSheetMixin(foundry.applications.sheets.PlaylistConfig) {}
+const ENCHANTMENT_TAB = {
+    template: "modules/playlistenchantment/templates/sheets/sound-enchantment.hbs",
+    templates: ["modules/playlistenchantment/templates/sheets/enchantment.hbs"],
+    scrollable: [""],
+};
 
-export class EnchantedSoundConfig extends EnchantmentSheetMixin(foundry.applications.sheets.PlaylistSoundConfig) {}
+export class EnchantedPlaylistConfig extends EnchantmentSheetMixin(foundry.applications.sheets.PlaylistConfig) {
+    static PARTS = {
+        tabs: { template: "templates/generic/tab-navigation.hbs" },
+        data: {
+            template: "modules/playlistenchantment/templates/sheets/playlist-data.hbs",
+            scrollable: [""],
+        },
+        enchantment: ENCHANTMENT_TAB,
+        footer: { template: "templates/generic/form-footer.hbs" },
+    };
+}
+
+export class EnchantedSoundConfig extends EnchantmentSheetMixin(foundry.applications.sheets.PlaylistSoundConfig) {
+    static PARTS = {
+        tabs: { template: "templates/generic/tab-navigation.hbs" },
+        data: {
+            template: "modules/playlistenchantment/templates/sheets/sound-data.hbs",
+            scrollable: [""],
+        },
+        enchantment: ENCHANTMENT_TAB,
+        footer: { template: "templates/generic/form-footer.hbs" },
+    };
+}
+
+export class EnchantedFolderConfig extends EnchantmentSheetMixin(foundry.applications.sheets.FolderConfig) {
+    static PARTS = {
+        tabs: { template: "templates/generic/tab-navigation.hbs" },
+        data: {
+            template: "modules/playlistenchantment/templates/sheets/folder-data.hbs",
+            scrollable: [""],
+        },
+        enchantment: ENCHANTMENT_TAB,
+        footer: { template: "templates/generic/form-footer.hbs" },
+    };
+}

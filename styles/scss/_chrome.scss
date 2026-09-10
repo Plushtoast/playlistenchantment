@@ -82,4 +82,15 @@ body .application.playlistenchantment:is(.pe-studio, .pe-dialog, .pe-preview) {
             content: none;
         }
     }
+
+    &.pe-compact {
+        min-height: 0;
+        min-width: 0;
+
+        .window-header,
+        .window-resize-handle,
+        .window-resizable-handle {
+            display: none;
+        }
+    }
 }

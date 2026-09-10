@@ -1,0 +1,16 @@
+{{#if tags.length}}
+<div class="pe-chips{{#if compact}} pe-chips-sm{{/if}}">
+    {{#each tags}}
+    <span class="pe-chip{{#if inherited}} pe-chip-inherited{{/if}}"
+          style="--pe-tag-color: {{color}}; --pe-tag-foreground: {{foreground}}">
+        <span class="pe-chip-label">{{label}}</span>
+        {{#if removable}}
+        <button type="button" class="pe-chip-remove" data-action="untag" data-tag="{{tag}}"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.removeTag'}}">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        {{/if}}
+    </span>
+    {{/each}}
+</div>
+{{/if}}

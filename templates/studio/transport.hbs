@@ -1,7 +1,10 @@
 <div class="pe-transport {{track.channel.css}} {{#unless hasTrack}}pe-transport-idle{{/unless}}"
      {{#if track}}data-sound-id="{{track.id}}" data-playlist-id="{{track.playlistId}}" data-playing="{{isPlaying}}"{{/if}}>
 
-    <div class="pe-transport-track">
+    <div class="pe-transport-track" data-action="revealPlaylist" role="button"
+         {{#if track}}data-sound-id="{{track.id}}" data-playlist-id="{{track.playlistId}}"{{/if}}
+         aria-expanded="{{#if picker.open}}true{{else}}false{{/if}}"
+         data-tooltip="{{#if isCompact}}{{localize 'PLAYLISTENCHANTMENT.STUDIO.pickerHint'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.STUDIO.showInLibrary'}}{{/if}}">
         <span class="pe-transport-cover" {{#if track.cover}}style="background-image: url('{{track.cover}}')"{{/if}}>
             {{#unless track.cover}}<i class="fa-solid fa-compact-disc"></i>{{/unless}}
         </span>
@@ -11,6 +14,7 @@
                 {{#if track}}<i class="{{track.channel.icon}} pe-transport-channel"
                                 data-tooltip="{{localize track.channel.label}}"></i>{{/if}}
                 {{track.source}}
+                {{#if track}}{{> "modules/playlistenchantment/templates/studio/pips.hbs" tags=track.tags compact=true}}{{/if}}
             </span>
         </span>
     </div>
@@ -32,6 +36,7 @@
                 data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.stopAll'}}">
             <i class="fa-solid fa-stop"></i>
         </button>
+        {{#unless isCompact}}
         <button type="button" class="pe-icon-button {{#if isDucking}}active{{/if}}" data-action="toggleDuck"
                 data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.duckHint'}}">
             <i class="fa-solid fa-volume-low"></i>
@@ -40,6 +45,7 @@
                 data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.mixerHint'}}">
             <i class="fa-solid fa-sliders"></i>
         </button>
+        {{/unless}}
         <button type="button" class="pe-icon-button pe-compact-toggle" data-action="toggleCompact"
                 data-tooltip="{{#if isCompact}}{{localize 'PLAYLISTENCHANTMENT.STUDIO.expand'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.STUDIO.compact'}}{{/if}}">
             <i class="fa-solid {{#if isCompact}}fa-up-right-and-down-left-from-center{{else}}fa-down-left-and-up-right-to-center{{/if}}"></i>
@@ -59,7 +65,33 @@
         <span class="pe-time pe-time-duration">{{#if track}}{{duration}}{{else}}--:--{{/if}}</span>
     </div>
 
-    {{#if mixer.open}}
+    {{#if picker.open}}
+    <div class="pe-track-picker">
+        <div class="pe-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" class="pe-picker-search" value="{{picker.query}}" spellcheck="false"
+                   placeholder="{{localize 'PLAYLISTENCHANTMENT.STUDIO.pickerSearch'}}"
+                   data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.pickerSearchHint'}}" />
+        </div>
+        {{#if picker.tracks.length}}
+        <ol class="pe-picker-list">
+            {{#each picker.tracks}}
+            <li class="pe-picker-item {{#if playing}}playing{{/if}}" data-action="playPickerTrack"
+                data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.playTrack'}}">
+                <span class="pe-picker-name">{{name}}</span>
+                {{#if source}}<span class="pe-picker-source">{{source}}</span>{{/if}}
+                <span class="pe-picker-time">{{duration}}</span>
+            </li>
+            {{/each}}
+        </ol>
+        {{else}}
+        <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.STUDIO.pickerEmpty"}}</p>
+        {{/if}}
+    </div>
+    {{/if}}
+
+    {{#if mixer.open}}{{#unless isCompact}}
     <div class="pe-mixer">
         {{#each mixer.channels}}
         <div class="pe-mixer-channel {{css}}">
@@ -77,5 +109,5 @@
         </div>
         {{/each}}
     </div>
-    {{/if}}
+    {{/unless}}{{/if}}
 </div>

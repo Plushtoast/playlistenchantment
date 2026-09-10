@@ -1,5 +1,6 @@
 import { MODULE } from "../settings.js";
 import { TrackIndex } from "./trackindex.js";
+import { Tags } from "./tagservice.js";
 
 export class TrackMeta {
     static KEY = "meta";
@@ -43,6 +44,14 @@ export class TrackMeta {
     static async write(document, data, { propagate = true } = {}) {
         if (!document) return;
         const meta = this.#normalize({ ...this.read(document), ...data });
+        if (document.documentName === "Folder") {
+            const color = meta.tags.length ? Tags.get(meta.tags[0]).color : "";
+            await document.update({
+                color: color || null,
+                [`flags.${MODULE}.${this.KEY}`]: { ...meta, v: this.VERSION },
+            });
+            return meta;
+        }
         await document.setFlag(MODULE, this.KEY, { ...meta, v: this.VERSION });
         if (propagate && document.documentName === "PlaylistSound") {
             await this.propagate(document, meta);
@@ -101,16 +110,22 @@ export class TrackMeta {
     }
 
     static parseTags(value) {
-        return (Array.isArray(value) ? value : String(value ?? "").split(","))
-            .map((tag) => String(tag).trim().toLowerCase())
-            .filter(Boolean);
+        const seen = new Set();
+        const tags = [];
+        for (const raw of Array.isArray(value) ? value : String(value ?? "").split(",")) {
+            const tag = String(raw).trim().toLowerCase();
+            if (!tag || seen.has(tag)) continue;
+            seen.add(tag);
+            tags.push(tag);
+        }
+        return tags;
     }
 
     static #normalize(meta) {
         return {
             cover: meta.cover ? String(meta.cover) : "",
             color: meta.color ? String(meta.color) : "",
-            tags: [...new Set(this.parseTags(meta.tags))].sort(),
+            tags: this.parseTags(meta.tags),
         };
     }
 
@@ -121,6 +136,10 @@ export class TrackMeta {
             for (const sound of playlist.sounds) {
                 for (const tag of this.read(sound).tags) tags.add(tag);
             }
+        }
+        for (const folder of game.folders) {
+            if (folder.type !== "Playlist") continue;
+            for (const tag of this.read(folder).tags) tags.add(tag);
         }
         return [...tags].sort();
     }

@@ -124,7 +124,7 @@ export class Librarian {
     /* -------------------------------------------- */
 
     static async playRandomTagged(tag) {
-        const matches = this.searchAll({ tags: [tag] }, 500);
+        const matches = this.searchAll({ tags: [tag], boards: false }, 500);
         if (!matches.length) {
             ui.notifications.warn(game.i18n.format("PLAYLISTENCHANTMENT.LIBRARY.noTagMatch", { tag }));
             return null;
@@ -176,10 +176,9 @@ export class Librarian {
     }
 
     static tree({ boards = false, filter, query = "", tags = [], channels = [] } = {}) {
-        const playlists = this.browsablePlaylists({ boards })
+        const playlists = this.#searchPlaylists(boards)
             .filter((playlist) => !filter || filter(playlist))
-            .filter((playlist) => AudioChannels.playlistMatches(playlist, channels))
-            .filter((playlist) => TrackMeta.matchesPlaylist(playlist, { query, tags }));
+            .filter((playlist) => this.playlistMatchesFilter(playlist, { query, tags, channels }));
 
         const byName = (a, b) => a.name.localeCompare(b.name);
         const byFolder = new Map();
@@ -215,8 +214,10 @@ export class Librarian {
                 const children = this.#folderNodes(folder.id, byFolder, byName);
                 return {
                     id: folder.id,
+                    uuid: folder.uuid,
                     name: folder.name,
                     color: folder.color?.css ?? "",
+                    tags: TrackMeta.read(folder).tags,
                     pinned: this.pinnedIds("folder").includes(folder.id),
                     canEdit: folder.canUserModify(game.user, "update"),
                     playing: contents.some((playlist) => playlist.playing) || children.some((child) => child.playing),
@@ -232,28 +233,60 @@ export class Librarian {
         return nodes.flatMap((node) => [node, ...this.#collectFolders(node.children)]);
     }
 
+    static playlistMatchesFilter(playlist, { query = "", tags = [], channels = [] } = {}) {
+        if (!playlist) return false;
+        if (!query && !tags.length) return AudioChannels.playlistMatches(playlist, channels);
+
+        const sounds = SoundboardService.isBoard(playlist)
+            ? SoundboardService.visiblePads(playlist)
+            : [...playlist.sounds];
+        if (sounds.some((sound) => this.soundMatchesFilter(playlist, sound, { query, tags, channels }))) return true;
+
+        const nameHit = !query || playlist.name.toLowerCase().includes(query.toLowerCase());
+        const ownTags = TrackMeta.read(playlist).tags;
+        const folderTags = TrackMeta.read(playlist.folder).tags;
+        const tagHit = !tags.length || tags.every((tag) => ownTags.includes(tag) || folderTags.includes(tag));
+        return nameHit && tagHit && AudioChannels.matches(playlist, null, channels);
+    }
+
+    static soundMatchesFilter(playlist, sound, { query = "", tags = [], channels = [] } = {}) {
+        if (!AudioChannels.matches(playlist, sound, channels)) return false;
+        if (TrackMeta.matches(sound, { query, tags })) return true;
+        if (!tags.length) return false;
+        const folderTags = TrackMeta.read(playlist.folder).tags;
+        if (!tags.every((tag) => folderTags.includes(tag))) return false;
+        return TrackMeta.matches(sound, { query, tags: [] });
+    }
+
     static tracksOf(playlist, { query = "", tags = [], channels = [] } = {}) {
         if (!playlist) return [];
-        const sounds = [...playlist.sounds].filter(
-            (sound) => AudioChannels.matches(playlist, sound, channels) && TrackMeta.matches(sound, { query, tags })
-        );
+        const sounds = [...playlist.sounds].filter((sound) => this.soundMatchesFilter(playlist, sound, { query, tags, channels }));
         if (playlist.sorting === CONST.PLAYLIST_SORT_MODES.ALPHABETICAL) {
             return sounds.sort((a, b) => a.name.localeCompare(b.name));
         }
         return sounds.sort((a, b) => a.sort - b.sort);
     }
 
-    static searchAll({ query = "", tags = [], channels = [] } = {}, limit = 200) {
+    static searchAll({ query = "", tags = [], channels = [], boards } = {}, limit = 200) {
         const results = [];
-        for (const playlist of this.browsablePlaylists({ boards: false })) {
-            for (const sound of playlist.sounds) {
-                if (!AudioChannels.matches(playlist, sound, channels)) continue;
-                if (!TrackMeta.matches(sound, { query, tags })) continue;
+        const playlists = this.#searchPlaylists(boards);
+        for (const playlist of playlists) {
+            const sounds = SoundboardService.isBoard(playlist)
+                ? SoundboardService.visiblePads(playlist)
+                : playlist.sounds;
+            for (const sound of sounds) {
+                if (!this.soundMatchesFilter(playlist, sound, { query, tags, channels })) continue;
                 results.push(sound);
                 if (results.length >= limit) return results;
             }
         }
         return results;
+    }
+
+    static #searchPlaylists(boards) {
+        if (boards === true) return this.browsablePlaylists({ boards: true });
+        if (boards === false) return this.browsablePlaylists({ boards: false });
+        return [...this.browsablePlaylists({ boards: false }), ...this.browsablePlaylists({ boards: true })];
     }
 
     static channelOptions(selected) {

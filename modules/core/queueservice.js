@@ -45,6 +45,20 @@ export class QueueService {
         return !!playlist?.getFlag(MODULE, this.FLAG)?.isQueue;
     }
 
+    static originSound(sound) {
+        if (!sound || !this.isQueue(sound.parent)) return sound ?? null;
+        const origin = sound.getFlag(MODULE, this.FLAG)?.origin;
+        if (!origin) return sound;
+        return fromUuidSync(origin) ?? sound;
+    }
+
+    static originPlaylist(sound) {
+        const original = this.originSound(sound);
+        const playlist = original?.parent;
+        if (!playlist || this.isQueue(playlist)) return null;
+        return playlist;
+    }
+
     static get enabled() {
         return Settings.get("queueEnabled") === true;
     }

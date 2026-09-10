@@ -2,6 +2,7 @@ import { Settings } from "../settings.js";
 import { AudioChannels } from "../core/audiochannels.js";
 import { PlaybackService } from "../core/playbackservice.js";
 import { QueueService } from "../core/queueservice.js";
+import { Tags } from "../core/tagservice.js";
 import { TrackMeta } from "../core/trackmeta.js";
 import { UploadService } from "../core/uploadservice.js";
 import { UploadDialog } from "./uploaddialog.js";
@@ -58,6 +59,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         context = await super._preparePartContext(partId, context, options);
         if (partId === "controls") {
             context.channelControls = AudioChannels.controlsContext(EnchantedPlaylist._channelExpanded, context.controls);
+            context.studioHotkey = Settings.studioBindingLabel();
         }
         return context;
     }
@@ -92,6 +94,17 @@ export class EnchantedPlaylist extends PlaylistDirectory {
         await super._onRender(context, options);
         this.activateListeners($(this.element));
         this.#bindStudioDrag();
+        this.#applyFolderContrast();
+    }
+
+    #applyFolderContrast() {
+        for (const header of this.element.querySelectorAll(".directory-item.folder > .folder-header")) {
+            const background = header.style.backgroundColor;
+            if (!background) continue;
+            const color = foundry.utils.Color.from(background);
+            if (!color) continue;
+            header.style.color = Tags.contrastColor(color.css);
+        }
     }
 
     #bindStudioDrag() {

@@ -1,5 +1,5 @@
-<div class="pe-pad {{#if playing}}playing{{/if}}" data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
-     draggable="true" {{#if color}}style="--pe-accent: {{color}}"{{/if}}>
+<div class="pe-pad {{#if playing}}playing{{/if}}{{#if tagFill}} pe-tag-fill{{/if}}" data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
+     draggable="true" {{#if itemStyle}}style="{{itemStyle}}"{{/if}}>
 
     <button type="button" class="pe-pad-face" data-action="{{#if playing}}stopPad{{else}}firePad{{/if}}"
             {{#if cover}}style="background-image: url('{{cover}}')"{{/if}}
@@ -14,6 +14,12 @@
         {{#if chokeGroup}}<i class="fa-solid fa-layer-group" data-tooltip="{{chokeGroup}}"></i>{{/if}}
         {{#if playerUsable}}<i class="fa-solid fa-users" data-tooltip="{{localize 'PLAYLISTENCHANTMENT.PAD.playerUsable'}}"></i>{{/if}}
     </div>
+
+    {{#if extraTags.length}}
+    <div class="pe-pad-tags">
+        {{> "modules/playlistenchantment/templates/studio/pips.hbs" tags=extraTags compact=true}}
+    </div>
+    {{/if}}
 
     {{#if canEdit}}
     <button type="button" class="pe-pad-edit" data-action="editPad"

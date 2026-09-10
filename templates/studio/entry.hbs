@@ -1,34 +1,25 @@
-<div class="pe-entry pe-drop-target {{channel.css}} {{#if selected}}selected{{/if}} {{#if playing}}playing{{/if}}"
-     data-playlist-id="{{id}}" data-action="selectPlaylist"
-     {{#if color}}style="--pe-accent: {{color}}"{{/if}}
-     data-tooltip="{{name}}">
+<div class="pe-entry directory-item pe-drop-target {{channel.css}} {{#if selected}}selected{{/if}} {{#if playing}}playing{{/if}}{{#if tagFill}} pe-tag-fill{{/if}}"
+     data-entry-id="{{id}}" data-playlist-id="{{id}}" data-action="selectPlaylist"
+     {{#if itemStyle}}style="{{itemStyle}}"{{/if}}>
     <span class="pe-entry-cover" {{#if cover}}style="background-image: url('{{cover}}')"{{/if}}>
         {{#unless cover}}<i class="{{channel.icon}}"></i>{{/unless}}
     </span>
     <span class="pe-entry-body">
-        <span class="pe-entry-name">{{name}}</span>
+        <span class="pe-entry-name" data-tooltip="{{name}}">{{name}}</span>
         <span class="pe-entry-meta">
-            {{trackCount}} {{localize "PLAYLISTENCHANTMENT.STUDIO.tracks"}}
+            <span data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.tracks'}}">{{trackCount}}</span>
             {{#if hasDJs}}
             <i class="fa-solid fa-headphones pe-dj-badge"
                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.DJ.badge'}}"></i>
             {{/if}}
-        </span>
-        {{#if tags.length}}
-        <span class="pe-chips">
-            {{#each tags}}
-            <span class="pe-chip" style="--pe-tag-color: {{color}}; --pe-tag-foreground: {{foreground}}">
-                <span class="pe-chip-label">{{label}}</span>
-                {{#if ../canEdit}}
-                <button type="button" class="pe-chip-remove" data-action="untag" data-tag="{{tag}}"
-                        data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.removeTag'}}">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                {{/if}}
+            {{#if tags.length}}
+            <span class="pe-pips">
+                {{#each tags}}
+                <span class="pe-pip" style="--pe-tag-color: {{color}}" data-tooltip="{{label}}"></span>
+                {{/each}}
             </span>
-            {{/each}}
+            {{/if}}
         </span>
-        {{/if}}
     </span>
     <button type="button" class="pe-icon-button pe-pin {{#if pinned}}pinned{{/if}}" data-action="togglePin"
             data-tooltip="{{#if pinned}}{{localize 'PLAYLISTENCHANTMENT.LIBRARY.unpin'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.LIBRARY.pin'}}{{/if}}">
