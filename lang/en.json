@@ -229,7 +229,8 @@
             "cannotMove": "Foundry cannot move or rename files after upload. Pick the destination folder now.",
             "invalidFolder": "That folder name cannot be used",
             "noPermission": "You do not have permission to upload files",
-            "reused": "{file} already exists in this folder and was reused"
+            "reused": "{file} already exists in this folder and was reused",
+            "failed": "{file} could not be uploaded"
         },
 
         "LIBRARY": {

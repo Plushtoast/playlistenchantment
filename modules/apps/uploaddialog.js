@@ -1,3 +1,4 @@
+import { FileLocation } from "../core/filelocation.js";
 import { Librarian } from "../core/librarian.js";
 import { Permissions } from "../core/permissionservice.js";
 import { UploadService } from "../core/uploadservice.js";
@@ -70,15 +71,15 @@ export class UploadDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         const context = await super._prepareContext(options);
         this.#folders = await UploadService.subfolders(this.#target);
 
-        context.target = this.#target;
+        context.target = String(this.#target);
         context.root = UploadService.root;
-        context.atRoot = this.#target === UploadService.root;
+        context.atRoot = UploadService.location.equals(this.#target);
         context.folders = this.#folders;
         context.files = this.#files.map((file, index) => ({
             index,
             name: file.name,
             size: this.#formatSize(file.size),
-            destination: `${this.#target.replace(/\/$/, "")}/${file.name}`,
+            destination: String(this.#target.join(file.name)),
         }));
         context.hasFiles = !!this.#files.length;
         context.uploading = this.#uploading;
@@ -100,21 +101,24 @@ export class UploadDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     static _onOpenFolder(_event, target) {
-        this.#target = target.dataset.path;
+        const location = FileLocation.parse(target.dataset.path);
+        if (!UploadService.location.contains(location)) return;
+        this.#target = location;
         this.render();
     }
 
     static _onGoUp() {
-        if (this.#target === UploadService.root) return;
-        const parent = this.#target.split("/").slice(0, -1).join("/");
-        this.#target = parent.length >= UploadService.root.length ? parent : UploadService.root;
+        const root = UploadService.location;
+        if (root.equals(this.#target)) return;
+        const parent = this.#target.parent();
+        this.#target = root.contains(parent) ? parent : root;
         this.render();
     }
 
     static async _onNewFolder() {
         const name = await foundry.applications.api.DialogV2.prompt({
             window: { title: game.i18n.localize("PLAYLISTENCHANTMENT.UPLOAD.newFolder") },
-            content: `<p>${game.i18n.format("PLAYLISTENCHANTMENT.UPLOAD.newFolderIn", { path: this.#target })}</p>
+            content: `<p>${game.i18n.format("PLAYLISTENCHANTMENT.UPLOAD.newFolderIn", { path: String(this.#target) })}</p>
                       <input type="text" name="name" autofocus />`,
             ok: {
                 label: game.i18n.localize("PLAYLISTENCHANTMENT.create"),

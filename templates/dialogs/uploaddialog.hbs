@@ -21,8 +21,8 @@
 
     <div class="pe-folder-list">
         {{#each folders}}
-        <button type="button" class="pe-folder-entry" data-action="openFolder" data-path="{{path}}">
-            <i class="fa-solid fa-folder"></i>{{name}}
+        <button type="button" class="pe-folder-entry" data-action="openFolder" data-path="{{this.path}}">
+            <i class="fa-solid fa-folder"></i>{{this.name}}
         </button>
         {{else}}
         <p class="pe-empty">{{localize "PLAYLISTENCHANTMENT.UPLOAD.noSubfolders"}}</p>
@@ -35,7 +35,7 @@
         <select id="pe-upload-playlist" name="playlist">
             <option value="">{{localize "PLAYLISTENCHANTMENT.UPLOAD.noPlaylist"}}</option>
             {{#each playlists}}
-            <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>
+            <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>
             {{/each}}
         </select>
     </div>
@@ -43,10 +43,10 @@
     <ul class="pe-upload-files">
         {{#each files}}
         <li class="pe-upload-file">
-            <span class="pe-upload-name">{{name}}</span>
-            <span class="pe-upload-size">{{size}}</span>
-            <code class="pe-upload-destination">{{destination}}</code>
-            <button type="button" class="pe-icon-button" data-action="removeFile" data-index="{{index}}"
+            <span class="pe-upload-name">{{this.name}}</span>
+            <span class="pe-upload-size">{{this.size}}</span>
+            <code class="pe-upload-destination">{{this.destination}}</code>
+            <button type="button" class="pe-icon-button" data-action="removeFile" data-index="{{this.index}}"
                     data-tooltip="{{localize 'PLAYLISTENCHANTMENT.UPLOAD.remove'}}">
                 <i class="fa-solid fa-xmark"></i>
             </button>
