@@ -239,13 +239,13 @@ export class Settings {
         });
         return KeyboardManager._getMatchingActions(context)
             .filter((match) => match.action !== actionId)
-            .map((match) => game.i18n.localize(match.name));
+            .map((match) => _loc(match.name));
     }
 
     static conflictMessage(binding) {
         const conflicts = this.conflictingActions(binding);
         if (!conflicts.length) return "";
-        return game.i18n.format("KEYBINDINGS.Conflict", {
+        return _loc("KEYBINDINGS.Conflict", {
             conflicts: game.i18n.getListFormatter().format(conflicts),
         });
     }

@@ -44,10 +44,10 @@ export class UploadDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
     static show({ files = [], playlist = null } = {}) {
         if (!Permissions.canUpload()) {
-            ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.UPLOAD.noPermission"));
+            ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.UPLOAD.noPermission"));
             return null;
         }
-        const existing = foundry.applications.instances.get("pe-upload-dialog");
+        const existing = foundry.applications.instances.get(this.DEFAULT_OPTIONS.id);
         if (existing) {
             existing.addFiles(files);
             existing.bringToFront();
@@ -90,7 +90,7 @@ export class UploadDialog extends HandlebarsApplicationMixin(ApplicationV2) {
                 name: playlist.name,
                 selected: playlist.id === this.#playlist?.id,
             }));
-        context.warning = game.i18n.localize("PLAYLISTENCHANTMENT.UPLOAD.cannotMove");
+        context.warning = _loc("PLAYLISTENCHANTMENT.UPLOAD.cannotMove");
         return context;
     }
 
@@ -117,11 +117,11 @@ export class UploadDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
     static async _onNewFolder() {
         const name = await foundry.applications.api.DialogV2.prompt({
-            window: { title: game.i18n.localize("PLAYLISTENCHANTMENT.UPLOAD.newFolder") },
-            content: `<p>${game.i18n.format("PLAYLISTENCHANTMENT.UPLOAD.newFolderIn", { path: String(this.#target) })}</p>
+            window: { title: "PLAYLISTENCHANTMENT.UPLOAD.newFolder" },
+            content: `<p>${_loc("PLAYLISTENCHANTMENT.UPLOAD.newFolderIn", { path: String(this.#target) })}</p>
                       <input type="text" name="name" autofocus />`,
             ok: {
-                label: game.i18n.localize("PLAYLISTENCHANTMENT.create"),
+                label: "PLAYLISTENCHANTMENT.create",
                 callback: (_event, button) => button.form.elements.name.value,
             },
             rejectClose: false,

@@ -21,7 +21,7 @@ export class DJDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     get title() {
-        return game.i18n.format("PLAYLISTENCHANTMENT.DJ.titleFor", { name: this.playlist.name });
+        return _loc("PLAYLISTENCHANTMENT.DJ.titleFor", { name: this.playlist.name });
     }
 
     async _prepareContext(options) {
@@ -37,7 +37,7 @@ export class DJDialog extends HandlebarsApplicationMixin(ApplicationV2) {
                 isDJ: Permissions.isDJ(this.playlist, user),
             }));
         context.empty = !context.users.length;
-        context.hint = game.i18n.localize("PLAYLISTENCHANTMENT.DJ.hint");
+        context.hint = _loc("PLAYLISTENCHANTMENT.DJ.hint");
         context.buttons = [{ type: "submit", icon: "fa-solid fa-check", label: "PLAYLISTENCHANTMENT.save" }];
         return context;
     }

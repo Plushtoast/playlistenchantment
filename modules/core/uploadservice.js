@@ -84,7 +84,7 @@ export class UploadService {
 
     static async createDirectory(parent, name) {
         const folder = this.sanitizeFolderName(name);
-        if (!folder) throw new Error(game.i18n.localize("PLAYLISTENCHANTMENT.UPLOAD.invalidFolder"));
+        if (!folder) throw new Error(_loc("PLAYLISTENCHANTMENT.UPLOAD.invalidFolder"));
         const location = FileLocation.parse(parent).join(folder);
         try {
             await this.picker.createDirectory(location.source, location.target, location.browseOptions);
@@ -101,7 +101,7 @@ export class UploadService {
 
     static async upload(files, target, playlist, { onProgress } = {}) {
         if (!Permissions.canUpload()) {
-            ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.UPLOAD.noPermission"));
+            ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.UPLOAD.noPermission"));
             return [];
         }
         const destination = target ? FileLocation.parse(target) : this.defaultTarget;
@@ -120,10 +120,10 @@ export class UploadService {
             let path = String(candidate);
 
             if (existing.has(candidate.compareKey())) {
-                ui.notifications.info(game.i18n.format("PLAYLISTENCHANTMENT.UPLOAD.reused", { file: file.name }));
+                ui.notifications.info(_loc("PLAYLISTENCHANTMENT.UPLOAD.reused", { file: file.name }));
             } else {
                 const notification = ui.notifications.info(
-                    game.i18n.format("PLAYLISTENCHANTMENT.uploading", { item: file.name }),
+                    _loc("PLAYLISTENCHANTMENT.uploading", { item: file.name }),
                     { permanent: true }
                 );
                 let response;
@@ -142,7 +142,7 @@ export class UploadService {
                 if (!response?.path) {
                     failed.push(file.name);
                     ui.notifications.error(
-                        game.i18n.format("PLAYLISTENCHANTMENT.UPLOAD.failed", { file: file.name })
+                        _loc("PLAYLISTENCHANTMENT.UPLOAD.failed", { file: file.name })
                     );
                     continue;
                 }
@@ -156,7 +156,7 @@ export class UploadService {
         if (playlist && sounds.length) {
             await playlist.createEmbeddedDocuments("PlaylistSound", sounds);
         }
-        if (!failed.length) ui.notifications.info(game.i18n.localize("PLAYLISTENCHANTMENT.uploadDone"));
+        if (!failed.length) ui.notifications.info(_loc("PLAYLISTENCHANTMENT.uploadDone"));
         return sounds;
     }
 

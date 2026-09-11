@@ -46,8 +46,8 @@ export const EnchantmentSheetMixin = (Base) =>
                 }));
                 context.isSound = isSound;
                 context.propagates = copies > 1;
-                context.propagateHint = game.i18n.format("PLAYLISTENCHANTMENT.EDITOR.propagates", { count: copies - 1 });
-                context.inheritHint = game.i18n.localize("PLAYLISTENCHANTMENT.EDITOR.inheritHint");
+                context.propagateHint = _loc("PLAYLISTENCHANTMENT.EDITOR.propagates", { count: copies - 1 });
+                context.inheritHint = _loc("PLAYLISTENCHANTMENT.EDITOR.inheritHint");
             }
             if (partId in (context.tabs ?? {})) context.tab = context.tabs[partId];
             return context;

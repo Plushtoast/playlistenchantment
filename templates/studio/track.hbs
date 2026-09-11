@@ -24,45 +24,44 @@
         </span>
     </div>
 
-    <span class="pe-track-time">{{#if playing}}{{elapsed}} / {{/if}}{{duration}}</span>
-
-    <i class="pe-track-channel {{channel.icon}} {{channel.css}}"
-       data-tooltip="{{localize channel.label}}"></i>
-
-    <div class="pe-track-controls">
-        <div class="pe-track-actions">
-            {{#if canControl}}
-            <button type="button" class="pe-icon-button {{#if repeat}}active{{/if}}" data-action="toggleRepeat"
-                    data-tooltip="{{#if repeat}}{{localize 'PLAYLISTENCHANTMENT.SoundLoopOff'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.SoundLoopOn'}}{{/if}}">
-                <i class="fa-solid fa-repeat"></i>
-            </button>
-            <button type="button" class="pe-icon-button" data-action="toggleTrack"
-                    data-tooltip="{{#if playing}}{{localize 'PLAYLIST.SoundPause'}}{{else}}{{localize 'PLAYLIST.SoundPlay'}}{{/if}}">
-                <i class="fa-solid {{#if playing}}fa-pause{{else}}fa-play{{/if}}"></i>
-            </button>
-            {{/if}}
-            <button type="button" class="pe-icon-button" data-action="previewTrack"
-                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.previewHint'}}">
-                <i class="fa-solid fa-headphones"></i>
-            </button>
-            <button type="button" class="pe-icon-button" data-action="enqueue"
-                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.QUEUE.add'}}">
-                <i class="fa-solid fa-list-ol"></i>
-            </button>
-            {{#if canEdit}}
-            <button type="button" class="pe-icon-button" data-action="editTrack"
-                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.EDITOR.edit'}}">
-                <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button type="button" class="pe-icon-button pe-danger" data-action="removeTrack"
-                    data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.removeTrack'}}">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-            {{/if}}
-        </div>
+    <div class="pe-track-meta">
+        <span class="pe-track-time">{{#if playing}}{{elapsed}} / {{/if}}{{duration}}</span>
+        <i class="pe-track-channel {{channel.icon}} {{channel.css}}"
+           data-tooltip="{{localize channel.label}}"></i>
         {{#if canControl}}
         <input type="range" class="pe-volume" min="0" max="1" step="0.05" value="{{volume}}"
                data-tooltip="{{localize 'PLAYLIST_SOUND.FIELDS.volume.label'}}" aria-label="{{localize 'PLAYLIST_SOUND.FIELDS.volume.label'}}" />
+        {{/if}}
+    </div>
+
+    <div class="pe-track-actions">
+        {{#if canControl}}
+        <button type="button" class="pe-icon-button {{#if repeat}}active{{/if}}" data-action="toggleRepeat"
+                data-tooltip="{{#if repeat}}{{localize 'PLAYLISTENCHANTMENT.SoundLoopOff'}}{{else}}{{localize 'PLAYLISTENCHANTMENT.SoundLoopOn'}}{{/if}}">
+            <i class="fa-solid fa-repeat"></i>
+        </button>
+        <button type="button" class="pe-icon-button" data-action="toggleTrack"
+                data-tooltip="{{#if playing}}{{localize 'PLAYLIST.SoundPause'}}{{else}}{{localize 'PLAYLIST.SoundPlay'}}{{/if}}">
+            <i class="fa-solid {{#if playing}}fa-pause{{else}}fa-play{{/if}}"></i>
+        </button>
+        {{/if}}
+        <button type="button" class="pe-icon-button" data-action="previewTrack"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.STUDIO.previewHint'}}">
+            <i class="fa-solid fa-headphones"></i>
+        </button>
+        <button type="button" class="pe-icon-button" data-action="enqueue"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.QUEUE.add'}}">
+            <i class="fa-solid fa-list-ol"></i>
+        </button>
+        {{#if canEdit}}
+        <button type="button" class="pe-icon-button" data-action="editTrack"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.EDITOR.edit'}}">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button type="button" class="pe-icon-button pe-danger" data-action="removeTrack"
+                data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.removeTrack'}}">
+            <i class="fa-solid fa-trash"></i>
+        </button>
         {{/if}}
     </div>
 </li>

@@ -78,8 +78,8 @@ export class QueueService {
         if (existing) return existing;
         if (!game.user.isGM) return null;
         return foundry.documents.Playlist.create({
-            name: game.i18n.localize("PLAYLISTENCHANTMENT.QUEUE.playlistName"),
-            description: game.i18n.localize("PLAYLISTENCHANTMENT.QUEUE.playlistDescription"),
+            name: _loc("PLAYLISTENCHANTMENT.QUEUE.playlistName"),
+            description: _loc("PLAYLISTENCHANTMENT.QUEUE.playlistDescription"),
             mode: CONST.PLAYLIST_MODES.SEQUENTIAL,
             channel: "music",
             playing: false,
@@ -99,7 +99,7 @@ export class QueueService {
         const queue = this.playlist;
         if (!queue || !queue.isOwner) {
             if (!Permissions.canQueue()) {
-                ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.QUEUE.notAllowed"));
+                ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.QUEUE.notAllowed"));
                 return null;
             }
             const response = await Relay.requestGM("enqueue", { uuid: sound.uuid, next });
@@ -111,14 +111,14 @@ export class QueueService {
 
     static async #handleRequest({ uuid, next }, user) {
         if (!Settings.get("playerQueue") && !user?.isGM) {
-            throw new Error(game.i18n.localize("PLAYLISTENCHANTMENT.QUEUE.notAllowed"));
+            throw new Error(_loc("PLAYLISTENCHANTMENT.QUEUE.notAllowed"));
         }
         const sound = await fromUuid(uuid);
         if (!sound) throw new Error("Track not found");
         const queue = await this.ensure();
         const entry = await this.#insert(queue, sound, { next, requestedBy: user?.id });
         ui.notifications.info(
-            game.i18n.format("PLAYLISTENCHANTMENT.QUEUE.playerAdded", {
+            _loc("PLAYLISTENCHANTMENT.QUEUE.playerAdded", {
                 user: user?.name ?? "?",
                 track: sound.name,
             })

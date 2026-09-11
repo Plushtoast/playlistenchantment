@@ -45,7 +45,7 @@ export class SoundboardService {
     static async createBoard(name) {
         if (!Permissions.canCreatePlaylist()) return null;
         return foundry.documents.Playlist.create({
-            name: name || game.i18n.localize("PLAYLISTENCHANTMENT.BOARD.newBoard"),
+            name: name || _loc("PLAYLISTENCHANTMENT.BOARD.newBoard"),
             mode: CONST.PLAYLIST_MODES.DISABLED,
             channel: "interface",
             [`flags.${MODULE}.${this.BOARD_FLAG}`]: { enabled: true, columns: 4 },
@@ -78,6 +78,22 @@ export class SoundboardService {
         return config;
     }
 
+    static #volumeDebouncers = new Map();
+
+    // Keep pad flag volume in sync with the live PlaylistSound volume (sidebar-style slider).
+    static persistVolume(sound, volume) {
+        if (!Permissions.canControl(sound?.parent)) return;
+        let persist = this.#volumeDebouncers.get(sound.uuid);
+        if (!persist) {
+            persist = foundry.utils.debounce((target, next) => {
+                const config = { ...this.padConfig(target), volume: next };
+                return target.update({ [`flags.${MODULE}.${this.PAD_FLAG}`]: config }, { diff: false, render: false });
+            }, foundry.documents.PlaylistSound.VOLUME_DEBOUNCE_MS);
+            this.#volumeDebouncers.set(sound.uuid, persist);
+        }
+        persist(sound, volume);
+    }
+
     static canFire(sound) {
         if (!sound) return false;
         if (Permissions.canControl(sound.parent)) return true;
@@ -89,7 +105,7 @@ export class SoundboardService {
         if (!sound) return;
         if (!Permissions.canControl(sound.parent)) {
             if (!this.canFire(sound)) {
-                ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.errorNoPermission"));
+                ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.errorNoPermission"));
                 return;
             }
             const response = await Relay.requestGM("firePad", { uuid: sound.uuid });
@@ -103,12 +119,12 @@ export class SoundboardService {
         const sound = await fromUuid(uuid);
         if (!sound) throw new Error("Pad not found");
         if (!this.padConfig(sound).playerUsable) {
-            throw new Error(game.i18n.localize("PLAYLISTENCHANTMENT.errorNoPermission"));
+            throw new Error(_loc("PLAYLISTENCHANTMENT.errorNoPermission"));
         }
         await this.#play(sound);
         if (Settings.get("notifyGm")) {
             ui.notifications.info(
-                game.i18n.format("PLAYLISTENCHANTMENT.BOARD.playerFired", {
+                _loc("PLAYLISTENCHANTMENT.BOARD.playerFired", {
                     user: user?.name ?? "?",
                     pad: sound.name,
                 })
@@ -122,7 +138,7 @@ export class SoundboardService {
         const config = this.padConfig(sound);
 
         await this.#choke(board, sound, config);
-        await sound.update({ repeat: config.loop, volume: config.volume });
+        await sound.update({ repeat: config.loop, volume: sound.volume });
         await board.playSound(sound);
 
         if (config.duck) this.#duckFor(sound, config);

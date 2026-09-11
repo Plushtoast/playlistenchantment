@@ -14,7 +14,7 @@
                 {{#if track}}<i class="{{track.channel.icon}} pe-transport-channel"
                                 data-tooltip="{{localize track.channel.label}}"></i>{{/if}}
                 {{track.source}}
-                {{#if track}}{{> "modules/playlistenchantment/templates/studio/pips.hbs" tags=track.tags compact=true}}{{/if}}
+                {{#if track}}{{> "modules/playlistenchantment/templates/studio/pips.hbs" tags=track.tags}}{{/if}}
             </span>
         </span>
     </div>

@@ -61,7 +61,7 @@ export class Permissions {
             [`flags.${MODULE}.${this.DJ_FLAG}`]: { grantedTo: [...granted], grantedBy: game.userId },
         });
         const names = userIds.map((id) => game.users.get(id)?.name).filter(Boolean).join(", ");
-        ui.notifications.info(game.i18n.format("PLAYLISTENCHANTMENT.DJ.granted", { users: names, playlist: playlist.name }));
+        ui.notifications.info(_loc("PLAYLISTENCHANTMENT.DJ.granted", { users: names, playlist: playlist.name }));
     }
 
     static async revokeDJ(playlist, userId) {
@@ -72,7 +72,7 @@ export class Permissions {
             [`flags.${MODULE}.${this.DJ_FLAG}`]: { grantedTo: granted, grantedBy: game.userId },
         });
         ui.notifications.info(
-            game.i18n.format("PLAYLISTENCHANTMENT.DJ.revoked", {
+            _loc("PLAYLISTENCHANTMENT.DJ.revoked", {
                 user: game.users.get(userId)?.name ?? userId,
                 playlist: playlist.name,
             })

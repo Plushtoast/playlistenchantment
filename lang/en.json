@@ -46,7 +46,7 @@
             "boardsHint": "Pad grids for scenes and effects",
             "searchPlaceholder": "Search playlists and tracks...",
             "searchHint": "Search names and tags across every playlist",
-            "filterByTag": "Filter by this tag. Drag it onto a playlist or track to tag it, or onto the hotbar for a macro that plays a random track with this tag.",
+            "filterByTag": "Filter by this tag. Drag it onto a playlist or track to add or remove it, or onto the hotbar for a macro that plays a random track with this tag. Hold Shift while dropping to keep applying it to more tracks until you release Shift.",
             "filterByChannel": "Show only these audio channels",
             "clearFilters": "Clear search, tag and channel filters",
             "removeTag": "Remove this tag",

@@ -1,4 +1,4 @@
-<div class="pe-pad {{#if playing}}playing{{/if}}{{#if tagFill}} pe-tag-fill{{/if}}" data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
+<div class="pe-pad {{#if playing}}playing{{/if}}{{#if tagFill}} pe-tag-fill{{/if}}{{#if canControl}} has-volume{{/if}}" data-sound-id="{{id}}" data-playlist-id="{{playlistId}}"
      draggable="true" {{#if itemStyle}}style="{{itemStyle}}"{{/if}}>
 
     <button type="button" class="pe-pad-face" data-action="{{#if playing}}stopPad{{else}}firePad{{/if}}"
@@ -17,8 +17,13 @@
 
     {{#if extraTags.length}}
     <div class="pe-pad-tags">
-        {{> "modules/playlistenchantment/templates/studio/pips.hbs" tags=extraTags compact=true}}
+        {{> "modules/playlistenchantment/templates/studio/pips.hbs" tags=extraTags}}
     </div>
+    {{/if}}
+
+    {{#if canControl}}
+    <input type="range" class="pe-volume pe-pad-volume" min="0" max="1" step="0.05" value="{{volume}}" draggable="false"
+           data-tooltip="{{localize 'PLAYLIST_SOUND.FIELDS.volume.label'}}" aria-label="{{localize 'PLAYLIST_SOUND.FIELDS.volume.label'}}" />
     {{/if}}
 
     {{#if canEdit}}

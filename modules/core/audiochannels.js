@@ -165,7 +165,7 @@ export class AudioChannels {
                 volumePercent: helper.volumeToPercentage(volume),
                 fade: settings.fade,
                 fadeModifier: settings.fadeModifier,
-                fadeTooltip: game.i18n.format("PLAYLISTENCHANTMENT.FadeTooltip", { value: settings.fadeModifier }),
+                fadeTooltip: _loc("PLAYLISTENCHANTMENT.FadeTooltip", { value: settings.fadeModifier }),
                 normalize: settings.normalize,
                 normalizeModifier: normalizeInput,
                 normalizePercent: helper.volumeToPercentage(normalizeInput),
@@ -184,15 +184,15 @@ export class AudioChannels {
         return Object.entries(this.CHANNELS).map(([id, channel]) => {
             const settings = all[id];
             const normalizeInput = foundry.audio.AudioHelper.volumeToInput(settings.normalizeModifier);
-            const channelName = game.i18n.localize(channel.label);
+            const channelName = _loc(channel.label);
             return {
                 channel: { ...channel, audioTooltip: audioTooltips[id] },
                 expanded: !!expanded[id],
                 volume: controls[id],
                 fade: settings.fade,
                 fadeModifier: settings.fadeModifier,
-                fadeTooltip: game.i18n.format("PLAYLISTENCHANTMENT.FadeTooltip", { value: settings.fadeModifier }),
-                fadeEnabledTooltip: game.i18n.format(
+                fadeTooltip: _loc("PLAYLISTENCHANTMENT.FadeTooltip", { value: settings.fadeModifier }),
+                fadeEnabledTooltip: _loc(
                     settings.fade ? "PLAYLISTENCHANTMENT.ChannelFadeOn" : "PLAYLISTENCHANTMENT.ChannelFadeOff",
                     { channel: channelName }
                 ),

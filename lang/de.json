@@ -46,7 +46,7 @@
             "boardsHint": "Pad-Raster für Szenen und Effekte",
             "searchPlaceholder": "Playlists und Tracks durchsuchen...",
             "searchHint": "Durchsucht Namen und Tags in allen Playlists",
-            "filterByTag": "Nach diesem Tag filtern. Auf eine Playlist oder einen Track ziehen, um ihn zu taggen, oder auf die Makroleiste für ein Makro, das einen zufälligen Track mit diesem Tag abspielt.",
+            "filterByTag": "Nach diesem Tag filtern. Auf eine Playlist oder einen Track ziehen, um das Tag zu setzen oder zu entfernen, oder auf die Makroleiste für ein Makro, das einen zufälligen Track mit diesem Tag abspielt. Umschalttaste beim Ablegen halten, um das Tag auf weitere Tracks zu setzen, bis die Taste losgelassen wird.",
             "filterByChannel": "Nur diese Audiokanäle anzeigen",
             "clearFilters": "Suche, Tag- und Kanalfilter zurücksetzen",
             "removeTag": "Diesen Tag entfernen",
@@ -224,7 +224,8 @@
             "cannotMove": "Foundry kann Dateien nach dem Upload weder verschieben noch umbenennen. Wähle den Zielordner jetzt.",
             "invalidFolder": "Dieser Ordnername kann nicht verwendet werden",
             "noPermission": "Dir fehlen die Rechte zum Hochladen von Dateien",
-            "reused": "{file} existiert bereits in diesem Ordner und wurde wiederverwendet"
+            "reused": "{file} existiert bereits in diesem Ordner und wurde wiederverwendet",
+            "failed": "{file} konnte nicht hochgeladen werden"
         },
 
         "LIBRARY": {

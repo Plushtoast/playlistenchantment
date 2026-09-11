@@ -21,14 +21,14 @@ export class Announcer {
         if (!action) return;
 
         ui.notifications.info(
-            game.i18n.format("PLAYLISTENCHANTMENT.NOTIFY.playerAction", { user: user.name, action, target: label })
+            _loc("PLAYLISTENCHANTMENT.NOTIFY.playerAction", { user: user.name, action, target: label })
         );
     }
 
     static #describe(document, changes) {
-        if (changes.playing === true) return game.i18n.localize("PLAYLISTENCHANTMENT.NOTIFY.started");
-        if (changes.playing === false) return game.i18n.localize("PLAYLISTENCHANTMENT.NOTIFY.stopped");
-        if ("volume" in changes) return game.i18n.localize("PLAYLISTENCHANTMENT.NOTIFY.volume");
+        if (changes.playing === true) return _loc("PLAYLISTENCHANTMENT.NOTIFY.started");
+        if (changes.playing === false) return _loc("PLAYLISTENCHANTMENT.NOTIFY.stopped");
+        if ("volume" in changes) return _loc("PLAYLISTENCHANTMENT.NOTIFY.volume");
         return null;
     }
 
@@ -43,7 +43,7 @@ export class Announcer {
 
         if (Settings.get("announceTracks")) {
             ui.notifications.info(
-                game.i18n.format("PLAYLISTENCHANTMENT.NOTIFY.nowPlaying", { track: sound.name }),
+                _loc("PLAYLISTENCHANTMENT.NOTIFY.nowPlaying", { track: sound.name }),
                 { console: false }
             );
         }
@@ -57,13 +57,13 @@ export class Announcer {
     static async #postChat(sound) {
         const cover = TrackMeta.coverFor(sound);
         const source = QueueService.isQueue(sound.parent)
-            ? game.i18n.localize("PLAYLISTENCHANTMENT.QUEUE.fromQueue")
+            ? _loc("PLAYLISTENCHANTMENT.QUEUE.fromQueue")
             : sound.parent.name;
         const content = `
             <div class="playlistenchantment-announce">
                 ${cover ? `<img src="${cover}" alt="" />` : ""}
                 <div class="announce-body">
-                    <span class="announce-label">${game.i18n.localize("PLAYLISTENCHANTMENT.NOTIFY.nowPlayingLabel")}</span>
+                    <span class="announce-label">${_loc("PLAYLISTENCHANTMENT.NOTIFY.nowPlayingLabel")}</span>
                     <strong class="announce-track">${foundry.utils.escapeHTML(sound.name)}</strong>
                     <span class="announce-source">${foundry.utils.escapeHTML(source ?? "")}</span>
                 </div>
@@ -71,7 +71,7 @@ export class Announcer {
 
         return foundry.documents.ChatMessage.create({
             content,
-            speaker: { alias: game.i18n.localize("PLAYLISTENCHANTMENT.NOTIFY.speaker") },
+            speaker: { alias: _loc("PLAYLISTENCHANTMENT.NOTIFY.speaker") },
             flags: { [MODULE]: { announcement: true } },
         });
     }

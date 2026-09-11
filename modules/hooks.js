@@ -89,12 +89,12 @@ async function togglePin(header) {
 
 function buildStudioMacro(slot) {
     const command = `game.modules.get("${MODULE}").api.Studio.toggle()`;
-    createHotBarMacro(command, game.i18n.localize("PLAYLISTENCHANTMENT.STUDIO.title"), "icons/svg/sound.svg", slot, "Studio");
+    createHotBarMacro(command, _loc("PLAYLISTENCHANTMENT.STUDIO.title"), "icons/svg/sound.svg", slot, "Studio");
 }
 
 function buildTagMacro(tag, slot) {
     const command = `game.modules.get("${MODULE}").api.Librarian.playRandomTagged("${tag}")`;
-    const name = game.i18n.format("PLAYLISTENCHANTMENT.LIBRARY.tagMacro", { tag: Tags.get(tag).label });
+    const name = _loc("PLAYLISTENCHANTMENT.LIBRARY.tagMacro", { tag: Tags.get(tag).label });
     createHotBarMacro(command, name, "icons/svg/sound.svg", slot, "Tag");
 }
 

@@ -15,11 +15,11 @@ export class Librarian {
     static async copyTrack(sound, playlist, { sort, allowDuplicate = false } = {}) {
         if (!sound || !playlist) return null;
         if (!Permissions.canEdit(playlist)) {
-            ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.errorNoPermission"));
+            ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.errorNoPermission"));
             return null;
         }
         if (!allowDuplicate && this.contains(playlist, sound.path)) {
-            ui.notifications.warn(game.i18n.format("PLAYLISTENCHANTMENT.LIBRARY.duplicate", { track: sound.name }));
+            ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.LIBRARY.duplicate", { track: sound.name }));
             return null;
         }
 
@@ -48,7 +48,7 @@ export class Librarian {
         }
         if (created.length) {
             ui.notifications.info(
-                game.i18n.format("PLAYLISTENCHANTMENT.LIBRARY.copied", { count: created.length, playlist: playlist.name })
+                _loc("PLAYLISTENCHANTMENT.LIBRARY.copied", { count: created.length, playlist: playlist.name })
             );
         }
         return created;
@@ -82,11 +82,11 @@ export class Librarian {
 
     static async createPlaylist({ name, folder = null, mode = CONST.PLAYLIST_MODES.SEQUENTIAL, channel = "music" } = {}) {
         if (!Permissions.canCreatePlaylist()) {
-            ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.errorNoPermission"));
+            ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.errorNoPermission"));
             return null;
         }
         return foundry.documents.Playlist.create({
-            name: name || game.i18n.localize("PLAYLISTENCHANTMENT.LIBRARY.newPlaylist"),
+            name: name || _loc("PLAYLISTENCHANTMENT.LIBRARY.newPlaylist"),
             folder,
             mode,
             channel,
@@ -109,11 +109,11 @@ export class Librarian {
 
     static async createFolder({ name, parent = null } = {}) {
         if (!game.user.can("FOLDER_CREATE")) {
-            ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.errorNoPermission"));
+            ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.errorNoPermission"));
             return null;
         }
         return foundry.documents.Folder.create({
-            name: name || game.i18n.localize("PLAYLISTENCHANTMENT.LIBRARY.newFolder"),
+            name: name || _loc("PLAYLISTENCHANTMENT.LIBRARY.newFolder"),
             type: "Playlist",
             folder: parent,
         });
@@ -126,7 +126,7 @@ export class Librarian {
     static async playRandomTagged(tag) {
         const matches = this.searchAll({ tags: [tag], boards: false }, 500);
         if (!matches.length) {
-            ui.notifications.warn(game.i18n.format("PLAYLISTENCHANTMENT.LIBRARY.noTagMatch", { tag }));
+            ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.LIBRARY.noTagMatch", { tag }));
             return null;
         }
         const sound = matches[Math.floor(Math.random() * matches.length)];
@@ -292,7 +292,7 @@ export class Librarian {
     static channelOptions(selected) {
         return Object.values(AudioChannels.CHANNELS).map((channel) => ({
             value: channel.id,
-            label: game.i18n.localize(channel.label),
+            label: _loc(channel.label),
             selected: channel.id === selected,
         }));
     }

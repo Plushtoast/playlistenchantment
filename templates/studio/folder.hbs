@@ -6,11 +6,6 @@
         <i class="pe-folder-caret fa-solid fa-angle-down"></i>
         <i class="fa-solid fa-folder{{#unless collapsed}}-open{{/unless}}"></i>
         <span class="pe-folder-label">{{name}}</span>
-        {{#if playing}}
-        <i class="fa-solid fa-volume-high pe-folder-playing"
-           data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.folderPlaying'}}"></i>
-        {{/if}}
-
         <span class="pe-folder-actions">
             {{#if canCreateHere}}
             <button type="button" class="pe-icon-button" data-action="createInFolder" data-folder-id="{{id}}"
@@ -24,6 +19,10 @@
                 <i class="fa-{{#if pinned}}solid{{else}}regular{{/if}} fa-thumbtack"></i>
             </button>
         </span>
+        {{#if playing}}
+        <i class="fa-solid fa-volume-high pe-folder-playing"
+           data-tooltip="{{localize 'PLAYLISTENCHANTMENT.LIBRARY.folderPlaying'}}"></i>
+        {{/if}}
     </h3>
 
     <div class="pe-folder-body">

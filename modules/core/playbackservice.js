@@ -43,7 +43,7 @@ export class PlaybackService {
         }
 
         if (!playlist) {
-            ui.notifications.error(game.i18n.localize("PLAYLISTENCHANTMENT.errorPlaylistMissing"));
+            ui.notifications.error(_loc("PLAYLISTENCHANTMENT.errorPlaylistMissing"));
             return;
         }
         if (!this.canControl(playlist)) return this.#denied();
@@ -103,9 +103,14 @@ export class PlaybackService {
         return FadeService.withoutExclusive(() => sound.parent.playSound(sound));
     }
 
-    static async setVolume(sound, volume) {
+    // Match Foundry's sidebar: apply locally, fade the live instance, debounce the document write.
+    static setVolume(sound, volume) {
         if (!sound || !this.canControl(sound.parent)) return;
-        return sound.update({ volume });
+        if (volume === sound.volume) return;
+
+        sound.updateSource({ volume });
+        sound.sound?.fade(volume, { duration: foundry.documents.PlaylistSound.VOLUME_DEBOUNCE_MS });
+        if (sound.isOwner) sound.debounceVolume(volume);
     }
 
     static async toggleRepeat(sound) {
@@ -206,7 +211,7 @@ export class PlaybackService {
     }
 
     static #denied() {
-        ui.notifications.warn(game.i18n.localize("PLAYLISTENCHANTMENT.errorNoPermission"));
+        ui.notifications.warn(_loc("PLAYLISTENCHANTMENT.errorNoPermission"));
         return null;
     }
 }

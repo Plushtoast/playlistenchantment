@@ -476,6 +476,22 @@
         border-color: var(--pe-tag-color);
     }
 
+    &.pe-tag-ghost {
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+        background: var(--pe-tag-color);
+        border-color: var(--pe-tag-color);
+        color: var(--pe-tag-foreground);
+        font-size: var(--font-size-13);
+        padding: 4px 12px;
+        line-height: 1.4;
+        white-space: nowrap;
+        cursor: copy;
+        pointer-events: none;
+        transition: none;
+        top: 0;
+        left: 0;
+    }
+
     &:active {
         cursor: grabbing;
     }
@@ -497,7 +513,8 @@
     border-color: color-mix(in srgb, var(--pe-tag-color) 58%, var(--pe-line, #ccc));
     color: var(--pe-text, #1a1d24);
 
-    &.active {
+    &.active,
+    &.pe-tag-ghost {
         background: var(--pe-tag-color);
         border-color: var(--pe-tag-color);
         color: var(--pe-tag-foreground);
@@ -640,8 +657,18 @@
                 filter: brightness(1.08);
             }
 
-            .pe-folder-playing {
-                color: inherit;
+            .pe-folder-playing,
+            .pe-folder-actions .pe-icon-button {
+                color: var(--pe-folder-on);
+            }
+
+            .pe-folder-actions .pe-icon-button:hover:not(:disabled) {
+                background: color-mix(in srgb, var(--pe-folder-on) 16%, transparent);
+                color: var(--pe-folder-on);
+            }
+
+            .pe-pin.pinned {
+                color: var(--pe-folder-on);
             }
         }
     }
@@ -928,9 +955,23 @@
     list-style: none;
 }
 
+.pe-studio.pe-stamping .pe-track {
+    cursor: copy;
+
+    .pe-track-title,
+    .pe-track-body {
+        cursor: copy;
+    }
+
+    &:hover {
+        outline: 2px dashed var(--pe-accent);
+        outline-offset: -2px;
+    }
+}
+
 .pe-track {
     display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) auto auto minmax(84px, auto);
+    grid-template-columns: 40px minmax(0, 1fr) auto auto;
     align-items: center;
     gap: 10px;
     padding: 5px 8px;
@@ -1043,18 +1084,33 @@
         background: var(--pe-bg-sunken);
     }
 
+    .pe-track-meta {
+        display: grid;
+        grid-template-columns: auto auto;
+        justify-items: end;
+        align-items: center;
+        column-gap: 6px;
+        row-gap: 6px;
+        min-width: 72px;
+    }
+
     .pe-track-time {
+        grid-column: 1;
         color: var(--pe-text-muted);
         font-size: var(--font-size-11);
         font-variant-numeric: tabular-nums;
     }
 
-    .pe-track-controls {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 4px;
-        min-width: 84px;
+    .pe-track-channel {
+        grid-column: 2;
+        color: var(--pe-channel, var(--pe-text-muted));
+    }
+
+    .pe-volume {
+        grid-column: 1 / -1;
+        width: 100%;
+        height: 4px;
+        margin: 0;
     }
 
     .pe-track-actions {
@@ -1066,18 +1122,8 @@
         transition: opacity 120ms ease;
     }
 
-    .pe-volume {
-        width: 100%;
-        height: 4px;
-        margin: 0;
-        opacity: 0;
-        transition: opacity 120ms ease;
-    }
-
     &:hover .pe-track-actions,
-    &.playing .pe-track-actions,
-    &:hover .pe-volume,
-    &.playing .pe-volume {
+    &.playing .pe-track-actions {
         opacity: 1;
     }
 
@@ -1246,9 +1292,36 @@
         display: flex;
         justify-content: center;
         margin-top: 0;
+        padding: 3px 2px;
         max-height: 42%;
         overflow: hidden;
         pointer-events: auto;
+
+        .pe-pip {
+            width: 10px;
+            height: 10px;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.75);
+        }
+    }
+
+    &.has-volume .pe-pad-tags {
+        bottom: 22px;
+    }
+
+    &.has-volume .pe-pad-face {
+        padding-bottom: 22px;
+    }
+
+    .pe-pad-volume {
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: 6px;
+        z-index: 3;
+        width: auto;
+        height: 6px;
+        margin: 0;
+        accent-color: var(--pe-accent);
     }
 
     .pe-pad-edit {
@@ -1574,6 +1647,13 @@
         gap: 6px;
         color: var(--pe-text-muted);
         font-size: var(--font-size-11);
+
+        .pe-pip,
+        .pe-pip-inherited {
+            opacity: 1;
+            filter: saturate(1.35);
+            box-shadow: 0 0 0 1px color-mix(in srgb, var(--pe-tag-color) 80%, #fff);
+        }
     }
 
     .pe-transport-controls {

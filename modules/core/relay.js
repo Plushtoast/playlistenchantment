@@ -28,7 +28,7 @@ export class Relay {
 
     static async requestGM(action, data = {}) {
         const gm = game.users.activeGM;
-        if (!gm) throw new Error(game.i18n.localize("PLAYLISTENCHANTMENT.errorNoGM"));
+        if (!gm) throw new Error(_loc("PLAYLISTENCHANTMENT.errorNoGM"));
         if (gm.isSelf) return this.#onQuery({ action, data, userId: game.userId });
         return gm.query(this.QUERY, { action, data, userId: game.userId });
     }

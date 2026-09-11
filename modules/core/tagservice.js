@@ -13,7 +13,7 @@ export class Tags {
         { tag: "wilderness", color: "#1e8449" },
         { tag: "dungeon", color: "#4d5656" },
         { tag: "travel", color: "#148f77" },
-        { tag: "ritual", color: "#6c3483" },
+        { tag: "ritual", color: "#ad1457" },
         { tag: "sad", color: "#34495e" },
         { tag: "victory", color: "#c9a227" },
     ];
@@ -125,7 +125,7 @@ export class Tags {
 
     static defaultLabel(tag) {
         const key = `PLAYLISTENCHANTMENT.TAGS.${tag}`;
-        const localized = game.i18n.localize(key);
+        const localized = _loc(key);
         return localized === key ? tag : localized;
     }
 

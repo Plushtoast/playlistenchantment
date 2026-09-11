@@ -1,7 +1,6 @@
 import { MODULE, Settings } from "../../settings.js";
 import { AudioChannels } from "../../core/audiochannels.js";
 import { DuckingService } from "../../core/duckingservice.js";
-import { FileLocation } from "../../core/filelocation.js";
 import { Librarian } from "../../core/librarian.js";
 import { Permissions } from "../../core/permissionservice.js";
 import { PlaybackService } from "../../core/playbackservice.js";
@@ -11,11 +10,15 @@ import { Tags } from "../../core/tagservice.js";
 import { Theme } from "../../core/theme.js";
 import { TrackIndex } from "../../core/trackindex.js";
 import { TrackMeta } from "../../core/trackmeta.js";
-import { CombatPlaylistManager } from "../combatplaylists.js";
 import { PadEditor } from "../padeditor.js";
 import { DJDialog } from "../djdialog.js";
 import { SoundPreview } from "../soundpreview.js";
 import { UploadDialog } from "../uploaddialog.js";
+import { StudioLayout } from "./layout.js";
+import { StudioPicker } from "./compact-picker.js";
+import { StudioSettings } from "./settings-pane.js";
+import { StudioTagger } from "./tagger.js";
+import { StudioTicker } from "./ticker.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const TEMPLATES = "modules/playlistenchantment/templates/studio";
@@ -123,15 +126,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
     /* -------------------------------------------- */
 
     /** Tag drag mime cannot be read while in flight; types can, for dragover highlighting. */
-    static TAG_DRAG_TYPE = "playlistenchantment/tag";
-
-    static COMPACT_WIDTH = 460;
-
-    static BROWSER_WIDTH_DEFAULT = 250;
-    static BROWSER_WIDTH_MIN = 180;
-    static CONTENT_WIDTH_MIN = 280;
-    static RAIL_WIDTH = 300;
-    static PANE_COLLAPSED_WIDTH = 36;
+    static TAG_DRAG_TYPE = StudioTagger.MIME;
 
     #state = {
         view: "library",
@@ -140,26 +135,24 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         collapsedFolders: [],
         compact: false,
         expandedSize: null,
-        browserWidth: Studio.BROWSER_WIDTH_DEFAULT,
+        browserWidth: StudioLayout.BROWSER_WIDTH_DEFAULT,
         browserCollapsed: false,
         railCollapsed: false,
     };
     #query = "";
     #tags = new Set();
     #channels = new Set();
-    #ticker = null;
+    #tagger = new StudioTagger(this);
+    #settings = new StudioSettings(this);
+    #ticker = new StudioTicker(this);
+    #picker = new StudioPicker(this);
+    #layout = new StudioLayout(this);
+    #dragging = false;
+    #refreshQueued = false;
     #listenersBound = false;
     #contextMenusBound = false;
-    #tagHover = null;
     #mixerOpen = false;
-    #capturingHotkey = false;
-    #pendingHotkey = null;
-    #stopHotkeyCapture = null;
-    #pickerOpen = false;
-    #pickerQuery = "";
-    #pickerFocus = false;
-    #ignoreClick = false;
-    #savePosition = foundry.utils.debounce((position) => Settings.set("studioPosition", position), 500);
+    #pendingRevealSoundId = null;
 
     constructor(options = {}) {
         super(options);
@@ -178,7 +171,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
     /* -------------------------------------------- */
 
     static get instance() {
-        return foundry.applications.instances.get("playlistenchantment-studio") ?? null;
+        return foundry.applications.instances.get(this.DEFAULT_OPTIONS.id) ?? null;
     }
 
     static open({ playlist, view } = {}) {
@@ -192,7 +185,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         const studio = new this();
         if (playlist) studio.#select(playlist);
         else if (view) studio.#state.view = view;
-        studio.render({ force: true, position: studio.#openPosition() });
+        studio.render({ force: true, position: studio.#layout.openPosition() });
         return studio;
     }
 
@@ -202,28 +195,54 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         return this.open();
     }
 
-    #openPosition() {
-        const saved = Settings.get("studioPosition") ?? {};
-        const position = foundry.utils.isEmpty(saved) ? {} : { ...saved };
-        if (this.isCompact) {
-            position.width = Studio.COMPACT_WIDTH;
-            position.height = "auto";
-        }
-        return position;
+    get layoutState() {
+        return this.#state;
     }
 
-    showPlaylist(playlist) {
+    saveState() {
+        const snapshot = foundry.utils.duplicate(this.#state);
+        delete snapshot.collapsedFolders;
+        Settings.set("studioState", snapshot);
+        Settings.set("collapsedFolders", [...(this.#state.collapsedFolders ?? [])]);
+    }
+
+    fitCompact() {
+        this.#layout.fitCompact();
+    }
+
+    showPlaylist(playlist, sound = null) {
         if (!playlist) return this;
+        const alreadyShowing = this.#isShowingPlaylist(playlist) && !this.#query && !this.#tags.size && !this.#channels.size;
         this.#clearQuery();
         this.#select(playlist);
-        this.#saveState();
+        this.saveState();
+        if (alreadyShowing && this.rendered) {
+            this.#scrollSoundIntoView(sound);
+            return this;
+        }
+        this.#pendingRevealSoundId = sound?.id ?? null;
         if (this.rendered) this.render({ parts: ["header", "browser", "content"] });
         return this;
     }
 
+    #isShowingPlaylist(playlist) {
+        if (!this.rendered || this.isSettingsView) return false;
+        if (SoundboardService.isBoard(playlist)) return this.isBoardView && this.#state.boardId === playlist.id;
+        return !this.isBoardView && this.#state.playlistId === playlist.id;
+    }
+
+    #scrollSoundIntoView(sound) {
+        const id = typeof sound === "string" ? sound : sound?.id;
+        if (!id) return;
+        const row = this.element?.querySelector(`.pe-content-body [data-sound-id="${id}"]`);
+        row?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
     showView(view) {
         this.#state.view = view;
-        this.#saveState();
+        if (view !== "library") this.#tagger.end();
+        if (view !== "settings") this.#settings.end();
+        this.saveState();
         if (this.rendered) this.render();
         return this;
     }
@@ -231,14 +250,18 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
     #select(playlist) {
         const isBoard = SoundboardService.isBoard(playlist);
         this.#state.view = isBoard ? "boards" : "library";
-        if (isBoard) this.#state.boardId = playlist.id;
-        else this.#state.playlistId = playlist.id;
+        if (isBoard) {
+            this.#tagger.end();
+            this.#settings.end();
+            this.#state.boardId = playlist.id;
+        } else {
+            this.#settings.end();
+            this.#state.playlistId = playlist.id;
+        }
     }
 
     static refresh = foundry.utils.debounce((parts) => {
-        const studio = Studio.instance;
-        if (!studio?.rendered) return;
-        studio.render(parts ? { parts } : {});
+        Studio.instance?.onExternalChange(parts);
     }, 100);
 
     /* -------------------------------------------- */
@@ -255,6 +278,10 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
 
     get isCompact() {
         return this.#state.compact === true;
+    }
+
+    get pickerOpen() {
+        return this.#picker.open;
     }
 
     get selectedPlaylist() {
@@ -288,7 +315,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
             case "browser":
                 return this.#prepareBrowser(context);
             case "content":
-                if (this.isSettingsView) return this.#prepareSettings(context);
+                if (this.isSettingsView) return this.#settings.prepare(context);
                 return this.isBoardView ? this.#prepareBoard(context) : this.#prepareTracks(context);
             case "rail":
                 return this.#prepareRail(context);
@@ -364,12 +391,12 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         if (searching) {
             context.searchResults = true;
             context.tracks = Librarian.searchAll(filter).map((sound) => this.#trackContext(sound, { showSource: true }));
-            context.heading = game.i18n.localize("PLAYLISTENCHANTMENT.STUDIO.searchResults");
+            context.heading = _loc("PLAYLISTENCHANTMENT.STUDIO.searchResults");
             context.empty = !context.tracks.length;
             return context;
         }
         if (!playlist) {
-            context.placeholder = game.i18n.localize("PLAYLISTENCHANTMENT.STUDIO.selectPlaylist");
+            context.placeholder = _loc("PLAYLISTENCHANTMENT.STUDIO.selectPlaylist");
             context.tracks = [];
             return context;
         }
@@ -389,7 +416,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         const searching = this.#isTextSearch;
         if (searching) {
             context.searchResults = true;
-            context.heading = game.i18n.localize("PLAYLISTENCHANTMENT.STUDIO.searchResults");
+            context.heading = _loc("PLAYLISTENCHANTMENT.STUDIO.searchResults");
             context.columns = SoundboardService.boardConfig(this.selectedBoard).columns;
             context.pads = Librarian.searchAll({ ...filter, boards: true }).map((sound) => this.#padContext(sound));
             context.empty = !context.pads.length;
@@ -398,7 +425,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
 
         const board = this.selectedBoard;
         if (!board) {
-            context.placeholder = game.i18n.localize("PLAYLISTENCHANTMENT.STUDIO.selectBoard");
+            context.placeholder = _loc("PLAYLISTENCHANTMENT.STUDIO.selectBoard");
             context.pads = [];
             return context;
         }
@@ -411,23 +438,6 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
             .filter((sound) => Librarian.soundMatchesFilter(board, sound, filter))
             .map((sound) => this.#padContext(sound));
         context.empty = !context.pads.length;
-        return context;
-    }
-
-    #prepareSettings(context) {
-        context.heading = game.i18n.localize("PLAYLISTENCHANTMENT.STUDIOSETTINGS.title");
-        context.enchantmentStyle = Theme.useEnchantedStyle;
-        const binding = this.#capturingHotkey ? this.#pendingHotkey : Settings.studioBinding();
-        context.hotkey = Settings.humanizeBinding(binding);
-        context.capturing = this.#capturingHotkey;
-        context.hotkeyConflict = Settings.conflictMessage(binding);
-        if (!game.user.isGM) return context;
-
-        context.channels = AudioChannels.mixerContext();
-        context.autoCombatSwitch = CombatPlaylistManager.autoCombatSwitch;
-        context.combatPlaylists = CombatPlaylistManager.options();
-        context.tagLibrary = Tags.library();
-        context.uploadFolder = Settings.get("soundUploadFolder");
         return context;
     }
 
@@ -463,36 +473,18 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         };
 
         if (current) {
-            const duration = current.sound?.duration;
-            const elapsed = current.playing ? current.sound?.currentTime ?? 0 : current.pausedTime ?? 0;
+            const times = StudioTicker.progress(current);
             context.track = this.#trackContext(current, { showSource: true });
-            context.elapsed = PlaybackService.formatTimestamp(elapsed);
-            context.duration = PlaybackService.formatTimestamp(duration);
-            context.progress = duration ? Math.min(100, (elapsed / duration) * 100) : 0;
-            context.seekMax = Math.floor(duration ?? 0);
-            context.seekValue = Math.floor(elapsed);
-            context.canSeek = Number.isFinite(duration) && duration > 0 && Permissions.canControl(current.parent);
-            context.isPlaying = current.playing;
+            context.elapsed = times.elapsed;
+            context.duration = times.duration;
+            context.progress = times.progress;
+            context.seekMax = times.seekMax;
+            context.seekValue = times.seekValue;
+            context.canSeek = times.canSeek;
+            context.isPlaying = times.isPlaying;
         }
-        context.picker = this.#preparePicker();
+        context.picker = this.#picker.prepare((sound, options) => this.#trackContext(sound, options));
         return context;
-    }
-
-    #preparePicker() {
-        if (!this.isCompact || !this.#pickerOpen) return { open: false, query: "", tracks: [] };
-
-        const query = this.#pickerQuery;
-        const current = PlaybackService.currentTrack();
-        const playlist = QueueService.originPlaylist(current);
-        const tracks = query
-            ? Librarian.searchAll({ query, boards: false, channels: ["music"] })
-            : Librarian.tracksOf(playlist);
-
-        return {
-            open: true,
-            query,
-            tracks: tracks.map((sound) => this.#trackContext(sound, { showSource: !!query })),
-        };
     }
 
     /* -------------------------------------------- */
@@ -563,7 +555,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
             usedIn,
             sharedCopies: usedIn > 1,
             usedInTooltip: usedIn > 1
-                ? game.i18n.format("PLAYLISTENCHANTMENT.LIBRARY.usedIn", {
+                ? _loc("PLAYLISTENCHANTMENT.LIBRARY.usedIn", {
                       playlists: TrackIndex.playlistsFor(sound.path).map((p) => p.name).join(", "),
                   })
                 : "",
@@ -595,6 +587,8 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
             duck: config.duck,
             chokeGroup: config.chokeGroup,
             playerUsable: config.playerUsable,
+            volume: foundry.audio.AudioHelper.volumeToInput(config.volume),
+            canControl: Permissions.canControl(sound.parent),
             canEdit: Permissions.canEdit(sound.parent),
         };
     }
@@ -613,7 +607,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
 
     async _renderFrame(options) {
         const frame = await super._renderFrame(options);
-        this.#applyPaneClasses(frame);
+        this.#layout.applyClasses(frame);
         return frame;
     }
 
@@ -621,95 +615,41 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         await super._onFirstRender(context, options);
         this.#bindListeners();
         this.#bindContextMenus();
-        this.#startTicker();
+        this.#ticker.start();
     }
 
     async _onRender(context, options) {
         await super._onRender(context, options);
         Theme.apply(this.element);
-        this.#applyPaneClasses();
-        this.#applyBrowserWidth();
+        this.#tagger.sync(this.element);
+        this.#layout.sync();
         this.#bindContextMenus();
+        this.#flushRevealScroll();
+    }
+
+    #flushRevealScroll() {
+        const id = this.#pendingRevealSoundId;
+        if (!id) return;
+        this.#pendingRevealSoundId = null;
+        requestAnimationFrame(() => this.#scrollSoundIntoView(id));
     }
 
     _onPosition(position) {
         super._onPosition(position);
-        this.#applyBrowserWidth();
-        this.#savePosition({
-            top: position.top,
-            left: position.left,
-            width: position.width,
-            height: position.height,
-        });
+        this.#layout.onPosition(position);
     }
 
     _onClose(options) {
         super._onClose(options);
-        this.#stopTicker();
-        this.#stopHotkeyCapture?.();
+        this.#ticker.destroy();
         this.#unbindPickerListeners();
-        this.#pickerOpen = false;
-        this.#pickerQuery = "";
+        this.#picker.destroy();
+        this.#tagger.destroy();
+        this.#settings.destroy();
+        this.#layout.destroy();
+        this.#dragging = false;
         this.#listenersBound = false;
-        this.#saveState();
-    }
-
-    #startTicker() {
-        this.#stopTicker();
-        this.#ticker = setInterval(() => this.#tick(), 500);
-    }
-
-    #stopTicker() {
-        if (this.#ticker) clearInterval(this.#ticker);
-        this.#ticker = null;
-    }
-
-    // Ticker must not full re-render during slider use; only touch text and widths.
-    #tick() {
-        if (!this.rendered) return;
-        const current = PlaybackService.currentTrack();
-        const bar = this.element.querySelector(".pe-transport");
-        if (!bar) return;
-
-        if (!current) {
-            if (bar.dataset.soundId) this.render({ parts: this.#pickerOpen ? ["rail"] : ["transport", "rail"] });
-            bar.classList.add("pe-transport-idle");
-            this.#syncLoadingIcons();
-            return;
-        }
-        bar.classList.remove("pe-transport-idle");
-
-        const duration = current.sound?.duration;
-        const elapsed = current.playing ? current.sound?.currentTime ?? 0 : current.pausedTime ?? 0;
-
-        const elapsedLabel = bar.querySelector(".pe-time-elapsed");
-        if (elapsedLabel) elapsedLabel.textContent = PlaybackService.formatTimestamp(elapsed);
-        const durationLabel = bar.querySelector(".pe-time-duration");
-        if (durationLabel) durationLabel.textContent = PlaybackService.formatTimestamp(duration);
-
-        const fill = bar.querySelector(".pe-progress-fill");
-        if (fill && duration) fill.style.width = `${Math.min(100, (elapsed / duration) * 100)}%`;
-
-        const seek = bar.querySelector(".pe-seek");
-        if (seek && duration && document.activeElement !== seek) {
-            seek.max = Math.floor(duration);
-            seek.value = Math.floor(elapsed);
-        }
-
-        if (bar.dataset.soundId !== current.id || bar.dataset.playing !== String(current.playing)) {
-            this.render({ parts: this.#pickerOpen ? ["rail"] : ["transport", "rail"] });
-        }
-        this.#syncLoadingIcons();
-    }
-
-    #syncLoadingIcons() {
-        for (const button of this.element.querySelectorAll(".pe-track-cover")) {
-            const sound = this.#soundFrom(button);
-            const icon = button.querySelector("i");
-            if (!sound || !icon) continue;
-            const loading = PlaybackService.isBuffering(sound);
-            icon.className = `fa-solid ${loading ? "fa-spinner fa-spin" : sound.playing ? "fa-volume-high" : "fa-play"}`;
-        }
+        this.saveState();
     }
 
     /* -------------------------------------------- */
@@ -724,42 +664,29 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         root.addEventListener("input", (event) => this.#onInput(event));
         root.addEventListener("change", (event) => this.#onChange(event));
         root.addEventListener("dblclick", (event) => this.#onDoubleClick(event));
-        root.addEventListener("pointerdown", (event) => this.#onPointerDown(event));
-        root.addEventListener("click", this.#onClickCapture, true);
         root.addEventListener("dragstart", (event) => this.#onDragStart(event));
         root.addEventListener("dragover", (event) => this.#onDragOver(event));
         root.addEventListener("dragleave", (event) => this.#onDragLeave(event));
+        root.addEventListener("dragend", (event) => this.#onDragEnd(event));
         root.addEventListener("drop", (event) => this.#onDrop(event));
-        document.addEventListener("pointerdown", this.#onDocumentPointerDown, true);
         document.addEventListener("keydown", this.#onDocumentKeydown, true);
+        this.#layout.bind(root);
+        this.#tagger.bind(root);
+        this.#picker.bind();
 
         this.#listenersBound = true;
     }
 
     #unbindPickerListeners() {
-        document.removeEventListener("pointerdown", this.#onDocumentPointerDown, true);
         document.removeEventListener("keydown", this.#onDocumentKeydown, true);
-        this.element?.removeEventListener("click", this.#onClickCapture, true);
+        this.#tagger.unbind(this.element);
+        this.#layout.unbind(this.element);
     }
 
-    #onClickCapture = (event) => {
-        if (!this.#ignoreClick) return;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        this.#ignoreClick = false;
-    };
-
-    #onDocumentPointerDown = (event) => {
-        if (!this.#pickerOpen) return;
-        if (this.element?.contains(event.target)) return;
-        this.#closePicker();
-    };
-
     #onDocumentKeydown = (event) => {
-        if (event.code !== "Escape" || !this.#pickerOpen) return;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        this.#closePicker();
+        if (event.code !== "Escape") return;
+        if (this.#picker.handleEscape(event)) return;
+        this.#tagger.handleEscape(event);
     };
 
     #onInput(event) {
@@ -768,8 +695,22 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
             this.#debouncedSearch(target.value);
         }
         if (target.matches(".pe-picker-search")) {
-            this.#debouncedPickerSearch(target.value);
+            this.#picker.onSearch(target.value);
         }
+        if (target.matches(".pe-volume")) this.#onVolumeInput(target);
+    }
+
+    #onVolumeInput(slider) {
+        const sound = this.#soundFrom(slider);
+        if (!sound) return;
+        const { inputToVolume, volumeToPercentage } = foundry.audio.AudioHelper;
+        const volume = inputToVolume(slider.value);
+        const tooltip = volumeToPercentage(slider.value);
+        slider.dataset.tooltip = tooltip;
+        slider.ariaValueText = volumeToPercentage(slider.value, { label: true });
+        game.tooltip?.activate(slider, { text: tooltip });
+        PlaybackService.setVolume(sound, volume);
+        if (SoundboardService.isBoard(sound.parent)) SoundboardService.persistVolume(sound, volume);
     }
 
     #debouncedSearch = foundry.utils.debounce((value) => {
@@ -785,20 +726,11 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         const target = event.target;
 
         if (target.closest(".pe-mixer") || (this.isSettingsView && target.closest(".pe-settings"))) {
-            return this.#onSettingsChange(target);
+            return this.#settings.onChange(target);
         }
 
         if (target.matches(".pe-seek")) {
-            const sound = this.#soundFrom(target);
-            if (!sound) return;
-            await this.#warnAboutSeek();
-            return PlaybackService.seek(sound, Number(target.value));
-        }
-
-        if (target.matches(".pe-volume")) {
-            const sound = this.#soundFrom(target);
-            if (!sound) return;
-            return PlaybackService.setVolume(sound, foundry.audio.AudioHelper.inputToVolume(target.value));
+            return this.#ticker.onSeek(target);
         }
     }
 
@@ -807,113 +739,6 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         if (!row) return;
         const sound = this.#soundFrom(row);
         if (sound) PlaybackService.playOrCrossFade(sound.parent, sound);
-    }
-
-    #onPointerDown(event) {
-        if (this.isCompact) return this.#beginCompactDrag(event);
-        if (this.#state.browserCollapsed) return;
-        const handle = event.target.closest(".pe-browser-resize");
-        if (!handle || this.isSettingsView) return;
-        event.preventDefault();
-        this.#beginBrowserResize(event, handle);
-    }
-
-    #beginCompactDrag(event) {
-        if (event.button !== 0) return;
-        if (event.target.closest("button, input, label, a, .pe-track-picker, .pe-progress")) return;
-        const bar = event.target.closest(".pe-transport");
-        if (!bar) return;
-
-        const startX = event.clientX;
-        const startY = event.clientY;
-        const { top, left } = this.position;
-        let dragging = false;
-
-        const onMove = (moveEvent) => {
-            if (moveEvent.pointerId !== event.pointerId) return;
-            const dx = moveEvent.clientX - startX;
-            const dy = moveEvent.clientY - startY;
-            if (!dragging) {
-                if (Math.hypot(dx, dy) < 5) return;
-                dragging = true;
-                this.#ignoreClick = true;
-                bar.setPointerCapture(event.pointerId);
-                this.element.classList.add("pe-compact-dragging");
-            }
-            this.setPosition({
-                left: left + dx,
-                top: top + dy,
-            });
-        };
-        const onUp = (upEvent) => {
-            if (upEvent.pointerId !== event.pointerId) return;
-            bar.removeEventListener("pointermove", onMove);
-            bar.removeEventListener("pointerup", onUp);
-            bar.removeEventListener("pointercancel", onUp);
-            this.element.classList.remove("pe-compact-dragging");
-        };
-        bar.addEventListener("pointermove", onMove);
-        bar.addEventListener("pointerup", onUp);
-        bar.addEventListener("pointercancel", onUp);
-    }
-
-    #beginBrowserResize(event, handle) {
-        const content = this.element.querySelector(".window-content");
-        if (!content) return;
-        const startX = event.clientX;
-        const startWidth = this.#state.browserWidth ?? Studio.BROWSER_WIDTH_DEFAULT;
-        this.element.classList.add("pe-resizing");
-        handle.setPointerCapture(event.pointerId);
-
-        const onMove = (moveEvent) => {
-            if (moveEvent.pointerId !== event.pointerId) return;
-            const width = this.#clampBrowserWidth(startWidth + (moveEvent.clientX - startX), content);
-            this.#state.browserWidth = width;
-            content.style.setProperty("--pe-browser-width", `${width}px`);
-        };
-        const onUp = (upEvent) => {
-            if (upEvent.pointerId !== event.pointerId) return;
-            handle.removeEventListener("pointermove", onMove);
-            handle.removeEventListener("pointerup", onUp);
-            handle.removeEventListener("pointercancel", onUp);
-            this.element.classList.remove("pe-resizing");
-            this.#saveState();
-        };
-        handle.addEventListener("pointermove", onMove);
-        handle.addEventListener("pointerup", onUp);
-        handle.addEventListener("pointercancel", onUp);
-    }
-
-    #railOccupiedWidth() {
-        if (this.isSettingsView || this.isCompact) return 0;
-        return this.#state.railCollapsed ? Studio.PANE_COLLAPSED_WIDTH : Studio.RAIL_WIDTH;
-    }
-
-    #clampBrowserWidth(width, content = this.element?.querySelector(".window-content")) {
-        const stored = Math.max(Studio.BROWSER_WIDTH_MIN, Math.round(width));
-        const measured = content?.clientWidth ?? 0;
-        const rail = this.#railOccupiedWidth();
-        const minLayout = Studio.BROWSER_WIDTH_MIN + Studio.CONTENT_WIDTH_MIN + rail;
-        if (measured < minLayout) return stored;
-        const available = measured - Studio.CONTENT_WIDTH_MIN - rail;
-        const max = Math.max(Studio.BROWSER_WIDTH_MIN, available);
-        return Math.round(Math.clamp(stored, Studio.BROWSER_WIDTH_MIN, max));
-    }
-
-    #applyBrowserWidth() {
-        const content = this.element?.querySelector(".window-content");
-        if (!content || this.isCompact || this.isSettingsView) return;
-        const stored = this.#state.browserWidth ?? Studio.BROWSER_WIDTH_DEFAULT;
-        const width = this.#state.browserCollapsed ? stored : this.#clampBrowserWidth(stored, content);
-        content.style.setProperty("--pe-browser-width", `${width}px`);
-    }
-
-    #applyPaneClasses(element = this.element) {
-        if (!element) return;
-        element.classList.toggle("pe-compact", this.isCompact);
-        element.classList.toggle("pe-view-settings", this.isSettingsView);
-        element.classList.toggle("pe-browser-collapsed", this.#state.browserCollapsed === true);
-        element.classList.toggle("pe-rail-collapsed", this.#state.railCollapsed === true);
     }
 
     #bindContextMenus() {
@@ -938,20 +763,18 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         this.#contextMenusBound = true;
     }
 
-    /** Seeking restarts the track on every client. */
-    async #warnAboutSeek() {
-        if (Settings.get("seekWarningAck")) return;
-        ui.notifications.info(game.i18n.localize("PLAYLISTENCHANTMENT.STUDIO.seekWarning"), { permanent: false });
-        await Settings.set("seekWarningAck", true);
-    }
-
     /* -------------------------------------------- */
     /*  Drag and drop                               */
     /* -------------------------------------------- */
 
     #onDragStart(event) {
-        const chip = event.target.closest(".pe-tag[data-tag]");
-        if (chip) return this.#startTagDrag(event, chip.dataset.tag);
+        if (event.target.closest("input, .pe-volume")) {
+            event.preventDefault();
+            return;
+        }
+
+        this.#dragging = true;
+        if (this.#tagger.onDragStart(event)) return;
 
         const row = event.target.closest("[data-sound-id]");
         if (!row) return;
@@ -961,42 +784,19 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         event.dataTransfer.effectAllowed = "copy";
     }
 
-    #startTagDrag(event, tag) {
-        event.dataTransfer.setData(Studio.TAG_DRAG_TYPE, tag);
-        event.dataTransfer.setData("text/plain", JSON.stringify({ type: Studio.TAG_DRAG_TYPE, tag }));
-        event.dataTransfer.effectAllowed = "copy";
-    }
-
-    #isTagDrag(event) {
-        return [...(event.dataTransfer?.types ?? [])].includes(Studio.TAG_DRAG_TYPE);
-    }
-
-    #folderFrom(element) {
-        const id = element.closest("[data-folder-id]")?.dataset.folderId;
-        return game.folders.get(id) ?? null;
-    }
-
-    #taggableFrom(element) {
-        const sound = this.#soundFrom(element);
-        if (sound) return Permissions.canEdit(sound.parent) ? sound : null;
-        const playlist = this.#playlistFrom(element);
-        if (playlist) return Permissions.canEdit(playlist) ? playlist : null;
-        const folder = this.#folderFrom(element);
-        if (folder?.type === "Playlist" && folder.canUserModify(game.user, "update")) return folder;
-        return null;
+    #onDragEnd(event) {
+        this.#dragging = false;
+        this.#tagger.onDragEnd(event);
+        this.element?.classList.remove("pe-file-hover");
+        this.flushDeferredRefresh();
     }
 
     #onDragOver(event) {
+        if (this.#tagger.onDragOver(event)) return;
+
         if (this.#isFileDrag(event)) {
             event.preventDefault();
             this.element.classList.add("pe-file-hover");
-        }
-
-        if (this.#isTagDrag(event)) {
-            const row = event.target.closest("[data-sound-id], [data-playlist-id], [data-folder-id]");
-            this.#highlightTagTarget(row && this.#taggableFrom(row) ? row : null);
-            if (row) event.preventDefault();
-            return;
         }
 
         const target = event.target.closest(".pe-drop-target");
@@ -1005,22 +805,13 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         target.classList.add("pe-drop-hover");
     }
 
-    #highlightTagTarget(row) {
-        if (this.#tagHover === row) return;
-        this.#tagHover?.classList.remove("pe-tag-hover");
-        row?.classList.add("pe-tag-hover");
-        this.#tagHover = row;
-    }
-
     #isFileDrag(event) {
         return [...(event.dataTransfer?.types ?? [])].includes("Files") && Permissions.canUpload();
     }
 
     #onDragLeave(event) {
-        if (!this.element.contains(event.relatedTarget)) {
-            this.element.classList.remove("pe-file-hover");
-            this.#highlightTagTarget(null);
-        }
+        this.#tagger.onDragLeave(event);
+        if (!this.element.contains(event.relatedTarget)) this.element.classList.remove("pe-file-hover");
         const target = event.target.closest(".pe-drop-target");
         if (!target || target.contains(event.relatedTarget)) return;
         target.classList.remove("pe-drop-hover");
@@ -1028,15 +819,9 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
 
     async #onDrop(event) {
         this.element.classList.remove("pe-file-hover");
-        this.#highlightTagTarget(null);
         const target = event.target.closest(".pe-drop-target");
         target?.classList.remove("pe-drop-hover");
-
-        const tag = event.dataTransfer.getData(Studio.TAG_DRAG_TYPE);
-        if (tag) {
-            event.preventDefault();
-            return TrackMeta.addTag(this.#taggableFrom(event.target), tag);
-        }
+        if (await this.#tagger.onDrop(event)) return;
 
         const files = UploadDialog.audioFilesFrom(event.dataTransfer);
         if (files.length) {
@@ -1103,7 +888,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         if (!playlist) return;
         this.#clearQuery();
         this.#select(playlist);
-        this.#saveState();
+        this.saveState();
         this.render({ parts: ["header", "browser", "content"] });
     }
 
@@ -1114,7 +899,7 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         if (collapsed.has(id)) collapsed.delete(id);
         else collapsed.add(id);
         this.#state.collapsedFolders = [...collapsed];
-        this.#saveState();
+        this.saveState();
         this.render({ parts: ["browser"] });
     }
 
@@ -1128,22 +913,16 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
             else collapsed.add(id);
         }
         this.#state.collapsedFolders = [...collapsed];
-        this.#saveState();
+        this.saveState();
         this.render({ parts: ["browser"] });
     }
 
     static _onToggleBrowser() {
-        this.#state.browserCollapsed = !this.#state.browserCollapsed;
-        this.#saveState();
-        this.#applyPaneClasses();
-        this.render({ parts: ["browser"] });
+        return this.#layout.toggleBrowser();
     }
 
     static _onToggleRail() {
-        this.#state.railCollapsed = !this.#state.railCollapsed;
-        this.#saveState();
-        this.#applyPaneClasses();
-        this.render({ parts: ["rail"] });
+        return this.#layout.toggleRail();
     }
 
     static async _onTogglePin(event, target) {
@@ -1155,11 +934,28 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         this.render({ parts: ["browser"] });
     }
 
-    static _onToggleTag(_event, target) {
+    static _onToggleTag(event, target) {
         const tag = target.dataset.tag;
+        if (!tag) return;
+        if (this.#tagger.painting || this.#tagger.recentlyDragged()) return;
         if (this.#tags.has(tag)) this.#tags.delete(tag);
         else this.#tags.add(tag);
         this.render({ parts: ["header", "browser", "content"] });
+    }
+
+    onExternalChange(parts) {
+        if (!this.rendered) return;
+        if (this.#dragging || this.#tagger.busy) {
+            this.#refreshQueued = true;
+            return;
+        }
+        this.render(parts ? { parts } : {});
+    }
+
+    flushDeferredRefresh() {
+        if (!this.#refreshQueued || this.#tagger.busy || !this.rendered) return;
+        this.#refreshQueued = false;
+        this.render();
     }
 
     static _onToggleChannel(_event, target) {
@@ -1170,21 +966,9 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     static async _onToggleCompact() {
-        const compact = !this.isCompact;
-        this.#pickerOpen = false;
-        this.#pickerQuery = "";
-        if (compact) {
-            this.#state.expandedSize = { width: this.position.width, height: this.position.height };
-            this.#mixerOpen = false;
-        }
-        this.#state.compact = compact;
-        this.#saveState();
-
-        await this.render();
-        const size = compact
-            ? { width: Studio.COMPACT_WIDTH, height: "auto" }
-            : this.#state.expandedSize ?? Studio.DEFAULT_OPTIONS.position;
-        this.setPosition(size);
+        this.#picker.end();
+        if (!this.isCompact) this.#mixerOpen = false;
+        return this.#layout.toggleCompact();
     }
 
     static _onClearFilters() {
@@ -1200,68 +984,21 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         if (search) search.value = "";
     }
 
-    #saveState() {
-        const snapshot = foundry.utils.duplicate(this.#state);
-        delete snapshot.collapsedFolders;
-        Settings.set("studioState", snapshot);
-        Settings.set("collapsedFolders", [...(this.#state.collapsedFolders ?? [])]);
-    }
-
     /* -------------------------------------------- */
     /*  Actions - playback                          */
     /* -------------------------------------------- */
 
     static _onRevealPlaylist(_event, target) {
-        if (this.isCompact) return this.#togglePicker();
+        if (this.isCompact) return this.#picker.toggle();
         const sound = this.#soundFrom(target);
         const playlist = QueueService.originPlaylist(sound) ?? this.#playlistFrom(target);
         if (!playlist || QueueService.isQueue(playlist)) return;
-        this.showPlaylist(playlist);
+        this.showPlaylist(playlist, sound);
     }
 
     static async _onPlayPickerTrack(_event, target) {
-        const sound = this.#soundFrom(target);
-        if (sound) await PlaybackService.playOrCrossFade(sound.parent, sound);
-        return this.#closePicker();
+        return this.#picker.play(target);
     }
-
-    #togglePicker() {
-        if (this.#pickerOpen) return this.#closePicker();
-        this.#pickerOpen = true;
-        this.#pickerQuery = "";
-        this.#pickerFocus = true;
-        return this.#renderTransport();
-    }
-
-    #closePicker() {
-        if (!this.#pickerOpen) return;
-        this.#pickerOpen = false;
-        this.#pickerQuery = "";
-        this.#pickerFocus = false;
-        return this.#renderTransport();
-    }
-
-    async #renderTransport() {
-        const focus = this.#pickerFocus;
-        this.#pickerFocus = false;
-        await this.render({ parts: ["transport"] });
-        if (this.isCompact) this.setPosition({ height: "auto" });
-        if (focus) this.#focusPickerSearch();
-    }
-
-    #focusPickerSearch() {
-        const search = this.element?.querySelector(".pe-picker-search");
-        if (!search) return;
-        search.focus();
-        const end = search.value.length;
-        search.setSelectionRange(end, end);
-    }
-
-    #debouncedPickerSearch = foundry.utils.debounce((value) => {
-        this.#pickerQuery = value.trim();
-        this.#pickerFocus = true;
-        this.#renderTransport();
-    }, 250);
 
     static async _onPlayPlaylist(_event, target) {
         const playlist = this.#playlistFrom(target);
@@ -1375,13 +1112,11 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
     static async _onToggleMixer() {
         this.#mixerOpen = !this.#mixerOpen;
         await this.render({ parts: ["transport"] });
-        if (this.isCompact) this.setPosition({ height: "auto" });
+        this.fitCompact();
     }
 
     static async _onUntag(event, target) {
-        event.stopPropagation();
-        const tagged = this.#taggableFrom(target);
-        if (tagged) await TrackMeta.removeTag(tagged, target.dataset.tag);
+        return this.#tagger.untag(event, target);
     }
 
     static async _onPlayTag(event, target) {
@@ -1427,8 +1162,8 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
         const sound = this.#soundFrom(target);
         if (!sound) return;
         const confirmed = await foundry.applications.api.DialogV2.confirm({
-            window: { title: game.i18n.localize("PLAYLISTENCHANTMENT.LIBRARY.removeTrack") },
-            content: `<p>${game.i18n.format("PLAYLISTENCHANTMENT.LIBRARY.removeTrackHint", { track: sound.name })}</p>`,
+            window: { title: "PLAYLISTENCHANTMENT.LIBRARY.removeTrack" },
+            content: `<p>${_loc("PLAYLISTENCHANTMENT.LIBRARY.removeTrackHint", { track: sound.name })}</p>`,
         });
         if (confirmed) await sound.delete();
     }
@@ -1483,164 +1218,32 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
     /*  Actions - settings                          */
     /* -------------------------------------------- */
 
-    static async _onAddTag() {
-        const library = Tags.stored();
-        const base = Tags.normalize(game.i18n.localize("PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagNew"));
-        let tag = base;
-        let suffix = 2;
-        while (library.some((entry) => entry.tag === tag)) tag = `${base}-${suffix++}`;
-        library.push({ tag, color: "#4a90d9", label: "" });
-        await Tags.saveLibrary(library);
-        this.render({ parts: ["header", "content"] });
+    static _onAddTag() {
+        return this.#settings.addTag();
     }
 
-    static async _onRemoveTag(_event, target) {
-        const index = Number(target.closest("[data-tag-index]")?.dataset.tagIndex);
-        if (!Number.isInteger(index)) return;
-        const library = Tags.stored();
-        library.splice(index, 1);
-        await Tags.saveLibrary(library);
-        this.render({ parts: ["header", "content"] });
+    static _onRemoveTag(_event, target) {
+        return this.#settings.removeTag(target);
     }
 
-    static async _onResetTags() {
-        const confirmed = await foundry.applications.api.DialogV2.confirm({
-            window: { title: game.i18n.localize("PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagReset") },
-            content: `<p>${game.i18n.localize("PLAYLISTENCHANTMENT.STUDIOSETTINGS.tagResetHint")}</p>`,
-        });
-        if (!confirmed) return;
-        await Tags.resetLibrary();
-        this.render({ parts: ["header", "content"] });
+    static _onResetTags() {
+        return this.#settings.resetTags();
     }
 
     static _onCaptureHotkey() {
-        if (this.#capturingHotkey) return this.#stopHotkeyCapture();
-        this.#pendingHotkey = Settings.studioBinding();
-        this.#capturingHotkey = true;
-        this.render({ parts: ["content"] }).then(() => {
-            if (!this.#capturingHotkey) return;
-            this.element.querySelector(".pe-keybinding .binding-input input")?.focus();
-            if (this.#pendingHotkey) this.#syncHotkeyCapture(this.#pendingHotkey);
-        });
-
-        const onKey = (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            if (event.code === "Escape") return this.#stopHotkeyCapture();
-            const binding = Settings.bindingFromEvent(event);
-            if (!binding) return;
-            this.#pendingHotkey = binding;
-            this.#syncHotkeyCapture(binding);
-        };
-
-        window.addEventListener("keydown", onKey, true);
-        this.#stopHotkeyCapture = () => {
-            window.removeEventListener("keydown", onKey, true);
-            this.#stopHotkeyCapture = null;
-            this.#capturingHotkey = false;
-            this.#pendingHotkey = null;
-            if (this.rendered) this.render({ parts: ["content"] });
-        };
+        return this.#settings.captureHotkey();
     }
 
-    #syncHotkeyCapture(binding) {
-        const row = this.element?.querySelector(".pe-keybinding .editing");
-        const input = row?.querySelector(".binding-input input");
-        const icon = row?.querySelector(".binding-input i");
-        if (!input || !icon) return;
-
-        input.value = Settings.humanizeBinding(binding);
-        const conflict = Settings.conflictMessage(binding);
-        if (conflict) {
-            icon.className = "conflict fa-duotone fa-triangle-exclamation";
-            input.dataset.tooltip = "";
-            input.ariaLabel = conflict;
-        } else {
-            icon.className = "fa-regular fa-keyboard";
-            delete input.dataset.tooltip;
-            input.ariaLabel = game.i18n.localize("KEYBINDINGS.BoundKey");
-        }
+    static _onSaveHotkey() {
+        return this.#settings.saveHotkey();
     }
 
-    static async _onSaveHotkey() {
-        if (!this.#capturingHotkey) return;
-        await Settings.setStudioBinding(this.#pendingHotkey);
-        this.#stopHotkeyCapture();
+    static _onClearHotkey() {
+        return this.#settings.clearHotkey();
     }
 
-    static async _onClearHotkey() {
-        await Settings.setStudioBinding(null);
-        if (this.#capturingHotkey) this.#stopHotkeyCapture();
-        else this.render({ parts: ["content"] });
-    }
-
-    static async _onBrowseUploadFolder() {
-        const input = this.element.querySelector('[name="soundUploadFolder"]');
-        const picker = new foundry.applications.apps.FilePicker.implementation({
-            type: "folder",
-            current: input?.value ?? "",
-            callback: async (path) => {
-                if (input) input.value = path;
-                await Settings.set("soundUploadFolder", path);
-            },
-        });
-        return picker.browse();
-    }
-
-    async #onSettingsChange(target) {
-        const part = target.closest(".pe-mixer") ? "transport" : "content";
-
-        if (target.matches('[name="enchantmentStyle"]')) {
-            return Theme.setEnchantedStyle(target.checked);
-        }
-
-        if (target.matches(".pe-setting-volume")) {
-            const volume = foundry.audio.AudioHelper.inputToVolume(target.value);
-            await AudioChannels.setGlobalVolume(target.dataset.channel, volume);
-            return this.render({ parts: [part] });
-        }
-
-        if (target.matches(".pe-setting-toggle")) {
-            await AudioChannels.update(target.dataset.channel, { [target.dataset.setting]: target.checked });
-            return this.render({ parts: [part] });
-        }
-
-        if (target.matches(".pe-setting-range")) {
-            const raw = Number(target.value);
-            const setting = target.dataset.setting;
-            const value = setting === "normalizeModifier" ? foundry.audio.AudioHelper.inputToVolume(raw) : raw;
-            await AudioChannels.update(target.dataset.channel, { [setting]: value });
-            return this.render({ parts: [part] });
-        }
-
-        if (target.matches('[name="autoCombatSwitch"]')) {
-            return CombatPlaylistManager.setEnabled(target.checked);
-        }
-
-        if (target.matches('[name="combatPlaylists"]')) {
-            const checked = this.element.querySelectorAll('[name="combatPlaylists"]:checked');
-            return CombatPlaylistManager.setPlaylists([...checked].map((input) => input.value));
-        }
-
-        if (target.matches('[name="soundUploadFolder"]')) {
-            const value = target.value.trim();
-            return Settings.set("soundUploadFolder", value ? String(FileLocation.parse(value)) : "");
-        }
-
-        if (target.closest(".pe-tag-row")) {
-            await this.#saveTagRows();
-            return this.render({ parts: ["header", "content"] });
-        }
-    }
-
-    async #saveTagRows() {
-        const rows = this.element.querySelectorAll(".pe-tag-row");
-        const library = [...rows].map((row) => ({
-            tag: row.querySelector(".pe-tag-name")?.value ?? "",
-            color: row.querySelector(".pe-tag-color")?.value ?? "",
-            label: row.querySelector(".pe-tag-label")?.value.trim() ?? "",
-        }));
-        return Tags.saveLibrary(library);
+    static _onBrowseUploadFolder() {
+        return this.#settings.browseUploadFolder();
     }
 
     /* -------------------------------------------- */
@@ -1681,12 +1284,12 @@ export class Studio extends HandlebarsApplicationMixin(ApplicationV2) {
     /* -------------------------------------------- */
 
     async #promptName(labelKey) {
-        const label = game.i18n.localize(labelKey);
+        const label = _loc(labelKey);
         return foundry.applications.api.DialogV2.prompt({
-            window: { title: label },
+            window: { title: labelKey },
             content: `<input type="text" name="name" value="${label}" autofocus />`,
             ok: {
-                label: game.i18n.localize("PLAYLISTENCHANTMENT.create"),
+                label: "PLAYLISTENCHANTMENT.create",
                 callback: (_event, button) => button.form.elements.name.value.trim(),
             },
             rejectClose: false,

@@ -27,7 +27,7 @@ export class SoundPreview extends foundry.applications.api.HandlebarsApplication
         const settings = AudioChannels.get(AudioChannels.of(soundDocument.parent, soundDocument));
         const volume = settings.normalize ? settings.normalizeModifier : soundDocument.volume || 0.5;
 
-        ui.notifications.info(game.i18n.format("PLAYLISTENCHANTMENT.prehearing", { track: soundDocument.name }));
+        ui.notifications.info(_loc("PLAYLISTENCHANTMENT.prehearing", { track: soundDocument.name }));
         const instance = await foundry.audio.AudioHelper.play({ src: soundDocument.path, volume, loop: false }, false);
         return new SoundPreview(instance, soundDocument).render(true);
     }

@@ -92,6 +92,25 @@ export class TrackMeta {
         return this.write(document, { tags: [...tags, normalized] });
     }
 
+    static async toggleTag(document, tag) {
+        const [normalized] = this.parseTags(tag);
+        if (!normalized || !document) return null;
+        const own = this.read(document).tags;
+        if (own.includes(normalized)) {
+            await this.write(document, { tags: own.filter((entry) => entry !== normalized) });
+            return "removed";
+        }
+        if (document.documentName === "PlaylistSound" && !own.length) {
+            const inherited = this.read(document.parent).tags;
+            if (inherited.includes(normalized)) {
+                await this.write(document, { tags: inherited.filter((entry) => entry !== normalized) });
+                return "removed";
+            }
+        }
+        await this.write(document, { tags: [...own, normalized] });
+        return "added";
+    }
+
     static async removeTag(document, tag) {
         const [normalized] = this.parseTags(tag);
         const tags = this.read(document).tags;

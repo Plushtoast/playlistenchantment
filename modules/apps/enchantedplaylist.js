@@ -201,7 +201,7 @@ export class EnchantedPlaylist extends PlaylistDirectory {
     /* -------------------------------------------- */
 
     fadeTooltip(value) {
-        return game.i18n.format("PLAYLISTENCHANTMENT.FadeTooltip", { value });
+        return _loc("PLAYLISTENCHANTMENT.FadeTooltip", { value });
     }
 
     _onEnchantmentVolume(ev) {

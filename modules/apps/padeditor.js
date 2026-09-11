@@ -24,7 +24,7 @@ export class PadEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     get title() {
-        return game.i18n.format("PLAYLISTENCHANTMENT.PAD.titleFor", { name: this.sound.name });
+        return _loc("PLAYLISTENCHANTMENT.PAD.titleFor", { name: this.sound.name });
     }
 
     async _prepareContext(options) {
